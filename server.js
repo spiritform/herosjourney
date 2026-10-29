@@ -1110,6 +1110,21 @@ const AGENT_JOB = {
    * no reason attached - the same rule `TRAIT_NOTE` is written around - so a
    * line about the character's face or build does not come back worse here,
    * it does not come back at all. */
+  /* AND SEQUENCE IS THE SAME RUNG WITH THE SHOTS ALREADY DECIDED, 2026-10-29.
+   * The board's panels are anchored along the clip now, so the moments exist
+   * before a word is written and what is open is the TRAVEL between them -
+   * which is the opposite of what `motion` asks for, where the shots are the
+   * artist's to invent. */
+  shots:
+    "You help someone write the MOVEMENT for a clip whose shots are already "
+    + "decided. The frames it passes through are fixed - each panel of their "
+    + "board is anchored at its own moment in the clip, in order - so never "
+    + "propose different shots, a different number of them or a different "
+    + "order. Write what happens BETWEEN them and inside them: what the "
+    + "character does, how the camera travels from one framing to the next or "
+    + "whether it cuts, and what else moves - cloth, hair, dust, water, light. "
+    + "Never describe the person, their wardrobe or the room: those arrive as "
+    + "pictures. ",
   motion:
     "You help someone write one short line describing MOVEMENT - what happens "
     + "over a few seconds in a shot that already exists. The character, their "
@@ -1183,6 +1198,18 @@ const AGENT_SHAPE = {
    * on, so the ceiling is the duration divided by that - two at five seconds,
    * six at ten. It is said as a number rather than left to arithmetic,
    * because a model asked to divide will sometimes answer. */
+  shots: (secs) =>
+    "The prompt is the plan for a clip exactly " + secs + " seconds long whose "
+    + "frames are already anchored: panel 1 at the first frame, the last panel "
+    + "at the last, the rest evenly between them. Write ONE beat per panel, in "
+    + "order, as `0.0s:` and then what is happening at that moment and how the "
+    + "camera got there - `cut to` where it cuts and the move where it does "
+    + "not. The times run from 0.0s to " + secs + "s. "
+    + "End with one line beginning `AUDIO:` giving the ambience, because this "
+    + "model makes its own sound - say `No music.` unless they asked for some. "
+    + "Say where the camera goes, never what lens or stock it is on, and "
+    + "nothing else: no other headings, no instructions to the model, no "
+    + "mention of a reference image. ",
   motion: (secs) =>
     "The prompt is the shot plan for a clip exactly " + secs + " seconds long. "
     + "Write ONE shot unless they have asked for more, and never more than "
@@ -1296,6 +1323,17 @@ const AGENT_SEES = {
     "You can see the character's reference sheet - who is in the clip, not "
     + "the clip itself. It is there so that what you write suits them; never "
     + "describe the person, and never put them in the sentence. ",
+  /* AND ON SEQUENCE THE PANELS ARE THE MOMENTS, which is the exact opposite
+   * of what `motion` has to say. There the board is a look and six panels are
+   * emphatically not six shots; here each panel is anchored at its own frame,
+   * so they are the shots and the count is the count. The same picture, two
+   * jobs, two sentences. */
+  shots:
+    "You can see the board: the framings this clip passes through, in reading "
+    + "order. Each panel is anchored at its own moment in the finished clip - "
+    + "the first at the opening frame, the last at the closing one - so they "
+    + "ARE the shots and there are exactly as many as you can see. Read what "
+    + "each one shows and write the travel between them. ",
   motion:
     "You can see the slate: the shot as it was framed on the rung before. It "
     + "is a guide to the LOOK AND FEEL - the character, the place, the light "
@@ -1386,7 +1424,7 @@ const AGENT_SYS = (v) => {
  * THE PANEL CLAUSE IS SHOOT_SYS'S, EARNED THE SAME WAY. 04 draws one framing
  * or six, and a grid handed to a video model comes back as a grid: this rail
  * paid for that on 03 and again on 05's first board. */
-const H3_R2V_SYS = (mode, hasSheet) =>
+const H3_R2V_SYS = (job, hasSheet, slate) =>
   "Shoot this from the reference frames. "
   + "<Picture 1> is the frame to shoot: the character, the place, the light "
   + "and the grade are all in it, and every one of them carries into the clip. "
@@ -1402,7 +1440,17 @@ const H3_R2V_SYS = (mode, hasSheet) =>
   + "says. One continuous take unless it asks for a cut. "
   + "Give the clip its sound - voice, room, effects, whatever the direction "
   + "calls for. "
-  + (mode === "sequence"
+  + "Every frame of the clip is ONE continuous picture filling the whole "
+      + "image: never a grid, never panels, never a split screen, never an "
+      + "inset or a border, whatever the references look like. "
+      + (job === "shot"
+      ? "ONE CONTINUOUS TAKE. The clip does not cut: one camera, one move, "
+        + "from the first frame to the last. "
+      : job === "seq"
+      ? "The direction below is a plan of shots and the cuts it names are the "
+        + "cuts the clip makes - no others. "
+      : "")
+  + (slate === "board"
       ? "<PICTURE 1> IS A CONTACT SHEET, NOT A SHOT LIST. Its panels are ONE "
         + "moment seen from several camera positions, and they are there to "
         + "show you the character, the place, the light and the grade. The "
@@ -1438,13 +1486,85 @@ const AR_LABEL = {
  * does. */
 const AR_MP = { "480p": 0.41, "720p": 0.98, "1080p": 2.07 };
 
-const SHOOT_SYS = (mode) =>
+/* AND THE HALF THAT IS TRUE WHATEVER 04 DREW IS ALWAYS SENT, 2026-10-29 -
+ * Babe, on an H3 clip that came back as the board itself, animated: "it
+ * created a video but it animated the board itself", "so all the frames have
+ * motion".
+ * THE PARAGRAPH THAT STOPS THAT SAT ENTIRELY INSIDE `mode === "sequence"`,
+ * and the mode had not survived a reload - so a video model was handed a
+ * contact sheet with nothing said about it at all.
+ * THE TWO HALVES ARE NOT THE SAME CLAIM. "That reference IS a contact sheet,
+ * its panels are one moment, the count is not a shot count" is a statement
+ * about what arrived, and saying it in front of a single photograph is how a
+ * model is told to invent a grid - which is why it was conditional and stays
+ * conditional. "Every frame is one continuous picture, never a grid" is true
+ * of every clip this rail makes and costs nothing in front of either.
+ * SO THE CONDITIONAL HALF EXPLAINS AND THE UNCONDITIONAL HALF FORBIDS, which
+ * is the arrangement where losing the mode costs an explanation rather than
+ * the whole defence. */
+/* THE FRAME IT STARTS ON, 2026-10-29 - Babe: "i think we should figure out
+ * how to use H3. multi-ref, image to video". `MiniMaxH3ImageToVideo` takes a
+ * `first_frame` and the clip BEGINS as that picture, where the reference node
+ * only ever conditioned on one - which is why a board handed to r2v came back
+ * smeared through the shot instead of used or ignored.
+ * SO THE SENTENCE SAYS WHAT THE MACHINE DOES, and the one thing it must not
+ * do is describe the picture back: it IS the first frame, so every word spent
+ * on what is in it is a word the model reads as something to change. */
+const H3_I2V_SYS = (job) =>
+  "The clip opens on the picture provided and moves from there. That picture "
+  + "is the first frame: the character, the wardrobe, the place, the light and "
+  + "the grade are already in it and every one of them holds. Do not describe "
+  + "their appearance in words; move the camera and the subject only as the "
+  + "direction says. "
+  + (job === "shot"
+      ? "ONE CONTINUOUS TAKE. The clip does not cut. "
+      : "The direction below is a plan of shots and the cuts it names are the "
+        + "cuts the clip makes - no others. ")
+  + "Give the clip its sound - voice, room, effects, whatever the direction "
+  + "calls for. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+/* AND THE BOARD IS A TIMELINE, WHICH IS WHAT IT WAS ALWAYS FOR - Babe,
+ * 2026-10-29, pointing at the multiframe template: "maybe this one", "for
+ * multiframe board?".
+ * `MiniMaxH3AddGuide` ANCHORS AN IMAGE AT A FRAME and chains, so the board
+ * stops being a picture to copy and becomes the shots themselves: panel 1 at
+ * the first frame, panel 6 at the last, the rest spread between them. The
+ * grid never reaches the model at all - only its panels do, one at a time, in
+ * the place each one happens.
+ * SO THERE IS NOTHING TO FORBID HERE. The contact-sheet paragraph exists
+ * because a model was being shown a grid; this one never sees one. */
+const H3_BOARD_SYS = () =>
+  "The clip passes through the frames provided, in order: each one is a "
+  + "moment the camera really arrives at, at the point in the clip it is "
+  + "anchored to. They are the same character in the same place on the same "
+  + "day, so the wardrobe, the light and the grade hold across all of them "
+  + "and every one of them already has what it needs - do not describe their "
+  + "appearance in words. Move between them as the direction says: cut where "
+  + "it names a cut and move the camera where it does not. "
+  + "Give the clip its sound - voice, room, effects, whatever the direction "
+  + "calls for. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+const SHOOT_SYS = (job, slate) =>
   "Shoot this from the reference frame. Hold the character, the wardrobe and "
   + "the lighting exactly as the reference has them and do not describe their "
   + "appearance in words; move the camera and the subject, and cut between "
   + "shots, only as the direction says. One continuous take unless it asks for "
   + "a cut. "
-  + (mode === "sequence"
+  + "Every frame of the clip is ONE continuous picture filling the whole "
+      + "image: never a grid, never panels, never a split screen, never an "
+      + "inset or a border, whatever the references look like. "
+      + (job === "shot"
+      ? "ONE CONTINUOUS TAKE. The clip does not cut: one camera, one move, "
+        + "from the first frame to the last. "
+      : job === "seq"
+      ? "The direction below is a plan of shots and the cuts it names are the "
+        + "cuts the clip makes - no others. "
+      : "")
+  + (slate === "board"
       ? "THAT REFERENCE IS A CONTACT SHEET, NOT A SHOT LIST. Its panels are "
         + "ONE moment seen from several camera positions, and they are there "
         + "to show you the character, the place, the light and the grade. The "
@@ -2821,7 +2941,7 @@ const RUNGS = {
      * shots there are is the artist's, so the scaffolding stops having an
      * opinion about it and goes on holding the only thing that is its own -
      * the references, and the likeness that must not travel as words. */
-    sys: (v) => SHOOT_SYS(v.mode),
+    sys: (v) => SHOOT_SYS(v.mode, v.slate),
     /* THE BOARD IS image_1 NOW, AND THE HERO FRAME IS NOT A REFERENCE AT ALL.
      * The first real clip was handed the hero frame AND the board - the same
      * scene at two different framings - and came back as a medium shot that
@@ -2900,19 +3020,28 @@ const RUNGS = {
        * row answered "needs start" to a slot with a board in it. Found by the
        * free sweep, not by spending on it.
        * AND IT TAKES THE SAME SENTENCE, because it is handed the same grid. */
+      /* AND LTX TAKES A RATIO AND A SIZE AFTER ALL, 2026-10-29. The note on
+       * the slide said it took neither and hid both cells, which was true of
+       * what was WIRED rather than of the graph: node 403 is a
+       * `ResolutionSelector` whose two outputs feed the width and height
+       * primitives that size the latent. It speaks the same labelled
+       * vocabulary H3 does, so it takes the same two casts and the row reads
+       * as a plain ratio on all three models. */
       "LTX-2.5 I2V": {
         graph: "ltx25-i2v.json",
         label: "Put them in motion",
-        sys: (v) => SHOOT_SYS(v.mode),
+        sys: (v) => SHOOT_SYS(v.mode, v.slate),
         inputs: {
           board: { node: "395", input: "image" },
           prompt: { node: "398:376", input: "value" },
+          ar: { node: "403", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+          size: { node: "403", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.9 },
           duration: { node: "398:362", input: "value", cast: Number },
           seed: { node: "398:339", input: "noise_seed", cast: Number },
         },
         required: ["board", "prompt"],
-        defaults: { duration: 5 },
-        params: ["duration", "seed"],
+        defaults: { duration: 5, ar: "16:9", size: "720p" },
+        params: ["ar", "size", "duration", "seed"],
       },
       /* MINIMAX H3, ON THE OPEN WEIGHTS - Babe, 2026-10-27: "h3 is local
        * now", "they have both". It is the same model name 06 runs as a
@@ -2949,7 +3078,7 @@ const RUNGS = {
         graph: "minimax-h3-r2v.json",
         model: "MINIMAX-H3",
         label: "Put them in motion",
-        sys: (v) => H3_R2V_SYS(v.mode, !!v.sheet),
+        sys: (v) => H3_R2V_SYS(v.mode, !!v.sheet, v.slate),
         inputs: {
           board: { node: "137", input: "image" },
           sheet: { node: "139", input: "image" },
@@ -2962,10 +3091,29 @@ const RUNGS = {
           ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
           size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
           duration: { node: "132", input: "value", cast: Number },
+          /* THE LIGHTNING SWITCH IS A CELL NOW - Babe, 2026-10-29: "i dont
+           * want the 4step lora", then, having run both, "turbo is worse".
+           * ONE BOOLEAN PICKS BOTH HALVES. 146 drives two `ComfySwitchNode`s
+           * at once: true takes the model through the 4-step `ref2v` turbo
+           * LoRA and sets the scheduler to 4, false takes the base UNET and
+           * sets it to 20. So a STEPS cell of 4 or 20 is the honest way to
+           * say it - this file has had a (*) asking for exactly that since
+           * the row was wired, on the suspicion that the LoRA was what made
+           * the audio weak.
+           * IT DEFAULTS TO 20, because a row somebody is judging a model by
+           * should be the model. */
+          steps: { node: "146", input: "value", cast: (v) => Number(v) <= 4 },
           seed: { node: "129", input: "noise_seed", cast: Number },
         },
         required: ["board", "prompt"],
-        defaults: { duration: 5, ar: "16:9", size: "720p" },
+        defaults: { duration: 5, ar: "16:9", size: "720p", steps: 20 },
+        /* AND ITS SECONDS ARE ITS OWN, read off the node rather than off the
+         * rung: `length` is frames at 24fps and the tooltip gives the trained
+         * range as ~124 to ~362, which is 5.2s to 15.1s. So 4 is BELOW THE
+         * FLOOR - the graph's own expression rounds it onto the 17-frame
+         * block grid anyway, which is why a 4-second ask came back 4.5 - and
+         * 15 is inside a range nothing on this row could reach. */
+        options: { duration: ["5", "8", "10", "15"], steps: ["4", "20"] },
         /* the sheet takes its loader with it, and the reference slot on the
          * conditioning node goes when the loader does - `<Picture 2>` stops
          * being named by the sentence in the same breath, because `sys` reads
@@ -2974,7 +3122,69 @@ const RUNGS = {
         /* AND NO `adaptive` HERE: this row builds its own latent, so there is
          * nothing for a ratio to adapt TO - the shape has to be stated. The
          * eight the cell already offers are exactly the eight the node takes. */
-        params: ["ar", "size", "duration", "seed"],
+        params: ["ar", "size", "duration", "steps", "seed"],
+        /* AND THE MODE PICKS THE MACHINE, EACH WITH ITS OWN GRAPH - Babe,
+         * 2026-10-29: "should we just build it like four so you do single
+         * shot or video sequence", "so its wired correctly on the back-end",
+         * "each should have their own json".
+         * THREE JOBS, THREE CHECKPOINTS, AND THE PRESS SAYS WHICH. The row
+         * ran one machine for all of them - `ref2va`, which CONDITIONS on
+         * whatever it is handed - so a board came back smeared through the
+         * shot rather than used or ignored. A single frame wants to be the
+         * FIRST frame, and a board wants to be the shots themselves. */
+        modes: {
+          /* THE SLATE IS THE FIRST FRAME. `fl2va` weights, and its own turbo
+           * is the 8-step `fl2v` one rather than `ref2v`'s 4 - do not cross
+           * the LoRAs. No sheet: this machine takes one picture and the
+           * likeness is already in it. */
+          shot: {
+            graph: "minimax-h3-i2v.json",
+            sys: (v) => H3_I2V_SYS(v.mode),
+            inputs: {
+              board: { node: "137", input: "image" },
+          prompt: { node: "138", input: "value" },
+          ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+          size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
+          duration: { node: "132", input: "value", cast: Number },
+          steps: { node: "146", input: "value", cast: (v) => Number(v) <= 8 },
+          seed: { node: "129", input: "noise_seed", cast: Number },
+            },
+            required: ["board", "prompt"],
+          },
+          /* AND THE BOARD BECOMES THE TIMELINE. Six panels, six anchors,
+           * chained `MiniMaxH3AddGuide`s - so the grid never reaches the
+           * model and its panels do, one at a time, at the frame each one
+           * happens on. The client cuts them out of the board it drew; `at1`
+           * to `at6` are the frames they land on.
+           * ALL SIX ARE REQUIRED, because dropping one would break the chain
+           * the next guide hangs off - this is the one place on the rail
+           * where `dropWhenEmpty` cannot help, and the board always has six. */
+          seq: {
+            graph: "minimax-h3-board.json",
+            sys: () => H3_BOARD_SYS(),
+            inputs: {
+          panel1: { node: "200", input: "image" },
+          at1: { node: "210", input: "value", cast: Number },
+          panel2: { node: "201", input: "image" },
+          at2: { node: "211", input: "value", cast: Number },
+          panel3: { node: "202", input: "image" },
+          at3: { node: "212", input: "value", cast: Number },
+          panel4: { node: "203", input: "image" },
+          at4: { node: "213", input: "value", cast: Number },
+          panel5: { node: "204", input: "image" },
+          at5: { node: "214", input: "value", cast: Number },
+          panel6: { node: "205", input: "image" },
+          at6: { node: "215", input: "value", cast: Number },
+          prompt: { node: "138", input: "value" },
+          ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+          size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
+          duration: { node: "132", input: "value", cast: Number },
+          steps: { node: "146", input: "value", cast: (v) => Number(v) <= 8 },
+          seed: { node: "129", input: "noise_seed", cast: Number },
+            },
+            required: ["panel1", "panel6", "prompt"],
+          },
+        },
       },
     },
   },
@@ -3179,7 +3389,12 @@ async function apiRun(req, res) {
     else values.prompt = [dressed, values.prompt].filter(Boolean).join(" ");
   }
   if (values.seed === undefined || values.seed === "") {
-    values.seed = Math.floor(Math.random() * 2 ** 31);
+    /* SIX DIGITS, NOT TEN. A seed is for telling two rerolls apart and for
+     * reproducing one, and a million of them does both - what ten digits were
+     * costing was a cell wide enough to hold them, on a row that has run out
+     * of width. Any integer is still accepted, so a locked seed from before
+     * goes on working. */
+    values.seed = Math.floor(Math.random() * 1e6);
   }
 
   for (const key of spec.required) {

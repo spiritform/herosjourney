@@ -214,6 +214,21 @@
            not noticing is a job you thought was free. It is a name, which is
            what this drawer is allowed to hold. */
         if (s.model) keep.model = s.model;
+        /* AND WHAT KIND OF SHOT IT WAS - Babe, 2026-10-29, on an H3 clip that
+           came back as the BOARD, animated, all six panels moving: "it created
+           a video but it animated the board itself".
+           THE CLAUSE THAT STOPS THAT EXISTS AND WAS NOT SENT. 05 asks 04 what
+           it is shooting (`st(4).mode`) and the scaffolding only explains the
+           contact sheet when the answer is `sequence` - the paragraph saying
+           its panels are one moment, that the count is not a shot count, and
+           that they are never to be rendered. `mode` was written by `runBoard`
+           and kept nowhere, so a RELOAD between drawing the board and shooting
+           it dropped the whole explanation and handed a video model a grid
+           with nothing said about it. Babe had restarted the server in
+           between, which is the one thing that always costs a reload.
+           IT IS A FACT ABOUT WHAT THIS RUNG MADE, like `out` and `model`
+           beside it, and it travels with them. */
+        if (s.mode) keep.mode = s.mode;
         if (Object.keys(keep).length) out.rungs[r] = keep;
       });
       /* THE KEY ITSELF SAYS THE DRAWER KNOWS ABOUT ROOMS. A drawer written
@@ -259,6 +274,7 @@
         if (ua && ua.url && boxes.alt[0]) showMedia(boxes.alt[0], ua.url, ua.video);
       }
       if (keep.model) st(rung).model = keep.model;
+      if (keep.mode) st(rung).mode = keep.mode;
       if (keep.urls) st(rung).urls = keep.urls;
       if (keep.gone) st(rung).gone = keep.gone;
       /* A CELL THAT SAYS WHAT IS IN THE BOX HAS TO GO ON SAYING IT TOMORROW.
@@ -3240,7 +3256,16 @@
     var vid = cell.dataset.vid === '1';
     var el = document.createElement(vid ? 'video' : 'img');
     el.src = '/' + cell.dataset.path;
-    if (vid) { el.controls = true; el.loop = true; el.playsInline = true; el.autoplay = true; }
+    /* AND IT DOES NOT START ITSELF - Babe, 2026-10-29: "can we turn off the
+       autoplay from when you open the media library".
+       THIS PANEL IS FOR BROWSING AND THE RESULT PANEL IS FOR JUDGING. A clip
+       that plays the moment you open a drawer takes the room's attention and
+       its sound, and the grid beside it is the thing you are actually reading
+       - so the viewer loads the first frame and waits. The result panel keeps
+       its autoplay, where a clip IS the answer you just asked for.
+       (*) `library.json` IS SHOT WITH IT ON. If that take is ever re-filmed,
+       it needs a press on the transport where it used to need none. */
+    if (vid) { el.controls = true; el.loop = true; el.playsInline = true; }
     stage.appendChild(el);
 
     /* WHICH WORKFLOW MADE IT, OVER THE PICTURE IT MADE - Babe, 2026-10-25:
@@ -3806,6 +3831,50 @@
      the way 02 fills a character sheet. The board it makes is what the video
      model is handed afterwards, so it is kept on the rung's state as a third
      reference rather than just shown. */
+  /* THE BOARD CUT BACK INTO ITS PANELS, 2026-10-29 - Babe, pointing at the
+     multiframe template: "maybe this one", "for multiframe board?".
+     A BOARD IS A TIMELINE AND THIS IS WHERE IT BECOMES ONE. 04 drew six
+     framings into one page from a table of rectangles; this reads the same
+     table back and lifts each panel out as its own picture, so what reaches
+     the model is six frames at six moments rather than one grid it has to be
+     talked out of copying. The rectangles are fractions, so the crop is the
+     same arithmetic at any size the board came back at.
+     IT IS THE PICTURE IN THE BOX, not `st(4).out`: what you are looking at is
+     what gets sent, and the box may be holding something imported. */
+  async function cutPanels(img, layout) {
+    var out = [], W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+    for (var i = 0; i < layout.panels.length; i++) {
+      var q = layout.panels[i];
+      var c = document.createElement('canvas');
+      c.width = Math.max(8, Math.round(q.w * W));
+      c.height = Math.max(8, Math.round(q.h * H));
+      c.getContext('2d').drawImage(img, Math.round(q.x * W), Math.round(q.y * H),
+                                   c.width, c.height, 0, 0, c.width, c.height);
+      var blob = await new Promise(function (r) { c.toBlob(r, 'image/png'); });
+      if (!blob) throw new Error('the board would not cut');
+      out.push(await uploadBlob(blob, 'panel-' + (i + 1) + '-' + Date.now() + '.png'));
+    }
+    return out;
+  }
+
+  /* WHERE EACH PANEL LANDS, IN FRAMES. The graph snaps the length onto H3's
+     own grid - 17k + 5 at 24fps - and the anchors have to be placed inside
+     THAT, so the snap is done here the same way the expression in the graph
+     does it. The first panel is frame 0 and the last is the final frame; the
+     rest are spread evenly between them.
+     (*) IT IS THE ONE NUMBER WRITTEN DOWN TWICE, here and in the graph's own
+     expression. The alternative is a chain of math nodes per panel, which is
+     a lot of graph to avoid one line. */
+  function anchorFrames(seconds, n) {
+    var f = Math.max(5, Math.round((Number(seconds) || 5) * 24));
+    var len = f + (5 - (f % 17)) % 17;
+    var at = [];
+    for (var i = 0; i < n; i++) {
+      at.push(n < 2 ? 0 : Math.round((i / (n - 1)) * (len - 1)));
+    }
+    return at;
+  }
+
   function modeObj(id) {
     var all = window.HJ.modes || [];
     for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
@@ -4830,6 +4899,44 @@
         } catch (ignored) { /* no sheet, one reference */ }
       }
 
+      /* AND 05 PRESSES ITS OWN MODE NOW, 2026-10-29. What follows is the
+         note from when it inherited one, kept because the distinction it
+         draws is the reason the two facts are separate today.
+         THE MODE IS THE MACHINE and the artist presses it: SINGLE SHOT
+         animates the slate, SEQUENCE anchors the board's panels along the
+         clip, CUSTOM conditions on the references. WHAT 04 DREW IS A
+         SEPARATE FACT and rides as `slate`, because "that picture is a
+         contact sheet" is a statement about what arrived and "I want cuts"
+         is a statement about what to do - they were one word until this rung
+         had tabs of its own.
+         AND A PRESS IS VISIBLE WHERE AN INHERITANCE WAS NOT - Babe:
+         "inherit from slate seems like it could be interpreted wrong no?".
+         It was: a reload dropped the inherited mode, nothing on screen said
+         so, and the clip came back as the grid. */
+      values.slate = st(4).mode === 'sequence' ? 'board' : 'frame';
+
+      /* AND SEQUENCE HANDS OVER THE PANELS, NOT THE PAGE. The board goes to
+         the model as six pictures anchored at six frames, which is what a
+         board has always meant and what `MiniMaxH3AddGuide` does - so the
+         grid itself never reaches a model that would otherwise copy it.
+         THE ROWS THAT DO NOT TAKE THEM IGNORE THEM: only H3's `seq` mode
+         declares `panel1`..`panel6`, and a value nothing is addressed to is
+         a value the patcher never looks at. Seedance and LTX go on being
+         handed the slate. */
+      if (rung === 5 && modeOf(slide) === 'seq') {
+        var board = (boxesOf(slide).front[0] || {}).querySelector &&
+                    boxesOf(slide).front[0].querySelector('img');
+        var layout = modeObj('sequence');
+        if (board && layout && layout.panels && layout.panels.length) {
+          var cut = await cutPanels(board, layout);
+          var at = anchorFrames(param(slide, 'duration'), cut.length);
+          for (var pn = 0; pn < cut.length; pn++) {
+            values['panel' + (pn + 1)] = cut[pn];
+            values['at' + (pn + 1)] = at[pn];
+          }
+        }
+      }
+
       /* 05 INHERITS THE MODE IT IS SHOOTING. The kind of shot was chosen on
          04, where the board was drawn from it, so this rung asks the rung
          behind it rather than anything on its own page.
@@ -4845,7 +4952,7 @@
          and the one the server reads is 04's. */
       var job = await submitAndWait(
         { rung: rung, model: modelOf(slide),
-          mode: rung === 5 ? (st(4).mode || null) : modeOf(slide),
+          mode: modeOf(slide),
           raw: rawOf(slide), values: values },
         function (sub) {
           var seedCell = slide.querySelector('.param[data-p="seed"]');
@@ -4982,6 +5089,12 @@
   function helpAbout(slot) {
     var rung = rungOf(slot.closest('.slide'));
     if (rung === 4 && slot.dataset.mode === 'sequence') return 'board';
+    /* AND 05's SEQUENCE IS ITS OWN CONVERSATION, 2026-10-29. The panels are
+       anchored along the clip on that tab, so the shots exist before a word
+       is written - which is the opposite of what `motion` asks for, where
+       how many shots there are is the artist's decision and the agent is
+       told six panels are not six shots. Same picture, two jobs. */
+    if (rung === 5 && slot.dataset.mode === 'seq') return 'shots';
     /* AND ON 01 THE SAME WAY. STYLE writes a character and EDIT changes one
        thing in a picture - two jobs, one slot - and the tab is the only
        thing that knows which. It is scoped to this rung because 06 has an

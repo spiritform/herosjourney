@@ -1355,10 +1355,14 @@
      THEM, which is the shape this file has written down once already. */
   /* AN ENUMERATION, AND IT IS PRICED. CSS cannot ask whether a form exists
      for the mode a slot is wearing, so each pair is written out - two for 04
-     and one for 05. Everything else about a form slot asks a class now. */
+     and two for 05. Everything else about a form slot asks a class now. */
   .slot:not(.is-agent)[data-mode="single"] .form[data-form="single"],
   .slot:not(.is-agent)[data-mode="sequence"] .form[data-form="sequence"],
-  .slot:not(.is-agent)[data-mode="motion"] .form[data-form="motion"] {
+  .slot:not(.is-agent)[data-mode="shot"] .form[data-form="shot"],
+  /* AND 05 HAS TWO OF ITS OWN NOW: the job is the tab and both jobs ask the
+     same three questions, so one array answers to two keys and the pairs are
+     written out the way 04's are. */
+  .slot:not(.is-agent)[data-mode="seq"] .form[data-form="seq"] {
     display: flex;
   }
   /* the direction box is the form's output and is only ever shown when the
@@ -2748,7 +2752,12 @@
      cell's 10px and nothing else, and a value pressed against a border reads
      as clipped. Every other cell in this row has a neighbour's divider to
      breathe against; this one has the end of the row. */
-  .param[data-p="seed"] b { min-width: 10ch; }
+  /* SIX, NOT TEN - Babe, 2026-10-29, with the row running out of room on 05:
+     "i noticed this is kind of an issue. maybe we cut down on the seed
+     numbers", "the rail getting too long". The cell reserved ten characters
+     because the server rolled up to 2^31; it rolls six digits now, and a
+     reproducible number does not need to be a big one. */
+  .param[data-p="seed"] b { min-width: 6ch; }
   .param[data-p="seed"] { padding-right: 18px; }
   .param[data-p="seed"][data-lock="0"] b { color: var(--edge-lit); }
   /* THE NUMBER IS THE LOCK, NOT A RULE UNDER IT - Babe, 2026-10-25: "for
@@ -4007,9 +4016,28 @@
      keyed `custom` here would have had 04's stem written over it the first
      time anybody pressed it. A key is an address, and these two rungs are
      not at the same one. */
+  /* AND THE TABS NAME THE JOB NOW, 2026-10-29 - Babe, after an H3 clip came
+     back as the board itself: "should we just build it like four so you do
+     single shot or video sequence", "so its wired correctly on the back-end",
+     "i think single shot, sequence and custom is fine".
+     THEY PICK THE MACHINE, which is 06's construction rather than 04's: a
+     single frame wants to BE the first frame (fl2va), a board wants to be the
+     shots themselves (the multiframe anchors), and CUSTOM is the reference
+     machine with nothing imposed. The server carries a graph for each.
+     AND IT IS A PRESS BECAUSE A GUESS WAS INVISIBLE - Babe, asked whether the
+     machine could just follow what is in the slate: "inherit from slate seems
+     like it could be interpreted wrong no?". It could, and it had: the mode
+     04 handed over was dropped by a reload, nothing on screen said so, and
+     the clip came back as the grid.
+     THE KEYS ARE STILL ITS OWN AND THAT IS STILL LOAD-BEARING. `FORMS` and
+     `MOTION` are both keyed by mode and both hold 04's, so tabs keyed
+     `single` and `sequence` here would have been 04's addresses - its form
+     and its stem, on a rung that wants neither. `shot` and `seq` are the same
+     three jobs at an address nobody else is standing at. */
   var TAKEMODES = [
-    { k: 'motion', n: 'Motion' },
-    { k: 'free',   n: 'Custom' }
+    { k: 'shot', n: 'Single shot' },
+    { k: 'seq',  n: 'Sequence' },
+    { k: 'free', n: 'Custom' }
   ];
 
   var SLIDES = [
@@ -4562,8 +4590,19 @@
          NOTHING IS DELETED. `RUNGS[5].variants` still holds both, with their
          graphs, their scaffoldings and their params; this is the slide table
          choosing what to show. Putting either back is a line here. */
+      /* AND THE TWO OPEN ROWS COME BACK, 2026-10-29 - Babe: "i think we
+         should figure out how to use H3. multi-ref, image to video",
+         "LTX would be great too". Both ran in the open-weights pass and both
+         are audio-native, which nothing else on this rail is: H3 writes voice,
+         effects and music out of the same forward pass, and LTX has its own
+         audio VAE and a dual-CFG guider to weigh it against the picture.
+         H3 IS THE OPEN WEIGHTS, not the partner API - `minimax_h3_ref2va`,
+         0 credits and GPU time only, which is why this rung has two open rows
+         and one partner rather than the other way round. */
       models: [
-        { n: 'SEEDANCE-2.5', t: '&mdash;', c: 'twenty references &middot; up to 30s &middot; partner' }
+        { n: 'SEEDANCE-2.5',  t: '&mdash;', c: 'twenty references &middot; up to 30s &middot; partner' },
+        { n: 'MINIMAX-H3',    t: '57.2s', c: 'two references &middot; audio in the same pass &middot; open weights' },
+        { n: 'LTX-2.5 I2V',   t: '27.3s', c: 'one reference &middot; audio &middot; open weights' }
       ],
       /* THE SHAPE AND THE SIZE ARE ON THE ROW - Babe, 2026-10-27: "we should
          prob expose aspect ratio, size like 06". Every row on this rung has
@@ -4574,13 +4613,25 @@
          EACH ROW SPEAKS ITS OWN VOCABULARY, which is what `options` is for:
          Seedance takes `adaptive` and has never heard of 2:3, and H3 takes
          the ResolutionSelector's labelled strings, which the server casts to
-         so that the cell can go on reading as a ratio. LTX takes neither and
-         `params` hides both cells there - a control that does nothing is
-         worse than no control. */
+         so that the cell can go on reading as a ratio.
+         AND LTX SPEAKS THE SAME VOCABULARY AS H3, which this note used to say
+         it did not: it was written off as taking neither cell when what it
+         lacked was the WIRING - node 403 is a ResolutionSelector feeding the
+         width and height that size its latent, and nobody had followed the
+         link. All three rows wear the same two cells now.
+         AND SECONDS IS PER ROW: H3's node gives its trained range as 124 to
+         362 frames at 24fps, so that row offers 5 to 15 and not the 4 the
+         others start at - 4 is under its floor and comes back rounded up. */
       params: [{ p: 'ar', k: 'AR', v: '16:9',
                  o: ['1:1', '2:3', '3:4', '3:2', '4:3', '9:16', '16:9', '21:9'] },
                { p: 'size', k: '', v: '720p', o: ['480p', '720p', '1080p'] },
-               { p: 'duration', k: 'SECONDS', v: '5', o: ['4', '5', '8', '10'] },
+               { p: 'duration', k: 'SEC', v: '5', o: ['4', '5', '8', '10'] },
+               /* STEPS IS H3's LIGHTNING SWITCH WEARING ITS REAL NAME, and
+                  only that row declares it: one boolean in the graph picks
+                  the 4-step turbo LoRA or the 20-step base model, and the
+                  scheduler follows it. Babe, having run both: "turbo is
+                  worse". */
+               { p: 'steps', k: 'STEPS', v: '20', o: ['4', '20'] },
                { p: 'seed' }],
       /* BABE'S, 2026-10-26: "its time to shine and make some moves...". Mine
          said EVERYTHING YOU BUILT, MOVING FOR THE FIRST TIME - an inventory,
@@ -5215,12 +5266,31 @@
        two choices a sentence does not carry. There what is open is how the
        moment is COVERED; here it is how it MOVES and what you hear, because
        the framing, the lens and the light arrived with the slate. */
-    motion: [
+    shot: [
       { t: 'field', k: 'action', n: 'Action', ph: 'what moves', grow: true },
       { t: 'camera', n: 'Camera', dials: ['move'] },
       { t: 'camera', n: 'Sound', dials: ['sound'] }
     ],
   };
+  /* AND SEQUENCE ASKS A DIFFERENT CAMERA QUESTION - Babe, 2026-10-29, with
+     the MOVE dial open on that tab: "idk if this sort of dropdown works for
+     sequence... maybe its more about the lens size instead", then the reason:
+     "i dont want every shot to be a push in for example".
+     A MOVE BELONGS TO A LEG AND THERE ARE SIX OF THEM. One dial over the
+     whole clip would put the same push on every one, which is 04's own
+     lesson one rung back: its BOARD form dropped FRAMING because the six
+     panels ARE the framings and a seventh choice only argues with the page.
+     Here the panels are the framings AND the moments, so the move is the
+     thing that cannot be said once.
+     SO THE SLOT GOES TO THE LENS, which is a look rather than a move and is
+     true of a whole clip - the same cell 04's board kept for the same
+     reason. What moves is the agent's to write per beat, which is what the
+     `shots` shape asks of it. */
+  FORMS.seq = [
+    { t: 'field', k: 'action', n: 'Action', ph: 'what happens across the shots', grow: true },
+    { t: 'camera', n: 'Camera', dials: ['lens'] },
+    { t: 'camera', n: 'Sound', dials: ['sound'] }
+  ];
 
   /* THE LINE BELOW THE PANEL IS WHAT THE FORM SAID - Babe, 2026-10-25:
      "maybe if you select single shot, sequence, transition, or custom that
