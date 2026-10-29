@@ -2484,17 +2484,31 @@
 
     }
 
-    var x = box.parentNode.querySelector('.clr');
+    /* THE SLOT'S OWN X, AND IT IS A DIRECT CHILD - the same thing its four
+       CSS rules say. A box can hold a `.clr` of its own (the board's), and an
+       unscoped query finds whichever comes first in the markup. */
+    var x = box.parentNode.querySelector(':scope > .clr');
     if (x) x.addEventListener('click', function (e) {
       e.stopPropagation();
+      /* AND IT THROWS AWAY THE FACE YOU ARE LOOKING AT - Babe, 2026-10-29,
+         on 06's HERO with SCENE up: "i pressed x but the image did not
+         remove", then "not getting an x to delete now". There is ONE X on a
+         two-faced slot and this handler closed over the FRONT box, so the
+         press emptied the face you could not see - and took `is-full` off
+         the slot with it, which is why the X then vanished while the picture
+         stayed. A box lying about what it holds, from the other side.
+         `face()` is the reader every other action on this slot already uses
+         - IMPORT, a dropped file, PRESET - and this was the one that did
+         not ask. */
+      var f = face();
       /* THE CARD'S BRANCH IS GONE WITH THE CARD'S X. While a face shows the X
          at all, that X is the way back rather than a way to throw the picture
          away - which is still true of the writing face below. The card hides
          it now and leaves by the header, so a branch for it here could only
          be code that cannot run. */
       var askCell = box.parentNode.querySelector('[data-act="prompt"]');
-      if (box.classList.contains('is-ask') && askCell) return closeAsk(box, askCell);
-      clearSlot(box, rung, key);
+      if (f.box.classList.contains('is-ask') && askCell) return closeAsk(f.box, askCell);
+      clearSlot(f.box, rung, f.key);
     });
 
     /* CLICKING A SLOT DOES NOT OPEN A FILE CHOOSER, ON ANY SLOT. It was a
@@ -2660,20 +2674,37 @@
     slot.classList.add('is-want');
     clearTimeout(slot._want);
     slot._want = setTimeout(function () { slot.classList.remove('is-want'); }, 2600);
-    /* AND THE WORDS GO ON THE BUTTON YOU PRESSED. Run is already the cell
-       that speaks for a run - it is the clock while one is going - so it
-       says what is missing rather than a fifth surface being invented to
-       hold one short sentence. It never speaks over a job: a run in flight
-       owns the label, both on the way in and on the way back.
-       (*) `Needs source` is mine. */
-    var btn = slide.querySelector('.mid-col .row > .run');
-    if (btn && !btn.classList.contains('is-running')) {
-      var was = btn.textContent;
-      btn.textContent = 'Needs ' + key;
-      clearTimeout(btn._want);
-      btn._want = setTimeout(function () {
-        if (!btn.classList.contains('is-running')) btn.textContent = was;
-      }, 2600);
+    /* AND THE WORDS HANG UNDER THE PROGRESS BAR, NOT ON RUN - Babe,
+       2026-10-29: "i would rather that show somewhere else tho maybe on the
+       left below the progress bar". Run said it because Run is the cell that
+       speaks for a run, and that argument held for as long as the message
+       was about the press. It is not: it is about something to go and do
+       somewhere else on the screen, and a button that stops saying RUN has
+       stopped being a button while it says something else.
+       AND IT SAYS THE PAGE'S OWN WORD FOR THE FACE, NOT THE INPUT'S KEY.
+       `NEEDS REF1` named a node address at somebody who can only see a slot
+       called CHARACTER - and on a two-faced slot it named neither face, so a
+       slot with a picture in it was marked red for being empty. The cell
+       that names the face is the one thing that cannot be out of step with
+       what is drawn, so the word is read off it and the cell is marked too:
+       the red edge says which slot, the lit cell says which FACE. */
+    var pick = null;
+    var picks = slot.querySelectorAll('.tray .pick');
+    for (var pi = 0; pi < picks.length; pi++) {
+      if ((picks[pi].dataset.f || '0') === (side === 'alt' ? '1' : '0')) pick = picks[pi];
+    }
+    var word = (pick && pick.textContent.trim()) || slot.dataset.face0 || key;
+    if (pick) {
+      pick.classList.add('is-want');
+      clearTimeout(pick._want);
+      pick._want = setTimeout(function () { pick.classList.remove('is-want'); }, 2600);
+    }
+    /* (*) `Needs <face>` is mine. */
+    var line = slide.querySelector('.mid-col .wantline');
+    if (line) {
+      line.innerHTML = '<b>Needs ' + word + '</b>';
+      clearTimeout(line._want);
+      line._want = setTimeout(function () { line.innerHTML = ''; }, 2600);
     }
     return true;
   }
@@ -4865,9 +4896,28 @@
      character in the slot yet".
      IT IS THE THIRD COPY OF THIS, so it is a function now: `run()` has one
      inline and `runBoard` had another, which is where this was lifted from. */
+  /* AND IT RESOLVES THE FACE THAT IS UP - Babe, 2026-10-29, with a character
+     imported onto 06's SCENE face and the agent asking him to describe it:
+     "it would be amazing if the agent could see what you have loaded. like
+     when using swap for example". It could not: this took the FRONT box and
+     the front key, so on a flipped slot it asked the empty face, got nothing,
+     and `AGENT_SEES` dropped out - the blind agent, politely asking about a
+     picture six inches to its left. The same mistake the X made an hour ago,
+     in the one other place that had not asked which box is showing.
+     THE FRONT IS THE FALLBACK, NOT THE ANSWER. On 04 and 05 both faces
+     travel and the front one is the job's own subject, so a visible face with
+     nothing in it must not shadow it. Ask the face you are looking at; if it
+     is empty, ask the one the rung is about. */
   async function ensureLeft(slide, rung) {
-    return ensureFace(slide, rung, SLOTS[rung].left,
-                      boxesOf(slide).front[0], st(rung - 1).out);
+    var b = boxesOf(slide);
+    var spec = SLOTS[rung] || {};
+    var slot = b.front[0] && b.front[0].closest('.slot');
+    var up = slot && slot.classList.contains('is-flipped') && b.alt[0] && spec.alt;
+    if (up) {
+      var shown = await ensureFace(slide, rung, spec.alt, b.alt[0], st(rung - 1).out);
+      if (shown) return shown;
+    }
+    return ensureFace(slide, rung, spec.left, b.front[0], st(rung - 1).out);
   }
 
   /* THE SAME THREE ANSWERS, FOR EITHER FACE OF A TWO-FACED SLOT: the input

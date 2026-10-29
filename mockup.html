@@ -782,6 +782,10 @@
      border, because a box the run is waiting on and a box the run is waiting
      FOR are the same colour of question. */
   .slot.is-want .drop, .slot.is-want .drop:hover { border-color: var(--red); }
+  /* AND ON A TWO-FACED SLOT THE EDGE IS ONLY HALF THE ANSWER: the red says
+     which slot and this says which FACE, because the box you are looking at
+     may be the full one. */
+  .tray .tr.pick.is-want { color: var(--red); }
   .drop.held {
     background: var(--plate); backdrop-filter: none; border-color: var(--edge);
     color: var(--sand-mid); cursor: default;
@@ -1044,15 +1048,24 @@
   .compose {
     position: relative; flex: 0 0 auto;
     border-top: 1px solid var(--edge); background: rgba(0,0,0,.3);
+    /* THE LAST RESORT, AND IT SHOULD NEVER BE REACHED. The box below has no
+       cap, so what gives way first is the transcript - it is `flex: 1 1 auto`
+       with `min-height: 0` and shrinks. Only a message longer than the whole
+       panel gets this far, and scrolling here beats the alternative, which is
+       `.helper`'s `overflow: hidden` clipping the line you are typing. */
+    min-height: 0; overflow-y: auto;
   }
-  /* IT GROWS UPWARD TO FOUR LINES AND THEN SCROLLS, so a long thought is
-     visible while it is being written instead of sliding out of its own left
-     edge one character at a time. */
+  /* IT GROWS AS YOU WRITE AND DOES NOT SCROLL - Babe, 2026-10-29: "can you
+     remove the scroll bar in the chat box and just have it continue to
+     expand". It stopped at four lines, which was written for a message row
+     at the foot of a conversation and is the wrong shape for the one place
+     on this rail where somebody types a paragraph. The transcript above is
+     what gives up the room, which is the right thing to spend: the sentence
+     being written matters more than the one already read. */
   .compose-in {
     padding: 11px 46px 11px 13px;
     font-size: 14px; line-height: 1.5; color: var(--sand);
     white-space: pre-wrap; overflow-wrap: anywhere;
-    max-height: 92px; overflow-y: auto;
   }
   .compose-in:focus { outline: none; }
   .compose-in:empty::before { content: attr(data-ph); color: var(--sand-dim); }
@@ -2410,6 +2423,13 @@
      the right place, so running fills it rather than putting a second bar
      somewhere else. */
   .prog { height: 2px; background: var(--edge); overflow: hidden; }
+  /* see slotHTML: it hangs under the bar and costs the layout nothing. */
+  .wantline { height: 0; overflow: visible; }
+  .wantline b {
+    display: block; transform: translateY(10px);
+    font-family: var(--mono); font-size: 11px; font-weight: 400;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--red);
+  }
 
   .prog i {
     display: block; height: 100%; width: 0; background: var(--red);
@@ -5551,6 +5571,18 @@
            are scaffolded jobs that never wanted a custom line. */
         '<div class="agent-v" spellcheck="false">' + d.agent + '</div>' +
         '<div class="prog"><i></i></div></div>' +
+        /* WHAT A PRESS THAT NEVER BECAME A RUN IS WAITING FOR. Babe,
+           2026-10-29, with NEEDS REF1 on the button: "i would rather that
+           show somewhere else tho maybe on the left below the progress bar".
+           Run said it because Run is the cell that speaks for a run - but a
+           button that stops saying RUN has stopped being a button, and this
+           is the one message that is about something you have to go and DO
+           somewhere else on the screen. It hangs off the bar that fills while
+           a job is out, which is the other thing on this column that reports
+           on a press.
+           IT TAKES NO HEIGHT. The column is centred and the row is pinned, so
+           a line that came and went would move everything between them. */
+        '<div class="wantline"></div>' +
         '<div class="row"><div class="params">' +
           '<div class="model-wrap">' +
             /* AND A LONE ROW IS NOT A PICKER. With one model the menu holds

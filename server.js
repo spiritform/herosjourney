@@ -2274,11 +2274,25 @@ const RUNGS = {
         drop: ["3"],
       },
       /* EDIT changes one element of the clip in place and keeps every source
-       * pixel around it, so a second reference has nothing to be. Its own
-       * length and ratio win whatever the widgets say. */
+       * pixel around it, so a reference has nothing to be - NEITHER of them,
+       * which is what this had half-right. It dropped the place and went on
+       * sending the character, and ByteDance refused the whole submission:
+       * `failed to validate images`. The node defines this task as "change a
+       * connected reference video", and says every task_type but `auto` is
+       * validated AT SUBMIT - so an image beside an edit is not a hint it
+       * ignores, it is a job it will not accept. Our own first EDIT run
+       * proved the other half by accident: it worked, with an empty left
+       * slot.
+       * AND THE JOB THAT WANTS A CHARACTER IS SWAP - Babe, 2026-10-29: "this
+       * is what i want to do... edit the video to make it look like the new
+       * character". That is the clip standing and the person changing, which
+       * is the mode one tab to the left and the one reference it takes.
+       * (*) EXTEND IS THE SAME SHAPE AND UNPROVEN: it also operates on a
+       * connected video, and its comment claims the references are what the
+       * new piece has to match. Nobody has run it with one. */
       EDIT: {
         defaults: { task: "edit", size: "720p", sound: "KEEP" },
-        drop: ["3"],
+        drop: ["2", "3"],
         required: ["clip", "prompt"],
       },
       /* EXTEND returns ONLY the newly generated segment, not the source clip
