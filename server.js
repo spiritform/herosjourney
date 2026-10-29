@@ -597,10 +597,15 @@ const BOARD_LINE = (light, single, hasPage, one = "image 1", two = "image 2") =>
        * the page’s ratio outranks the frame’s, and a second reference
        * takes attention off the only instruction on the screen. The board
        * keeps its page, because there the page IS the job. */
-    : `A shot board of one moment. ${Cap(one)} is the scene. ${Cap(two)} is a blank `
-      + "layout page: fill its panels edge to edge, never copy its lines, "
-      + "gutters or labels. Every panel is that same moment from a different "
-      + "camera position. ")
+    : `A shot board of one moment. ${Cap(one)} is the scene. `
+      + (hasPage
+          ? `${Cap(two)} is a blank layout page: fill its panels edge to edge, `
+            + "never copy its lines, gutters or labels. "
+          /* no page: the only thing left to forbid is the thing a model draws
+           * when it is asked for panels - a line between them. */
+          : "The panels meet edge to edge, with no line, gutter, border or "
+            + "caption drawn between them. ")
+      + "Every panel is that same moment from a different camera position. ")
   /* AND ITS WHITE IS A SHAPE, NOT A COLOUR - Babe, 2026-10-27, on a single
    * framing that came back as a photograph between two tall white blocks.
    * The template is drawn as flat white on black so its divisions are
@@ -635,7 +640,28 @@ const BOARD_SYS = (hasSheet, light, single, hasPage) =>
    * reference the graph no longer has. See `BOARD_LINE` for the three
    * symptoms that bought this. */
   + (!hasPage
-      ? ""
+      /* AND A BOARD WITH NO PAGE AT ALL - Babe, 2026-10-29, after the labels
+       * came off the template and the gutters did not: "we could actually try
+       * just prompting the sequence of 6 frames with no borders instead of
+       * using the image ref. see what happens".
+       * EVERYTHING THE PAGE SAID NOW HAS TO BE SAID. This branch was empty
+       * because a board had always had one, so dropping the reference without
+       * this would have left the model holding a scene, a list of six
+       * framings and nothing about the arrangement they go in. The grid and
+       * its count arrive in the prompt from `panelSentence`; what belongs
+       * here is what the drawing was FOR - that the panels meet, that no line
+       * is drawn between them, and that nothing is lettered. */
+      ? (single
+          ? ""
+          : "The result is one image divided into panels that meet each other "
+            + "directly, with no gap, no gutter, no dividing line and no frame "
+            + "or outline drawn between them. Around the outside of the whole "
+            + "image is a narrow border of pure black, the same width on all "
+            + "four sides, and nothing is drawn in it. Each panel is a complete "
+            + "cinematic frame of its own, not a crop of its neighbour, and each "
+            + "shows the same moment of the same scene from the position the "
+            + "words below give it. No words, letters, numbers or captions "
+            + "anywhere in the image. ")
       : single
       ? "Image 2 is a blank layout template, not a picture: it is the shape of "
         + "the frame you are filling, and its written label is an instruction "
@@ -2642,7 +2668,7 @@ const RUNGS = {
     dropWhenEmpty: { template: ["475"], sheet: ["476"] },
     defaults: { ar: "16:9", res: "2K" },
     blankTo: { prompt: "A shot board of this scene." },
-    params: ["seed"],
+    params: ["ar", "seed"],
     /* THE MODE IS THE JOB ON THIS RUNG, and CUSTOM is a different job rather
      * than a different layout: it inherits the graph, the loaders, the row
      * and the defaults, and changes the one thing that genuinely differs,
@@ -2686,7 +2712,7 @@ const RUNGS = {
         required: ["figure", "prompt"],
         dropWhenEmpty: { template: ["475"] },
         defaults: { steps: 25 },
-        params: ["seed", "steps"],
+        params: ["ar", "seed", "steps"],
       },
       "QWEN-IMAGE-21-TURBO": {
         graph: "qwen-image-21-turbo.json",
@@ -2733,8 +2759,29 @@ const RUNGS = {
        * AND THE SHEET IS NOT HERE, the same as the two rows above: it is nano's
        * third reference and this graph has two loaders, so the paragraph naming
        * it is never composed. */
+      /* AND ON THIS RUNG IT SAMPLES A LATENT OF ITS OWN - Babe, 2026-10-29:
+       * "yeah i think we should wire it so we can generate a new latent at
+       * 21:9 with flux using the reference frame".
+       * EVERYWHERE ELSE THE REFERENCE DECIDING THE SHAPE IS THE FEATURE: on
+       * 01 a character comes back the shape of the photograph, on 02 the
+       * sheet comes back the shape of its page. Here it meant a board could
+       * only ever be the shape of the frame 03 handed over, so AR was a cell
+       * this row had to hide while the two beside it offered one.
+       * `EmptyFlux2LatentImage` IS THE ONE THAT MATCHES, chosen off the
+       * catalogue rather than guessed: this graph's VAE is `flux2-vae` and
+       * that node is `model/latent/flux`. The references still arrive through
+       * the conditioning - `ReferenceMultiLatent` keeps both its CONDITIONING
+       * outputs and only its latent is left unused - so the frame and the
+       * page guide a picture whose size is the row's own.
+       * AND THE SIZE SNAPS TO 16, because `arSize` rounds to 8 and this
+       * family wants both sides a multiple of sixteen. The same rounding
+       * Mage-Flow needed, asked for in the one place that knows.
+       * IT IS A SECOND GRAPH AND NOT A FLAG, which is the test this file
+       * already states: a per-model graph is warranted when the graph
+       * DIFFERS, and this one has a node the other does not and a sampler
+       * wired somewhere else. */
       "FLUX-3-KLEIN": {
-        graph: "flux3-klein-2ref.json",
+        graph: "flux3-klein-board.json",
         label: "The board",
         sys: (v) =>
           BOARD_LINE(v.light, v.mode === "single", !!v.template,
@@ -2744,13 +2791,15 @@ const RUNGS = {
           figure: { node: "11", input: "image" },
           template: { node: "12", input: "image" },
           prompt: { node: "100", input: "value" },
+          width: { node: "20", input: "width", cast: (v) => Math.round(v / 16) * 16 },
+          height: { node: "20", input: "height", cast: (v) => Math.round(v / 16) * 16 },
           steps: { node: "7", input: "steps", cast: Number },
           seed: { node: "7", input: "seed", cast: Number },
         },
         required: ["figure", "prompt"],
         dropWhenEmpty: { template: ["12"] },
         defaults: { steps: 16 },
-        params: ["seed", "steps"],
+        params: ["ar", "seed", "steps"],
       },
     },
   },

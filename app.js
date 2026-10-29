@@ -3916,7 +3916,23 @@
          The layout page decided it before, which is right for a board - the
          board IS the page - and arbitrary for one photograph: shoot 03
          vertical and 04 would hand back a 16:9 letterbox of it. */
-      var size = arSize(mode.ar || '16:9', MEGAPIXELS[4]);
+      /* AND THE ROW DECIDES THE SHAPE, WHICH THE CELL ONLY LOOKED LIKE IT
+         DID - Babe, 2026-10-29, on the first board after AR went on the row:
+         "hm... doesn't seem like a wider image", "they almost look square".
+         It was not: 1888 x 1072, 16:9, with 21:9 showing in the cell.
+         `mode` HERE IS THE LAYOUT, NOT THE ROW. `mode.ar` is the ratio the
+         PRESET was drawn at - the thing the board's page has always been
+         sized by - so adding a cell to the row left the page, the latent and
+         the ratio all reading a table the artist cannot touch. A control
+         that does nothing is the one thing this panel has a rule against,
+         and it was mine for an hour.
+         AND THE PANELS WERE SQUARE FOR A REASON THE CELL NOW FIXES: a 3 by 2
+         grid inside 16:9 makes every cell 1.19:1. Wide frames need a wide
+         page - at 21:9 each one is 1.56:1 - which is exactly what the cell
+         was asked for. */
+      var want = param(slide, 'ar');
+      var size = arSize(/^[0-9]+:[0-9]+$/.test(want) ? want
+                                                     : (mode.ar || '16:9'), MEGAPIXELS[4]);
       if (single) {
         var fim = (boxesOf(slide).front[0] || {}).querySelector &&
                   boxesOf(slide).front[0].querySelector('img');
@@ -3948,7 +3964,7 @@
          the pixels. `ratioName` falls back to "1.79:1" when nothing is
          within 2%, and no node has heard of that, so an odd frame keeps the
          rung's own default rather than sending one. */
-      var shotAr = mode.ar || '16:9';
+      var shotAr = /^[0-9]+:[0-9]+$/.test(want) ? want : (mode.ar || '16:9');
       if (single) {
         var named = ratioName(size.width / size.height);
         if (/^[0-9]+:[0-9]+$/.test(named)) shotAr = named;
@@ -3967,7 +3983,19 @@
         figure: figure,
         sheet: sheet,
         light: light === 'Auto' ? '' : light,
-        template: free ? '' : await templateFor(mode, size.width, size.height),
+        /* AND THE PAGE CAME BACK THE SAME HOUR, WHICH IS WHAT IT IS FOR -
+           Babe, 2026-10-29, looking at the words-only board: "i just think
+           all the frames should be equal".
+           THE EXPERIMENT ANSWERED ITS OWN QUESTION. Without a page the board
+           came back with no captions and thin black divisions, which is the
+           half that was wrong before - and with its columns out of line and
+           its panels unequal, although the sentence asks in so many words for
+           a 3 by 2 grid of EQUAL panels. Words can say what a layout is;
+           only a drawing can make it exact.
+           SO IT IS THE BARE PAGE: geometry from the picture, and nothing
+           printed on it to letter. The two failures were never the same
+           failure, and this is the arrangement that answers both. */
+        template: free ? '' : await templateFor(mode, size.width, size.height, true),
         /* AND A SINGLE FRAMING HAS NO PANELS TO DESCRIBE - Babe, 2026-10-27:
            "single should not have cells", "its literally a single image
            edit". The page went with the template; this is the sentence that
@@ -3975,7 +4003,7 @@
            exactly as the layout template shows: 1 panel in the position it
            gives it" in front of a job with no template in it. One image in,
            one image out, and nothing in the prompt about pages. */
-        prompt: [free ? '' : panelSentence(mode), said].filter(Boolean).join(' '),
+        prompt: [free ? '' : panelSentence(mode, true), said].filter(Boolean).join(' '),
         ar: shotAr,
         width: size.width,
         height: size.height
@@ -4202,7 +4230,15 @@
      to the label drawn in that panel, which is the one name the picture and
      the sentence share. The table's own order is not reading order (Hero runs
      down a column first), so nothing here numbers them. */
-  function panelSentence(sheet) {
+  /* `bare` IS THE BOARD'S FORM OF THIS AND THE DEFAULT IS 02's. Both take a
+     page; one addresses the type drawn on it and the other has none to
+     address, so it says what each panel holds and asks for no lettering at
+     all. Two wordings of one fact rather than two functions, so the panel
+     list below is composed once.
+     THE WORDS-ONLY WORDING IS IN THE HISTORY, not here: it was tried on
+     2026-10-29, came back with unequal panels, and the page answered that in
+     one run. Nothing on the rail asks for it, so nothing here carries it. */
+  function panelSentence(sheet, bare) {
     /* A LAYOUT WITH NO PANELS HAS NOTHING TO SAY, and saying it anyway is
        how CUSTOM would have asked for a contact sheet of 0 panels - the
        same arithmetic that was asking for "1 panels" until today. */
@@ -4210,8 +4246,13 @@
     var parts = [];
     for (var i = 0; i < sheet.panels.length; i++) {
       var p = sheet.panels[i];
-      parts.push('The panel labelled "' + p.label.join(' ') + '" (' + cellOf(sheet, p) +
-                 ') is ' + p.says + '.');
+      /* A BARE PAGE HAS NOTHING TO ADDRESS BY NAME, so the panel is named by
+         where it sits and by what it shows - two of the three ways it was
+         always named, and the two that cost nothing to render. */
+      parts.push(bare
+        ? 'The panel in ' + cellOf(sheet, p) + ' is ' + p.says + '.'
+        : 'The panel labelled "' + p.label.join(' ') + '" (' + cellOf(sheet, p) +
+          ') is ' + p.says + '.');
     }
     /* "1 PANELS" WAS GOING TO THE MODEL. The count was written when every
        page this composed had several - four, six, nine - and 04's SINGLE is
@@ -4219,6 +4260,20 @@
        since the board was built. A layout instruction that cannot count is a
        layout instruction a model is right to doubt. */
     var n = sheet.panels.length;
+    if (bare) {
+      /* THE PAGE IS THE GEOMETRY AND THE SENTENCE IS THE REST. Each panel is
+         exactly where the template puts it and exactly the size it draws it,
+         which is the one thing words could not hold - and then the two
+         clauses the words pass was right about: nothing drawn between the
+         panels, and nothing lettered anywhere. */
+      return 'Lay the image out as a contact sheet, exactly as the layout ' +
+             'template shows: ' + n + (n === 1 ? ' panel' : ' panels') +
+             ' in the positions it gives them and at the sizes it draws them, ' +
+             'meeting each other directly with no gap, line, gutter or border ' +
+             'between them, and a narrow pure black border around the whole ' +
+             'image. No words, letters, numbers or captions anywhere in the ' +
+             'picture. ' + parts.join(' ');
+    }
     return 'Lay the image out as a contact sheet, exactly as the layout template ' +
            'shows: ' + n + (n === 1 ? ' panel in the position it gives it, ' :
                                       ' panels in the positions it gives them, ') +
@@ -4260,12 +4315,27 @@
      preset and the size, so the same choice is the same bytes: one upload per
      page covers every reroll of it. */
   var templates = {};
-  async function templateFor(sheet, w, h) {
+  /* AND IT CAN GO WITHOUT ITS LABELS - Babe, 2026-10-29, on the first board
+     FLUX.3 KLEIN ever drew: "it worked but there are grid lines and text on
+     them". Six panels, one face, real coverage - and every label painted
+     into its own panel, "wide (establishing)" across the top left corner of
+     the picture.
+     IT WAS TOLD NOT TO, TWICE. `BOARD_LINE` says never copy its lines,
+     gutters or labels and `panelSentence` says the panels meet with no gap
+     or line between them. Words have now failed on this row once, and the
+     lever this codebase prefers is the other one: DO NOT HAND A MODEL THE
+     WORDS YOU ARE ASKING IT NOT TO DRAW. `sheetTemplate` has taken `bare`
+     since the picker's thumbnail needed one, so the page is the same drawing
+     minus its type.
+     THE CACHE KEY CARRIES IT, because a bare page and a labelled one of the
+     same preset and size are two different uploads and one key would serve
+     whichever was asked for first. */
+  async function templateFor(sheet, w, h, bare) {
     if (!sheet || !window.HJ.sheetTemplate || !w || !h) return '';
-    var key = sheet.id + '-' + w + 'x' + h;
+    var key = sheet.id + '-' + w + 'x' + h + (bare ? '-bare' : '');
     if (templates[key]) return templates[key];
 
-    var svg = window.HJ.sheetTemplate(sheet, w, h);
+    var svg = window.HJ.sheetTemplate(sheet, w, h, bare);
     var url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
     try {
       var img = await new Promise(function (ok, bad) {

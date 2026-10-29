@@ -4425,7 +4425,20 @@
          cell should not hold an option that cannot run. */
       /* NO SECONDS HERE ANY MORE - a board does not have a length. The cell
          went with the generation it belonged to. */
-      params: [{ p: 'seed' },
+      /* AND AR COMES BACK, LEFT OF SEED - Babe, 2026-10-29: "im wondering if
+         we should add AR fields in case a user wants wider sequence frames
+         like 21:9 for example instead of 16:9", then where it goes: "it goes
+         in the rail on the left of seed, we have that pattern somewhere in a
+         video model", "paremeters always go together".
+         IT DECIDES THE WHOLE BOARD, not a panel: the panels are fractions of
+         the page, so a wider page is six wider frames. On SINGLE it is the
+         frame being re-framed.
+         AND TWO ROWS GO ON HIDING IT, which is the rule this cell already
+         follows everywhere: the turbo and Klein both size their latent from a
+         reference, so there the shape comes back from what they were handed
+         and a cell saying otherwise would be a control that does nothing. */
+      params: [{ p: 'ar', k: 'AR', v: '16:9', o: ['1:1', '2:3', '3:4', '3:2', '4:3', '9:16', '16:9', '21:9'] },
+               { p: 'seed' },
                { p: 'steps', k: 'STEPS', v: '25', o: ['8', '16', '25', '32', '40'] }],
       /* THE FIRST CALL-OUT WENT WITH THE MOTION, which is now 05's, and the
          fore plane places its two with `space-between` - so one call-out is
