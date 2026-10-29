@@ -132,6 +132,32 @@
   var MADE_HERE = /(^|\/)\d{6}-[^/]+-\d+\.[a-z0-9]+$/i;
   function madeHere(path) { return MADE_HERE.test(String(path || '')); }
 
+  /* WHAT MADE IT, READ OFF THE NAME IT WAS SAVED UNDER - Babe, 2026-10-29:
+     "i wonder if we should say what model it was made with in the meta data
+     below on the left".
+     THE FILENAME IS THE RECORD AND THE PICKER IS NOT. The row says which
+     model would run NEXT, so a panel reading it would relabel a finished
+     picture the moment somebody changed the dropdown behind it - a box
+     lying about what it is holding, in the one cell whose whole job is to
+     report what actually came back rather than what was asked for. The
+     server writes `HHMMSS-model-seed.ext` precisely so a file can be traced
+     an hour later, which is the third thing today to lean on that shape.
+     AND THE SLUG IS TURNED BACK INTO THE ROW'S OWN NAME, not uppercased -
+     `nano-banana-2-1` would print as NANO-BANANA-2-1 against a row that
+     says NANO-BANANA-2.1, which is close enough to read as a typo. The
+     wired names for that rung are the list to match against, so what shows
+     is a name the picker also uses or nothing at all. */
+  function madeWith(path, rung) {
+    var m = /(^|\/)\d{6}-(.+)-\d+\.[a-z0-9]+$/i.exec(String(path || ''));
+    if (!m) return '';
+    var want = m[2].toLowerCase();
+    var rows = Object.keys((WIRED && WIRED[rung]) || {});
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].toLowerCase().replace(/[^a-z0-9]+/g, '-') === want) return rows[i];
+    }
+    return '';
+  }
+
   /* the URL that will still work tomorrow. A result is proxied out of Comfy
      at /api/file, which only holds while Comfy holds it; the server already
      keeps every finished file under output/, and that copy is ours. */
@@ -3492,9 +3518,11 @@
       if (!info) return;
       var w = el.naturalWidth || el.videoWidth, h = el.naturalHeight || el.videoHeight;
       if (!w || !h) return;
+      var made = madeWith(src, rungOf(slide));
       info.innerHTML = '<b>' + (isVid ? 'Video' : 'Image') + '</b>' +
         w + ' × ' + h + '  ·  ' + ratioName(w / h) +
-        (el.duration ? '  ·  ' + el.duration.toFixed(1) + 's' : '');
+        (el.duration ? '  ·  ' + el.duration.toFixed(1) + 's' : '') +
+        (made ? '  ·  ' + made : '');
     });
     el.src = src;
     media.appendChild(el);
@@ -4419,9 +4447,11 @@
       /* IT SAYS WHICH KIND OF THING IT IS, which the strip never did - the
          numbers were there and the noun was not, and on a rung that can
          return either a frame or a clip that is the first thing to know. */
+      var made = madeWith(file.saved, rung);
       info.innerHTML = '<b>' + (el.tagName === 'VIDEO' ? 'Video' : 'Image') + '</b>' +
         w + ' × ' + h + '  ·  ' + ratioName(w / h) +
-        (el.duration ? '  ·  ' + el.duration.toFixed(1) + 's' : '');
+        (el.duration ? '  ·  ' + el.duration.toFixed(1) + 's' : '') +
+        (made ? '  ·  ' + made : '');
     });
     el.src = file.url;
     media.appendChild(el);

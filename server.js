@@ -2073,7 +2073,7 @@ const RUNGS = {
        * the short sentence in front of it, the pin was right for a reason
        * nobody has named yet and this comment is the thing to correct. */
       "FLUX-3-KLEIN": {
-        graph: "flux3-klein-edit.json",
+        graph: "flux3-klein-2ref.json",
         label: "Become someone",
         /* addressed by the encoder's own token names, the way qwen's is
          * addressed as image_1 and image_2 - `modes.EDIT` below overrides
@@ -2261,22 +2261,41 @@ const RUNGS = {
        * is the one thing that might finally stop a model painting the
        * gutters. It needs a run, not a rewrite. */
       "FLUX-3-KLEIN": {
-        graph: "flux3-klein-edit.json",
+        graph: "flux3-klein-2ref.json",
         label: "Take shape",
-        sys: () => SHEET_LINE("<ref_image_0>", "<ref_image_1>"),
+        /* THE PAGE IS THE FIRST REFERENCE HERE, AND THAT IS THE WHOLE
+         * DIFFERENCE FROM 01 - Babe, 2026-10-29: "we'll need to prob base
+         * the flux workflow off the sheet as the source".
+         * `ReferenceMultiLatent` SIZES THE LATENT FROM THE FIRST REFERENCE,
+         * which is why this row has no AR cell anywhere it appears. On 01
+         * that means a character comes back the shape of the photograph,
+         * which is right. Here it meant a CONTACT SHEET came back the shape
+         * of a head-and-shoulders portrait - a square page for four
+         * full-length views, which is the one thing a sheet cannot afford.
+         * SO THE TEMPLATE LEADS AND THE FIGURE FOLLOWS. The page is already
+         * drawn at the preset's own ratio - 16:9 for Hero, 9:16 for Bible -
+         * so the output takes the shape the preset decided, and the rung's
+         * own rule that THE PRESET OWNS THE RATIO is finally true on this
+         * row too rather than only on the rows with an EmptyLatentImage.
+         * AND THE SENTENCE SWAPS WITH IT. `SHEET_LINE` names which picture
+         * is which, so the two arguments go round the other way - the
+         * addresses and the words describing them cannot be allowed to
+         * disagree, which is the whole reason that string takes them. */
+        sys: () => SHEET_LINE("<ref_image_1>", "<ref_image_0>"),
         inputs: {
-          figure: { node: "11", input: "image" },
-          template: { node: "12", input: "image" },
+          template: { node: "11", input: "image" },
+          figure: { node: "12", input: "image" },
           prompt: { node: "100", input: "value" },
           steps: { node: "7", input: "steps", cast: Number },
           seed: { node: "7", input: "seed", cast: Number },
         },
-        required: ["figure", "prompt"],
-        dropWhenEmpty: { template: ["12"] },
+        /* AND THE PAGE IS REQUIRED ON THIS ROW, which it is nowhere else.
+         * Everywhere else the template is `dropWhenEmpty` and the job falls
+         * back to a words-only sheet; here it is the latent, so a run
+         * without one has nothing to size itself from and the fallback is
+         * not a smaller job, it is a different one. */
+        required: ["figure", "template", "prompt"],
         defaults: { steps: 16 },
-        /* no AR: the latent is sized from the figure, exactly as on the
-         * turbo row above, so the sheet comes back the shape of the
-         * photograph it was given. */
         params: ["seed", "steps"],
       },
     },
