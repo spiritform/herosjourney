@@ -1,0 +1,37 @@
+{
+  "_": [
+    "HOW A LINE HAS TO BE WRITTEN FOR THE MODEL IT IS GOING TO - Babe,",
+    "2026-10-27: 'the context should change based on the model / workflow and",
+    "the agent should have that context change', and 'qwen doesnt use system",
+    "prompting but we could still have a prompt that is appended to a user's",
+    "prompt so it works'.",
+    "",
+    "THE AGENT HAS NEVER KNOWN WHICH MODEL IT WAS WRITING FOR. AGENT_JOB,",
+    "AGENT_SHAPE and AGENT_SEES are keyed by rung and mode, which is the job,",
+    "and the job is the same whichever row is pressed - so the agent wrote the",
+    "same register of line for nano, which reads it as a system prompt and",
+    "follows instructions, and for qwen, which has no system prompt input at",
+    "all and runs at CFG 1 with our scaffolding joined to the front of it.",
+    "A RULE WRITTEN FOR ONE MODEL DOES NOT REACH THE OTHER ONE, which this",
+    "repo has now paid for on 05, on 06 and here.",
+    "",
+    "THIS FILE IS THE AGENT'S HALF AND ONLY THAT. Where the scaffolding goes",
+    "is already said by whether a variant declares an `inputs.sys` address,",
+    "and a second statement of it here is a second thing that can disagree.",
+    "What is NOT said anywhere else is how long a line this model can actually",
+    "be steered by, which is the thing the agent decides.",
+    "",
+    "A model with no entry gets `default`."
+  ],
+  "default": "chat",
+  "voices": {
+    "chat": "",
+    "encoder": "The model this line is going to is a text encoder, not a reader: it runs without classifier-free guidance, and the scaffolding that frames the job is joined to the front of your line rather than sent as a system prompt. Length costs you steering - every extra clause spreads the same attention thinner. So whatever was said above about length, write AT MOST ABOUT FIFTEEN WORDS. Name the character and the two or three things somebody would actually see: what they are wearing, what they are carrying, what the light is doing. No sentence about what to keep, no mention of the source photograph or of a reference image, no camera settings, no framing."
+  },
+  "models": {
+    "QWEN-IMAGE-EDIT-21": "encoder",
+    "QWEN-IMAGE-21-TURBO": "encoder",
+    "FLUX-3-KLEIN": "encoder",
+    "MAGE-FLOW-EDIT": "encoder"
+  }
+}

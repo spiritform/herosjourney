@@ -1,0 +1,89 @@
+{
+  "13": {
+    "_meta": { "title": "Resolution Selector" },
+    "class_type": "ResolutionSelector",
+    "inputs": { "aspect_ratio": "2:3 (Portrait Photo)", "megapixels": 1, "multiple": 8, "preview": "" }
+  },
+  "451": {
+    "_meta": { "title": "Load Diffusion Model" },
+    "class_type": "UNETLoader",
+    "inputs": { "unet_name": "qwen_image_2.1_turbo_bf16.safetensors", "weight_dtype": "default" }
+  },
+  "453": {
+    "_meta": { "title": "Load CLIP" },
+    "class_type": "CLIPLoader",
+    "inputs": { "clip_name": "qwen3vl_8b_int8_convrot.safetensors", "device": "default", "type": "qwen_image" }
+  },
+  "454": {
+    "_meta": { "title": "Load VAE" },
+    "class_type": "VAELoader",
+    "inputs": { "vae_name": "qwen_image_2.1_vae_bf16.safetensors" }
+  },
+  "490": {
+    "_meta": { "title": "Qwen Image 2.1 Cache" },
+    "class_type": "QwenImage21Cache",
+    "inputs": { "device": "auto", "dtype": "default", "model": ["451", 0] }
+  },
+  "452": {
+    "_meta": { "title": "Text Encode Qwen Image 2.1" },
+    "class_type": "TextEncodeQwenImage21",
+    "inputs": {
+      "clip": ["453", 0],
+      "negative_prompt": "text, letters, watermark, logo, multiple people, crowd, cropped head, blurry",
+      "prompt": "A full-length studio photograph of a single character standing on plain dark ground under one hard key light.",
+      "resolution": 1024
+    }
+  },
+  "456": {
+    "_meta": { "title": "Empty Latent Image" },
+    "class_type": "EmptyLatentImage",
+    "inputs": { "batch_size": 1, "height": ["13", 1], "width": ["13", 0] }
+  },
+  "484": {
+    "_meta": { "title": "Manual Sigmas (Qwen-Image-2.1-Turbo 8-step schedule)" },
+    "class_type": "ManualSigmas",
+    "inputs": { "sigmas": "1.0, 0.978453, 0.95418, 0.926626, 0.89508, 0.845148, 0.704534, 0.414568, 0" }
+  },
+  "487": {
+    "_meta": { "title": "KSampler Select (euler)" },
+    "class_type": "KSamplerSelect",
+    "inputs": { "sampler_name": "euler" }
+  },
+  "488": {
+    "_meta": { "title": "Random Noise" },
+    "class_type": "RandomNoise",
+    "inputs": { "noise_seed": 531123706903762 }
+  },
+  "489": {
+    "_meta": { "title": "CFG Guider" },
+    "class_type": "CFGGuider",
+    "inputs": { "cfg": 1, "model": ["490", 0], "negative": ["452", 1], "positive": ["452", 0] }
+  },
+  "486": {
+    "_meta": { "title": "Sampler Custom Advanced" },
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "guider": ["489", 0],
+      "latent_image": ["456", 0],
+      "noise": ["488", 0],
+      "sampler": ["487", 0],
+      "sigmas": ["484", 0]
+    }
+  },
+  "457": {
+    "_meta": { "title": "VAE Decode" },
+    "class_type": "VAEDecode",
+    "inputs": { "samples": ["486", 0], "vae": ["454", 0] }
+  },
+  "461": {
+    "_meta": { "title": "Save Image (Advanced)" },
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "filename_prefix": "hero_random",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB",
+      "images": ["457", 0]
+    }
+  }
+}

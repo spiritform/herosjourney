@@ -1,0 +1,12 @@
+.env
+node_modules/
+*.log
+output/
+
+# source material dropped in by hand on the way to a preset - the preset
+# itself lives in bg/ and is committed; this is the folder it came from.
+input/
+
+# the animatic has its own install and its own renders
+video/node_modules/
+video/out/

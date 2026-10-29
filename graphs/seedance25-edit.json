@@ -1,0 +1,36 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": { "file": "", "video-preview": "" }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": { "image": "", "upload": "image" }
+  },
+  "3": {
+    "class_type": "ByteDance2ReferenceNodeV2",
+    "inputs": {
+      "model": "Seedance 2.5",
+      "model.prompt": "",
+      "model.resolution": "720p",
+      "model.ratio": "16:9",
+      "model.duration": 5,
+      "model.generate_audio": true,
+      "model.task_type": "edit",
+      "model.output_format": "mp4",
+      "model.reference_videos.video_1": ["1", 0],
+      "model.reference_images.image_1": ["2", 0],
+      "seed": 0,
+      "watermark": false
+    }
+  },
+  "4": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/hj-05-seedance-edit",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": ["3", 0]
+    }
+  }
+}

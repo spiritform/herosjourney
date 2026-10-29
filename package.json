@@ -1,0 +1,20 @@
+{
+  "name": "heros-journey",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A staged progression on open models. Six workflows, Comfy Cloud, no dependencies.",
+  "license": "MIT",
+  "author": "Babe Elliott Baker (spiritform)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spiritform/herosjourney.git"
+  },
+  "scripts": {
+    "start": "node server.js --open",
+    "serve": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

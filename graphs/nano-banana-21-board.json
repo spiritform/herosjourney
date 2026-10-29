@@ -1,0 +1,70 @@
+{
+  "461": {
+    "_meta": {
+      "title": "Save Image (Advanced)"
+    },
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "filename_prefix": "hero_board",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB",
+      "images": [
+        "500",
+        0
+      ]
+    }
+  },
+  "470": {
+    "_meta": {
+      "title": "Load Image (source)"
+    },
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "portrait_model_denim.png"
+    }
+  },
+  "475": {
+    "_meta": {
+      "title": "Load Image (style reference)"
+    },
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "clothing_light_blue_denim_shirt.png"
+    }
+  },
+  "476": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "portrait_model_denim.png"
+    }
+  },
+  "500": {
+    "_meta": {
+      "title": "Nano Banana 2.1"
+    },
+    "class_type": "GeminiNanoBanana2V2",
+    "inputs": {
+      "prompt": "Create a new character from the subject in image 1, in the style of image 2.",
+      "model": "Gemini Nano Banana 2.1",
+      "model.aspect_ratio": "1:1",
+      "model.resolution": "2K",
+      "model.thinking_level": "MEDIUM",
+      "model.images.image_1": [
+        "470",
+        0
+      ],
+      "model.images.image_2": [
+        "475",
+        0
+      ],
+      "seed": 42,
+      "response_modalities": "IMAGE",
+      "system_prompt": "You are a character photographer. You are given two images. Image 1 is the subject: a real person. Image 2 is the style: another character. Produce one photograph of a new character built from the subject of image 1 wearing the style of image 2. The subject's face must survive exactly, including bone structure, eyes, nose, mouth, age and any glasses. The framing, camera angle, camera distance, pose and expression of image 1 must survive exactly. Everything else comes from image 2: costume, headwear, masks, props, hair, grooming, lighting and colour grade. Never copy the face of image 2. Always return an image.",
+      "model.images.image_3": [
+        "476",
+        0
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": { "file": "", "video-preview": "" }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": { "image": "", "upload": "image" }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": { "image": "", "upload": "image" }
+  },
+  "4": {
+    "class_type": "MinimaxHailuo03ReferenceNode",
+    "inputs": {
+      "model": "MiniMax H3",
+      "model.prompt": "",
+      "model.resolution": "768P",
+      "model.ratio": "adaptive",
+      "model.duration": 6,
+      "model.reference_videos.video_1": ["1", 0],
+      "model.reference_images.image_1": ["2", 0],
+      "model.reference_images.image_2": ["3", 0],
+      "seed": 42,
+      "watermark": false
+    }
+  },
+  "5": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/hj-05-minimax-h3",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": ["4", 0]
+    }
+  }
+}

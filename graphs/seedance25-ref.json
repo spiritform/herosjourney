@@ -1,0 +1,64 @@
+{
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  },
+  "9": {
+    "class_type": "ByteDance2ReferenceNodeV2",
+    "inputs": {
+      "model": "Seedance 2.5",
+      "model.prompt": "",
+      "model.resolution": "1080p",
+      "model.ratio": "adaptive",
+      "model.duration": 5,
+      "model.generate_audio": true,
+      "model.task_type": "reference",
+      "model.output_format": "mp4",
+      "model.auto_downscale": true,
+      "model.auto_upscale": false,
+      "seed": 0,
+      "watermark": false,
+      "model.reference_images.image_1": [
+        "2",
+        0
+      ],
+      "model.reference_images.image_2": [
+        "3",
+        0
+      ],
+      "model.reference_images.image_3": [
+        "4",
+        0
+      ]
+    }
+  },
+  "7": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/hj-04-seedance",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "9",
+        0
+      ]
+    }
+  },
+  "4": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  }
+}

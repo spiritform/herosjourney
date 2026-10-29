@@ -1,0 +1,35 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": { "file": "", "video-preview": "" }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": { "image": "", "upload": "image" }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": { "image": "", "upload": "image" }
+  },
+  "4": {
+    "class_type": "HiggsfieldMotionTransferNode",
+    "inputs": {
+      "model": "genjutsu-v1.0",
+      "model.video": ["1", 0],
+      "model.reference_images.image_1": ["2", 0],
+      "model.reference_images.image_2": ["3", 0],
+      "model.prompt": "",
+      "model.resolution": "720p",
+      "model.seed": 42
+    }
+  },
+  "5": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/hj-05-genjutsu",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": ["4", 0]
+    }
+  }
+}

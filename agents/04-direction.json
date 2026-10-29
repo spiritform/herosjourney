@@ -1,0 +1,202 @@
+{
+  "rung": 4,
+  "title": "Set in motion",
+  "what": "The artist has a hero frame and a character sheet. This agent talks the shot out with them, picks the mode, and writes the direction the video model runs.",
+
+  "agent": {
+    "opener": "Let me help you plan a single shot or sequence… what's on your mind?",
+
+    "system": [
+      "You are a director's assistant on a rung called SET IN MOTION. The artist already has a hero frame — their character standing in a place — and usually a character sheet showing the same character from four angles. Your job is to turn what they say into one direction the video model can run.",
+      "",
+      "WHAT IS ALREADY DECIDED, AND IS NOT YOURS TO CHANGE: who the character is, what they are wearing, where they are, and how the scene is lit. All of that arrives as a reference image. You write movement — what the subject does, what the camera does, and in what order.",
+      "",
+      "NEVER DESCRIBE THE PERSON'S FACE, AGE, BUILD, HAIR OR LIKENESS IN THE PROMPT TEXT. This is a hard provider rule, not a style preference. See models.SEEDANCE-2.5.hard. Refer to them as 'the character' or 'they'.",
+      "",
+      "PICK THE MODE YOURSELF from what they describe, and say which you picked and why in one short sentence:",
+      "  SINGLE — one framing, one continuous take. A moment, a reaction, an arrival.",
+      "  SEQUENCE — one beat covered from six framings. Anything that reads as a progression, a search, a journey across a space, or coverage a cutter would want.",
+      "  TRANSITION — a first frame and a last, the model filling the middle. A change of state, a place becoming another place, a before and an after.",
+      "",
+      "ASK AT MOST ONE QUESTION before writing a direction, and only if the answer would change the mode. Otherwise write it and let them correct it.",
+      "",
+      "WRITE ONE DIRECTION AT A TIME. The artist accepts it with RUN. Do not write a second until they ask for a change.",
+      "",
+      "Reply with a short line of prose for the artist to read, then the JSON block below. The page reads the JSON; the artist reads the line."
+    ],
+
+    "returns": {
+      "mode": "single | sequence | transition",
+      "why": "one short sentence on why that mode",
+      "seconds": "integer, 4 to 30",
+      "beats": [
+        { "t": "0-2s", "action": "what the subject does", "camera": "what the camera does" }
+      ],
+      "prompt": "The beats written out as the prose the model receives — timecodes inline, camera moves named in plain words, no description of the person. This is what lands in model.prompt.",
+      "motion": "One sentence for the MOTION PROMPT line, e.g. 'One continuous handheld take.'"
+    },
+
+    "rules": [
+      "Describe motion, not appearance. The frame already says who and where.",
+      "Name camera moves in plain words — holds, pushes, pans, follows, cranes — not in lens or rig jargon.",
+      "Put spoken lines in double quotes; Seedance uses that to steer dialogue.",
+      "Timecode the beats. The verified Seedance examples are written as [0-1.5s] … [1.5-3.5s] … and the model follows them.",
+      "In TRANSITION, refer to the two frames as @image1 (first) and @image2 (last). That syntax is verified in ByteDance's own first-last-frame template.",
+      "Keep the whole prompt to one scene. No cuts to elsewhere, no second location."
+    ],
+
+    "examples": [
+      {
+        "artist": "i just want to see this character walking through this quiet and empty parking lot looking for someone",
+        "mode": "sequence",
+        "reply": "That's a sequence — looking for someone is a progression, and a search reads across framings rather than inside one.",
+        "returns": {
+          "mode": "sequence",
+          "why": "A search is a progression; it needs coverage, not a single framing.",
+          "seconds": 10,
+          "beats": [
+            { "t": "0-2s", "action": "The character walks slowly into the empty structure, scanning ahead.", "camera": "Wide, static, holding the depth of the lot." },
+            { "t": "2-4s", "action": "They keep walking, head turning toward the parked cars.", "camera": "Medium, tracking alongside at walking pace." },
+            { "t": "4-6s", "action": "They stop and look off, searching.", "camera": "Close on the face, holding." },
+            { "t": "6-8s", "action": "They move on past a column, looking down a row.", "camera": "Over the shoulder, following where they look." },
+            { "t": "8-10s", "action": "They slow, then stand still, listening.", "camera": "Low, looking up past them down the empty lane." }
+          ],
+          "prompt": "A single continuous handheld take in an empty underground parking structure. [0-2s] The character walks slowly into frame and scans the space ahead; wide static framing holding the depth of the lot, overhead lights falling in pools. [2-4s] They keep walking, head turning toward the parked cars; the camera tracks alongside at walking pace. [4-6s] They stop and look off to one side, searching for someone; the camera moves in close and holds. [6-8s] They move on past a concrete column and look down a row of cars; the camera follows from over the shoulder. [8-10s] They slow and stand still, listening; the camera drops low and looks up past them down the empty lane. Quiet, unhurried, no music. No cuts, no second location, no other people visible.",
+          "motion": "One continuous handheld take, following at walking pace."
+        }
+      }
+    ]
+  },
+
+  "context": {
+    "note": "Attach these when the agent needs them, not on every turn. Both are images the artist can see; the agent gets them so it can answer about what is actually in frame rather than guessing.",
+    "refs": [
+      {
+        "id": "frame",
+        "label": "Hero frame",
+        "from": "rung 3",
+        "slot": "left",
+        "sends_as": "start",
+        "what": "The character standing in the place. This is the first frame of the shot — its lighting, lens and wardrobe are already decided.",
+        "required": true
+      },
+      {
+        "id": "sheet",
+        "label": "Character sheet",
+        "from": "rung 2",
+        "slot": "left, flipped",
+        "sends_as": "sheet",
+        "what": "Four panels of the same character, head to feet. Identity reference for any shot that turns away from the hero frame's angle.",
+        "required": false,
+        "how": "Carried at run time through /api/carry from rung 2's output — carry() only reaches one rung ahead, and 02 is two back."
+      }
+    ],
+    "traits": {
+      "from": "rung 2 traits card",
+      "what": "The character bible. The fields marked non-visual — how they move, how they sound — are the ones that matter here; a still could not carry them and a clip can.",
+      "status": "not yet persisted — the traits JSON still dies with the page"
+    }
+  },
+
+  "modes": {
+    "note": "The tray on 04. TRANSITION is the second face of the SEQUENCE cell, not a third mode.",
+    "single": { "frames": 1, "what": "One shot, edge to edge.", "ask": "What happens in it?" },
+    "sequence": {
+      "frames": 6,
+      "what": "Six framings of the same beat: wide, medium, close, over the shoulder, detail, low.",
+      "ask": "What happens across them?",
+      "note": "The six framings in mockup.html MODES are a draft and have never been redlined."
+    },
+    "transition": {
+      "frames": 2,
+      "what": "A first frame and a last. The model fills the middle.",
+      "ask": "Where does it start, where does it end?"
+    }
+  },
+
+  "models": {
+    "SEEDANCE-2.5": {
+      "default": true,
+      "wired": true,
+      "source": "partner",
+      "graphs": {
+        "single": "seedance25-ref.json",
+        "sequence": "seedance25-ref.json",
+        "transition": "seedance25-flf.json"
+      },
+      "nodes": {
+        "seedance25-ref.json": "ByteDance2ReferenceNodeV2 — model.reference_images.image_1 is the hero frame, image_2 the sheet. Node 3 and its link drop when there is no sheet.",
+        "seedance25-flf.json": "ByteDance2FirstLastFrameNode — first_frame and last_frame are IMAGE inputs. Leave first_frame_asset_id and last_frame_asset_id empty."
+      },
+      "limits": {
+        "seconds": [4, 30],
+        "resolution": ["480p", "720p", "1080p"],
+        "output_format": "mp4",
+        "references": { "images": 20, "videos": 6, "audio": 6 },
+        "note": "model.ratio applies to the 2.0 tiers only on the first-last-frame node, so seedance25-flf.json does not send it. The reference node takes it on 2.5 and is set to adaptive."
+      },
+      "hard": [
+        "NEVER route a shot with a person in it through text-to-video. ByteDance enforces a likeness policy provider-side: a prompt describing a person comes back as an opaque job_failed/unknown while the same prompt without one succeeds, and the rejection reason never reaches the caller. Every t2v entry point is exposed — the byteplus/seedance-2.0-t2v partner route and api_seedance2_0_t2v / api_seedance2_5_t2v with their _1080p and _mini variants.",
+        "Drive the person from the reference image instead. That is what the reference and first-last-frame nodes are for, and the observed runs needed no identity verification.",
+        "Do NOT use the *_real_human templates, reference_assets.asset_* inputs, @asset_N prompt syntax or ByteDance KYC. Those are a separate real-person-likeness feature and an ordinary photo does not need them."
+      ],
+      "prompting": {
+        "style": "natural language, shot-level prose",
+        "timecodes": "Verified in ByteDance's own template prompts: beats are written inline as [0-1.5s] … [1.5-3.5s] … and the model follows them.",
+        "references": "In the first-last-frame template the two images are addressed in the prompt as @image1 and @image2.",
+        "dialogue": "Spoken lines in double quotes steer the generated dialogue — stated in the node's own tooltip.",
+        "negatives": "ByteDance's example prompts end with a plain-language list of what not to do ('No fast movement, no jerky camera, no scene cuts'). There is no negative-prompt field; it goes in the prompt."
+      }
+    },
+
+    "LTX-2.5 I2V": {
+      "wired": true,
+      "source": "open weights",
+      "graphs": { "single": "ltx25-i2v.json", "sequence": "ltx25-i2v.json", "transition": null },
+      "limits": { "seconds_default": 5 },
+      "notes": [
+        "Its image-to-video is natively multishot — it holds character, environment and lighting across shots inside one clip. That is why SEQUENCE and SINGLE share a graph: six framings are six shots in one take, not six clips.",
+        "ltx25-i2v.json CANNOT do first and last frame. Its two LTXVImgToVideoInplace nodes (398:349, 398:357) take the SAME image (398:350) at strengths 1 and 0.7 — base plus refine, not start plus end. TRANSITION on LTX needs the separate video_ltx2_5_flf2v template pulled down as its own graph; it has not been.",
+        "Takes one reference only, so the character sheet does not reach it."
+      ],
+      "prompting": { "style": "natural language", "negative_prompt": false }
+    },
+
+    "MINIMAX-H3": {
+      "wired": false,
+      "source": "open weights",
+      "templates": {
+        "single": "video_minimax_h3_i2v",
+        "sequence": "video_minimax_h3_r2v",
+        "transition": null
+      },
+      "limits": { "resolution": "up to 2K", "references": { "images": 9, "videos": 3, "audio": 3 } },
+      "notes": [
+        "Generates synchronized audio in the same pass — voice, effects and music.",
+        "No first/last-frame template was found, so TRANSITION has no route on this model."
+      ],
+      "prompting": { "style": "natural language", "negative_prompt": false }
+    }
+  },
+
+  "wiring": {
+    "status": "wired, not yet run.",
+    "server": "RUNGS[4] in server.js now carries a modes map alongside variants — the mode overrides what it names and inherits the rest, so SINGLE and SEQUENCE fall through to the reference graph and TRANSITION swaps in the first-last-frame one. The page sends mode with every run; rungs without mode cells send null and the server ignores it.",
+    "todo": [
+      "Dry-run all three modes and both models before spending anything.",
+      "Give the agent its own endpoint, the way rung 2's AUTO uses graphs/gemini-traits.json through GeminiNodeV3 + PreviewAny and /api/job -> text.",
+      "TRANSITION needs a second image in the UI. The slot holds the hero frame and the sheet; there is nowhere yet to put a last frame, so the graph's last_frame input has no source.",
+      "Pull video_ltx2_5_flf2v down as graphs/ltx25-flf2v.json if TRANSITION should work on the open-weights model too.",
+      "Measure one run per model so the model row can stop showing em-dashes."
+    ]
+  },
+
+  "provenance": {
+    "verified": "2026-10-25, against the Comfy Cloud catalog, the seedance-video usage guide, the three api_seedance2_5_* template schemas and the ByteDance2FirstLastFrameNode spec.",
+    "unverified": [
+      "Whether 1080p is accepted on the first-last-frame node for 2.5 — its template ships 720p and the node's option list allows 1080p.",
+      "LTX-2.5's duration ceiling.",
+      "Every time in the model row — nothing on this rung has been run end to end."
+    ]
+  }
+}

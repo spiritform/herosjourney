@@ -1,0 +1,31 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "hero.png"
+    },
+    "_meta": { "title": "the character being read" }
+  },
+  "2": {
+    "class_type": "GeminiNodeV3",
+    "inputs": {
+      "model": "Gemini 3.5 Flash",
+      "model.prompt": "Describe this character.",
+      "model.system_prompt": "Answer with JSON only.",
+      "model.images.image_1": ["1", 0],
+      "model.thinking_level": "LOW",
+      "model.max_output_tokens": 2048,
+      "model.seed": 42,
+      "model.temperature": 0.4,
+      "model.top_p": 0.95
+    },
+    "_meta": { "title": "Gemini reads the picture" }
+  },
+  "3": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": ["2", 0]
+    },
+    "_meta": { "title": "the answer, as text" }
+  }
+}
