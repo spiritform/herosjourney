@@ -1049,8 +1049,15 @@
      plate in the box these panels replace. An absolutely positioned plate
      paints above static content in the same stacking context, so without this
      the picture covers the thing it is behind. */
+  /* AND THE NOTE IS NOT ONE OF THEM. `.writer > :not(img)` is how the form
+     stands over its own plate, and the ? note is a direct child of the same
+     box - so it was handed `position: relative` on top of its own absolute
+     inset and became the last row of the column instead of covering it.
+     Babe would have seen a paragraph pushed under LIGHT. The plate rule is
+     about what has to sit OVER the picture; the note sits over everything,
+     which is what `.whybox`'s own z-index already says. */
   .helper-log, .helper > .compose,
-  .writer > :not(img),
+  .writer > :not(img):not(.whybox),
   .traits, .card-msg { position: relative; z-index: 1; }
   /* THE RAIL IS ALWAYS THERE, IT JUST HAS NOTHING TO DO YET - Babe,
      2026-10-24: "we need to see how it would look with a scrollbar, so that
@@ -1407,7 +1414,15 @@
      the pressed cell says where you are - so it stays only as the cell that
      gives up its width to the rest of the row. */
   .pick-face { display: none; }
-  .slot.has-form:not(.is-inface):not(.is-agent) .pick-face[data-face="prompt"],
+  /* AND BOTH OF THEM WAIT FOR IT - Babe, 2026-10-29, on arriving at 04: "it
+     seems like agent should be there and that prompt is already selected",
+     "kind of confusing". PROMPT was drawn on a slot with ONE face, pressed,
+     and the only thing pressing it did was reveal the agent - a door standing
+     in front of the room you are already in. The comment above has said since
+     it was written that the pair is hidden until there is a second face to go
+     to; the prompt half was asking `has-form` and the board half `has-board`,
+     so only one of them obeyed it. */
+  .slot.has-form.has-board:not(.is-inface):not(.is-agent) .pick-face[data-face="prompt"],
   .slot.has-board:not(.is-inface):not(.is-agent) .pick-face[data-face="board"] {
     display: block;
   }
@@ -1419,11 +1434,21 @@
      three cells say what the slot can be and the pressed one says which it
      is, so a header there names the row twice; 05 has one face, so its row
      is a header and the agent, which is what every writing slot wears. */
-  .slot.has-form:has(.boardbox):not(.is-inface) .tray-k { display: none; }
+  /* AND `:has(.boardbox)` WAS THE WRONG TEST FOR THAT: the box is in the
+     markup from the first frame, drawn or not, so this hid the header on a
+     slot with nothing to tell apart from. It asks for a DRAWN board now, and
+     a form slot with one face wears a header and an agent exactly as 05
+     does. */
+  .slot.has-form.has-board:not(.is-inface) .tray-k { display: none; }
   /* IMPORT IS A TOP-LEVEL ANSWER, like it is on every other slot: a board you
      bring instead of one you draw. Inside the writing face it would throw the
      sentence away, which is the same reason 01 does not offer it there. */
-  .slot.has-form.is-inface .tr[data-act="import"] { display: none; }
+  /* AND THE AGENT'S FACE IS A FACE TOO, which only became visible once the
+     row was drawn at rest: the conversation is a place you are standing in,
+     and a cell that replaces the thing you are talking about does not belong
+     in it any more than it does in the writing face. */
+  .slot.has-form.is-inface .tr[data-act="import"],
+  .slot.has-form.is-agent .tr[data-act="import"] { display: none; }
   /* THE SAME CHEVRON THE AGENT FACE USES - Babe, 2026-10-25: "direction should
      have the < too", "thats what we use on 03". It is drawn by CSS rather than
      written into the text so there is one source of the mark, and it sits on
@@ -1498,6 +1523,11 @@
      same as every other row on the rail. */
   .tr.face { display: none; }
   .slot.has-form.is-inface:not(.is-boxing) .tr.face,
+  /* AND ON A FORM SLOT WITH NOTHING DRAWN, ALWAYS - the form IS the writing
+     face there, so there is no door to press and the agent is simply in the
+     row. The moment a board exists the slot has two faces again and this
+     stops matching, which is the same sentence the pick cells are gated on. */
+  .slot.has-form:not(.has-board):not(.is-boxing) .tr.face,
   /* AND ON A SLOT THAT IS ONLY A BOX, ALWAYS. The two rules either side are
      scoped to being inside a face because on those slots the writing is one;
      here it is the slot, and there is no picture tray for the cell to be a
@@ -1534,6 +1564,7 @@
      question somebody standing in front of an empty square has. */
   .tr.why { display: none; }
   .slot.has-form.is-inface .tr.why,
+  .slot.has-form:not(.has-board) .tr.why,
   .slot.is-writing .tr.why,
   .slot.is-asking.writes .tr.why,
   .slot.is-boxing .tr.why { display: block; flex: 0 0 auto; padding: 0 14px; }
@@ -4370,8 +4401,19 @@
       /* AND THE ROW IS IMAGE MODELS, because the board is a drawing. It is
          the same trio 02 runs for the same reason: a layout problem before it
          is a rendering one. */
+      /* AND THE TRIO IS BACK, 2026-10-29 - Babe: "right now its only nano..
+         can we add qwen and flux". Both qwen rows drew a six-panel board in
+         the open-weights pass, face held, with no sheet in the job at all;
+         FLUX.3 KLEIN is the one that has not been looked at here and is the
+         best suited of the three to a page, which is the same argument that
+         put it on 02. (*) Its timing is an em-dash until a real run.
+         STEPS IS THE OPEN ROWS' ONE KNOB and nano has no step count, so the
+         cell is declared and nano goes on hiding it. */
       models: [
-        { n: 'NANO-BANANA-2.1',     t: '&mdash;', c: 'two references &middot; ~17 credits &middot; partner' }
+        { n: 'NANO-BANANA-2.1',     t: '&mdash;', c: 'two references &middot; ~17 credits &middot; partner' },
+        { n: 'QWEN-IMAGE-EDIT-21',  t: '14.4s', c: 'two references &middot; 25 steps &middot; open weights' },
+        { n: 'QWEN-IMAGE-21-TURBO', t: '27.2s', c: 'two references &middot; 8 steps &middot; open weights' },
+        { n: 'FLUX-3-KLEIN',        t: '&mdash;', c: 'two references &middot; 16 steps &middot; open weights' }
       ],
       /* SECONDS COMES BACK. It left when 04 was briefly a planning rung, but
          the graph never lost the input: RUNGS[4].inputs.duration has been
@@ -4383,7 +4425,8 @@
          cell should not hold an option that cannot run. */
       /* NO SECONDS HERE ANY MORE - a board does not have a length. The cell
          went with the generation it belonged to. */
-      params: [{ p: 'seed' }],
+      params: [{ p: 'seed' },
+               { p: 'steps', k: 'STEPS', v: '25', o: ['8', '16', '25', '32', '40'] }],
       /* THE FIRST CALL-OUT WENT WITH THE MOTION, which is now 05's, and the
          fore plane places its two with `space-between` - so one call-out is
          a rung with nothing at the bottom of the screen. Babe, 2026-10-25:
@@ -5112,10 +5155,21 @@
      rather than the thing you get. The id stays `sequence` because it is
      what the form, the layout and the stem are all keyed on, and a display
      name is not an address. */
+  /* (*) AND THE ? ANSWERS FOR THE THREE - Babe, 2026-10-29: "also want the
+     agent / ?". These are the furthest apart of any modes on the rail: one
+     REPLACES the frame you arrived with, one draws a page of positions around
+     a single moment, and one does whatever you say and nothing else. Each
+     line carries what a real run taught - the board's count is not a shot
+     count, which 05 then had to be told twice; the single is one photograph
+     and not a panel of one, which is what `BOARD_SYS`'s single branch exists
+     to say. Mine, and Babe's to cut. */
   var SHOTMODES = [
-    { k: 'single', n: 'Single shot' },
-    { k: 'sequence', n: 'Board' },
-    { k: 'custom', n: 'Custom' }
+    { k: 'single', n: 'Single shot',
+      why: 'One new framing of the scene you arrived with. It REPLACES that frame rather than sitting beside it, so what comes back is one photograph - no page, no panels, no before and after.' },
+    { k: 'sequence', n: 'Board',
+      why: 'Six framings of ONE moment on one page, from six positions. It is coverage, not six shots - the whole board is lit the same way and holds the same face, and 05 decides how many cuts it becomes.' },
+    { k: 'custom', n: 'Custom',
+      why: 'Whatever you ask for, with the scaffolding out of the way. The pictures are still named for the model - this is your scene and your character - but nothing says contact sheet, and a split screen only happens if your own words ask for one.' }
   ];
 
 
@@ -5781,7 +5835,12 @@
     /* AND A SLOT MAY CARRY ITS OWN, which is what 03 needed: that slot has
        one face and no modes, so there was no table for the string to live in
        and no tab for the cell to be drawn from. One flag either way. */
-    if ((s.tabs && s.tabs.some(function (t) { return t.why; })) || s.why) {
+    /* AND `modes` ANSWERS THE SAME QUESTION AS `tabs` HERE. 04 declares its
+       three as `modes: true`, which `modesOf` resolves to SHOTMODES - so a
+       test that only knew about `tabs` drew no cell on the one rung whose
+       modes are furthest apart. One reader, asked twice. */
+    var ms = s.tabs || (s.modes ? modesOf(s) : null);
+    if ((ms && ms.some(function (t) { return t.why; })) || s.why) {
       h += '<button class="tr why" data-act="why" aria-label="What this mode does">?</button>';
     }
     h += '</div></div>';
@@ -6318,6 +6377,12 @@
          saying it again at the bottom named the box twice and named the face
          not at all, on the one rung where the box has a second face to tell
          it apart from. */
+      /* AND IT IS THE FACE'S NAME ALONE, which is what 05 wears and what
+         this header now has to be: at rest the tabs are directly above it
+         saying which mode, so an address repeating them would be naming the
+         same thing twice on one panel. The mode-qualified `SINGLE SHOT
+         PROMPT` belongs to the face you STEP INTO once a board exists, where
+         the pair of cells is what you stepped in from. */
       k.textContent = slot.dataset.face0 || 'Prompt';
     }
     composeDirection(slot);
@@ -6363,8 +6428,10 @@
     /* THE FACE SURVIVES THE PRESS and asks the new mode's question in the
        same box - one slot, one sentence, a different job for it. */
     if (slot.classList.contains('is-asking')) {
-      var ask = slot.querySelector('.ask');
-      if (ask && tab.dataset.ask) ask.dataset.ph = tab.dataset.ask;
+      /* `box`, NOT `ask` - the local that stood on `function ask` cost a day
+         on 2026-10-29 and this is the same word in the same file. */
+      var box = slot.querySelector('.ask');
+      if (box && tab.dataset.ask) box.dataset.ph = tab.dataset.ask;
       if (window.HJ && window.HJ.faceHead) {
         window.HJ.faceHead(slot, slot.classList.contains('is-agent') ? 'Agent' : 'Prompt');
       }
@@ -6677,7 +6744,16 @@
       /* AUTO IS NOT AN ANSWER, it is the absence of one, so it says nothing */
       if (!val || val === 'Auto') return;
       lines.push(el.dataset.n + ': ' + val + '.');
-      bits.push({ k: dial ? el.dataset.k : el.dataset.f, n: el.dataset.n });
+      /* AND ONLY THE WRITTEN FIELD GETS A CHIP - Babe, 2026-10-29: "i think
+         we dont need the action framing lens light in red tho. just action".
+         A chip is a name standing in for a value, and on this rung the line
+         never travels - `runBoard` composes from the direction box - so the
+         four of them were four red words naming the form directly above
+         them. ACTION is the one that is a SENTENCE; the dials are choices
+         the panel already shows, and the row reads as the shot rather than
+         as a list of fields. They are still in `lines`, so what the model
+         is sent has not moved. */
+      if (!dial) bits.push({ k: el.dataset.f, n: el.dataset.n });
     });
     say.textContent = lines.join(' ');
     motionLine(slot, bits);
@@ -7367,7 +7443,26 @@
            element on this page to have one, and it will not be the last, so
            the fade ends where the element actually lives rather than at a 1
            written into the animation. Read BEFORE the inline 0 below, or the
-           computed value is the thing we just set. */
+           computed value is the thing we just set.
+           AND AFTER THE TRANSITION IS OFF, WHICH COST A ROOM - Babe,
+           2026-10-29: "when i refresh i start to see it in the background but
+           it disappears". `getComputedStyle` returns the value a property has
+           RIGHT NOW, and at boot these are all mid-flight: the page paints
+           with 01 active and `restoreJourney` jumps to wherever you left off,
+           so every plane is a second into `--plane-fade` when this runs.
+           Measured: `__op` came back 0.998406 for FIVE plates at once -
+           the same number for the active slide, the two behind it that rest
+           at 1 and the two ahead that rest at 0. So the rooms ahead of you
+           were animated up to full, held there for about a second, and then
+           eased back down to nothing by the stylesheet - which is exactly
+           what a room appearing and disappearing on a refresh looks like.
+           SWITCHING THE TRANSITION OFF FIRST CANCELS IT, so the read is of
+           where the element LIVES rather than where it happens to be passing.
+           `HJ.cascade` has had these two in this order since it was lent out;
+           this is the same mechanism written twice with only one of them
+           right, which is the shape this file keeps paying for. */
+        el.__tr = el.style.transition;
+        el.style.transition = 'none';
         el.__op = getComputedStyle(el).opacity;
         /* AND THE STYLESHEET MUST NOT SMOOTH A FADE ANIME IS DRIVING - Babe,
            2026-10-27: "its literally the first thing you see then it fades
@@ -7382,9 +7477,8 @@
            animations on one property, meeting in the middle.
            THE TRANSITION IS BORROWED AND GIVEN BACK, like the transform and
            the opacity beside it: off while the cascade owns the property, and
-           restored by `tidy` so the travel's own fade still works. */
-        el.__tr = el.style.transition;
-        el.style.transition = 'none';
+           restored by `tidy` so the travel's own fade still works. It is
+           switched off above, before the read. */
         el.style.opacity = 0;
       });
     });

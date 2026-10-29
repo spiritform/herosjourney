@@ -5420,9 +5420,12 @@
        that has to be answered: the panel is the visible surface, so that is
        where it goes, and the hiding rule is deleted rather than given
        another class to win with. */
+    /* AND A FORM SLOT HAS NO `.drop` AT ALL, which is the same fallback
+       `facePlate` makes for the same reason: on 04 the face you are standing
+       in is the `.writer`, so that is the surface the note covers. */
     var host = slot.classList.contains('is-agent')
       ? slot.querySelector('.helper')
-      : slot.querySelector('.drop');
+      : (slot.querySelector('.drop') || slot.querySelector('.writer'));
     if (!mine || !mine.why) {
       if (!slot.dataset.why) return null;
       var k = slot.querySelector('.ftab-k');

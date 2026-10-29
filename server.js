@@ -563,7 +563,17 @@ function cap(name) {
  * nowhere in it" is four words doing the work of the paragraph that was
  * written the day a single framing came back as a diptych of the picture it
  * was given. (*) Mine. */
-const BOARD_LINE = (light, single, hasPage) =>
+/* AND THE TWO PICTURES ARE NAMED BY THE ENCODER THAT READS THEM, the way
+ * `PLACE_LINE` and `SHEET_LINE` take theirs: qwen reads image_1 and image_2
+ * and is happy with the words, Klein reads <ref_image_0> and <ref_image_1>.
+ * The addresses and the words describing them cannot disagree. */
+/* AND A NAME THAT OPENS A SENTENCE IS CAPITALISED, which is a fact about
+ * prose rather than about the model: qwen reads words and `image 1` at the
+ * head of a sentence is a typo, while a token's first character is `<` and
+ * comes back unchanged. */
+const Cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1);
+
+const BOARD_LINE = (light, single, hasPage, one = "image 1", two = "image 2") =>
   (single
     /* AND IT LEADS WITH THE RE-FRAME - Babe, 2026-10-27, with FRAMING on
        EXTREME CLOSE-UP and 100MM MACRO on the lens: "the image looks the
@@ -574,10 +584,10 @@ const BOARD_LINE = (light, single, hasPage) =>
        do will hand the scene back. THE WORD THE LONG VERSION HAS AND THIS
        ONE DID NOT IS *REPLACES*: a framing that sits beside image 1 is a
        suggestion, one that replaces it is the job. */
-    ? "Re-frame the scene in image 1: move the camera as the line below says "
-      + "and let that framing REPLACE image 1's - a different distance and a "
+    ? `Re-frame the scene in ${one}: move the camera as the line below says `
+      + `and let that framing REPLACE ${one}'s - a different distance and a `
       + "different amount of the scene, same character, same room. One "
-      + "photograph, not a grid, not a split screen, and image 1 is nowhere "
+      + `photograph, not a grid, not a split screen, and ${one} is nowhere `
       + "inside it. "
       /* AND IT SENDS NO PAGE AT ALL NOW - Babe, 2026-10-27, on one run:
        * "aspect ratio is worse now", "added white bars", "should also be
@@ -587,7 +597,7 @@ const BOARD_LINE = (light, single, hasPage) =>
        * the page’s ratio outranks the frame’s, and a second reference
        * takes attention off the only instruction on the screen. The board
        * keeps its page, because there the page IS the job. */
-    : "A shot board of one moment. Image 1 is the scene. Image 2 is a blank "
+    : `A shot board of one moment. ${Cap(one)} is the scene. ${Cap(two)} is a blank `
       + "layout page: fill its panels edge to edge, never copy its lines, "
       + "gutters or labels. Every panel is that same moment from a different "
       + "camera position. ")
@@ -598,7 +608,7 @@ const BOARD_LINE = (light, single, hasPage) =>
    * The long version says so in a sentence and a half; this is the clause,
    * and it was the one I cut that the picture actually needed. */
   + (hasPage
-      ? "The white and black of image 2 are a shape to follow, never colours "
+      ? `The white and black of ${two} are a shape to follow, never colours `
         + "to copy: nothing in your picture is white or black because the "
         + "page was. "
       : "")
@@ -609,8 +619,8 @@ const BOARD_LINE = (light, single, hasPage) =>
 /* AND FREESTYLE IS THREE FACTS: which picture is the scene, that the person
  * in it is theirs and keeps that face, and that nothing is added to what they
  * asked for. The long version says the same in sixty. */
-const FREE_LINE = () =>
-  "Image 1 is the scene. The person in it is the character and keeps that "
+const FREE_LINE = (one = "Image 1") =>
+  `${Cap(one)} is the scene. The person in it is the character and keeps that `
   + "face. Do exactly what is asked and nothing more - no panels, no grid, no "
   + "split screen, no border and no text unless the words below ask for one:";
 
@@ -2658,7 +2668,12 @@ const RUNGS = {
          * run on this row would still be told it is building a contact
          * sheet, which is a row lying about the job. These two take one
          * reference on this mode, so the sheet paragraph is never theirs. */
-        modes: { custom: { sys: FREE_LINE } },
+        /* AND IT IS WRAPPED, NOT HANDED OVER. Every `sys` is called with the
+         * VALUES, so the moment this line took a name of its own the object
+         * went in as that name and the prompt opened `[object Object] is the
+         * scene`. Caught by the dry run in the same minute it was written,
+         * which is the whole of what that flag is for. */
+        modes: { custom: { sys: () => FREE_LINE() } },
         inputs: {
           figure: { node: "470", input: "image" },
           template: { node: "475", input: "image" },
@@ -2671,7 +2686,7 @@ const RUNGS = {
         required: ["figure", "prompt"],
         dropWhenEmpty: { template: ["475"] },
         defaults: { steps: 25 },
-        params: ["seed"],
+        params: ["seed", "steps"],
       },
       "QWEN-IMAGE-21-TURBO": {
         graph: "qwen-image-21-turbo.json",
@@ -2683,7 +2698,12 @@ const RUNGS = {
          * run on this row would still be told it is building a contact
          * sheet, which is a row lying about the job. These two take one
          * reference on this mode, so the sheet paragraph is never theirs. */
-        modes: { custom: { sys: FREE_LINE } },
+        /* AND IT IS WRAPPED, NOT HANDED OVER. Every `sys` is called with the
+         * VALUES, so the moment this line took a name of its own the object
+         * went in as that name and the prompt opened `[object Object] is the
+         * scene`. Caught by the dry run in the same minute it was written,
+         * which is the whole of what that flag is for. */
+        modes: { custom: { sys: () => FREE_LINE() } },
         inputs: {
           figure: { node: "470", input: "image" },
           template: { node: "475", input: "image" },
@@ -2694,7 +2714,43 @@ const RUNGS = {
         required: ["figure", "prompt"],
         dropWhenEmpty: { template: ["475"] },
         defaults: { steps: 8 },
-        params: ["seed"],
+        params: ["seed", "steps"],
+      },
+      /* AND FLUX.3 KLEIN DRAWS A BOARD, which is the job it is best suited to
+       * on this rail - Babe, 2026-10-29: "right now its only nano.. can we add
+       * qwen and flux". BFL's own upsampler prompt names pages, charts, grids
+       * and posters as the things that decompose into regions with a box each,
+       * and a shot board is exactly that. Same two loaders as 01, 02 and 03,
+       * with this rung's names on them.
+       * THE FIGURE LEADS AND THE PAGE FOLLOWS, which is the opposite of 02 and
+       * for the same reason read the other way round: `ReferenceMultiLatent`
+       * sizes the latent from its first reference and `images.image0` must be
+       * filled, so the one that DROPS can never be slot 0 - and here it is the
+       * page, which SINGLE and CUSTOM do not send at all. So the frame decides
+       * the shape, which is what SINGLE wants outright (a re-frame comes back
+       * the shape of what it re-frames) and what a board can live with, since
+       * 03 hands this rung a 16:9 frame and the six-panel page is 16:9 too.
+       * AND THE SHEET IS NOT HERE, the same as the two rows above: it is nano's
+       * third reference and this graph has two loaders, so the paragraph naming
+       * it is never composed. */
+      "FLUX-3-KLEIN": {
+        graph: "flux3-klein-2ref.json",
+        label: "The board",
+        sys: (v) =>
+          BOARD_LINE(v.light, v.mode === "single", !!v.template,
+                     "<ref_image_0>", "<ref_image_1>"),
+        modes: { custom: { sys: () => FREE_LINE("<ref_image_0>") } },
+        inputs: {
+          figure: { node: "11", input: "image" },
+          template: { node: "12", input: "image" },
+          prompt: { node: "100", input: "value" },
+          steps: { node: "7", input: "steps", cast: Number },
+          seed: { node: "7", input: "seed", cast: Number },
+        },
+        required: ["figure", "prompt"],
+        dropWhenEmpty: { template: ["12"] },
+        defaults: { steps: 16 },
+        params: ["seed", "steps"],
       },
     },
   },
