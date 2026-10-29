@@ -6,7 +6,7 @@ Built for the [**Open Source Higgsfield Competition**](https://comfy.org/open-so
 
 ![Workflow 01 on a cold start: the preset bust in the source slot, the style slot empty, nano-banana-2.1 on the model row](docs/01-become-someone.png)
 
-**[Watch the demo video](https://www.youtube.com/watch?v=w0SOO4E2NZs)**
+**[Watch the demo video](https://www.youtube.com/watch?v=cau_e-NcMqo)**
 
 <!-- screenshots go here -->
 
