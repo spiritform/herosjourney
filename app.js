@@ -2120,7 +2120,19 @@
     field.focus();
     field.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { closeAsk(box, cell); }
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); cell.click(); }
+      /* AND ENTER IS A LINE BREAK IN A BOX THAT IS THE PROMPT - Babe,
+         2026-10-29: "if you press enter while writing a prompt... instead of
+         going to a line it disappears". It pressed `cell`, which was right
+         when this face RAN something and that cell said GENERATE: Enter
+         meant go. On a `writes` slot there is nothing to run and that cell
+         is the one that steps back out of the face, so Enter closed the box
+         and `closeAsk` put the empty state back over what you had typed -
+         which is kept on `data-said` and looks exactly like losing it.
+         THE SHAPE IS THE SAME ONE THIS FILE KEEPS: a mechanism outliving the
+         thing it was for. Every writing face on the rail is `writes` now, so
+         this is a line break everywhere - and the branch stays for a face
+         that runs, which is what it was written for. */
+      if (e.key === 'Enter' && !e.shiftKey && !writes) { e.preventDefault(); cell.click(); }
     });
   }
 
@@ -3394,7 +3406,7 @@
     var buttons = [{ label: isVid ? 'Save clip' : 'Save image',
                      onClick: function () { saveFile(rung, file); } }];
     if (own) {
-      buttons.push({ label: 'Try again', onClick: function () { run(slide); } });
+      buttons.push({ label: 'Cancel', onClick: function () { closeResult(); } });
       /* the same reach the result panel has, read the same way: the last
          workflow has nowhere to carry to and nothing else does. */
       if (rung < window.HJ.slides.length) {
@@ -4268,14 +4280,22 @@
        `saveFile` has been unreachable since.
        IT IS THE FIRST ACTION, BECAUSE THE STRIP READS LEFT TO RIGHT and
        keeping the thing is what you do with it before deciding whether to
-       keep going. TRY AGAIN and CONTINUE JOURNEY both answer the picture;
-       this one just takes it with you.
-       REROLL IS TRY AGAIN, which is what the press means in the words
-       anybody would use for it. */
+       keep going. CANCEL and CONTINUE JOURNEY both answer the picture; this
+       one just takes it with you.
+       AND THE REROLL IS GONE - Babe, 2026-10-29: "remove the rerolls on the
+       modals", "should just be a save cancel or continue journey". TRY AGAIN
+       was a second RUN in a panel whose job is to let you judge one result,
+       and on a shared demo it is the press that spends somebody's credits
+       without them going back to the rung to decide it. RUN is a foot away
+       and has been the whole time.
+       SO THE THREE CELLS ARE THE THREE ANSWERS TO A PICTURE: keep it, put it
+       down, take it with you. Cancel is what clicking away already did, said
+       out loud - which this panel needed anyway, being the one face with no
+       dismiss drawn on it. */
     var buttons = [
       { label: isVideoName(file.filename) ? 'Save clip' : 'Save image',
         onClick: function () { saveFile(rung, file); } },
-      { label: 'Try again', onClick: function () { run(slide); } }
+      { label: 'Cancel', onClick: function () { closeResult(); } }
     ];
     /* AND IT IS THE LAST RUNG THAT HAS NOWHERE TO CARRY TO, not the fifth.
        This read `rung < 5` from before the six, so 05 - a real step with 06
@@ -5954,7 +5974,11 @@
       });
       media.appendChild(el);
 
-      var buttons = [{ label: 'Try again', onClick: function () { run(slide); } }];
+      /* THE SAME THREE ANSWERS AS A REAL RESULT - see the foot above. A
+         staged one is a picture to judge like any other, and leaving the
+         reroll here would make this the only panel on the rail still
+         offering it. */
+      var buttons = [{ label: 'Cancel', onClick: function () { closeResult(); } }];
       if (rung < window.HJ.slides.length) buttons.push({ label: 'Continue journey',
         primary: true, onClick: function () { carry(slide, rung, file); } });
       acts(slide, buttons);
