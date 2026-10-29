@@ -83,6 +83,13 @@ const BASE = "https://cloud.comfy.org";
 const OUT = join(HERE, "output");
 
 const JOBS = new Map();   // jobId -> what made it, for naming the file
+/* AND HOW MANY POLLS IN A ROW A JOB WE SUBMITTED MAY FAIL BEFORE WE BELIEVE
+ * IT. The page polls every two seconds, so five is about ten seconds of Comfy
+ * being unable to answer - far longer than registration has ever taken, and
+ * short enough that a job it has really lost says so rather than being polled
+ * for ever. It is a count rather than an age because a hiccup two minutes
+ * into a clip is the same hiccup. */
+const JOB_MISSES = 5;
 
 const slug = (x) =>
   String(x).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -1464,12 +1471,18 @@ const SHOOT_SYS = (mode) =>
  * Four panels is four people until something says otherwise, so the count is
  * said twice now, once about the photograph and once about the sheet, and it
  * is still a shorter sentence than the paragraph it replaced. */
-const PLACE_LINE = (lens, hasPlace) =>
-  "One photograph of one person, not a grid or a contact sheet. Image 1 is "
+/* AND THE TWO PICTURES ARE NAMED BY THE ENCODER THAT READS THEM, the way
+ * `SHEET_LINE` and `STYLE_SYS` take theirs. qwen's encoder reads image_1 and
+ * image_2 and is happy with the words; Klein's reads <ref_image_0> and
+ * <ref_image_1> and says so in its own node description. The addresses and
+ * the words describing them cannot be allowed to disagree, which is the
+ * whole reason this string takes them. */
+const PLACE_LINE = (lens, hasPlace, one = "Image 1", two = "image 2") =>
+  "One photograph of one person, not a grid or a contact sheet. " + one + " is "
   + "several panels of that same person - take their face, hair and costume, "
   + "never its panels, flat light or plain "
   + (hasPlace
-      ? "ground. They stand in the place in image 2, lit only by its own light. "
+      ? `ground. They stand in the place in ${two}, lit only by its own light. `
       : "ground. They are in the place described below, lit only by its own light. ")
   + (lens ? `Shot on ${String(lens).toLowerCase()}. ` : "")
   + "Their frame:";
@@ -1792,7 +1805,11 @@ const RUNGS = {
         required: ["sheet", "prompt"],
         dropWhenEmpty: { place: ["475"] },
         defaults: { steps: 25 },
-        params: ["ar", "seed", "lens"],
+        /* AND STEPS IS ON THIS ROW NOW, which it was not when the open rows
+         * first ran here: it is the one quality knob they have, the same
+         * cell 02 grew for the same reason, and it was running the graph's
+         * own 25 with no way to see that let alone move it. */
+        params: ["ar", "seed", "steps", "lens"],
       },
       "QWEN-IMAGE-21-TURBO": {
         graph: "qwen-image-21-turbo.json",
@@ -1812,7 +1829,49 @@ const RUNGS = {
         required: ["sheet", "prompt"],
         dropWhenEmpty: { place: ["475"] },
         defaults: { steps: 8 },
-        params: ["seed", "lens"],
+        params: ["seed", "steps", "lens"],
+      },
+      /* AND FLUX.3 KLEIN TAKES TWO REFERENCES, WHICH IS THIS RUNG'S OWN
+       * SHAPE - Babe, 2026-10-29: "yeah lets do 3 with qwen and add flux 3
+       * klein that one as well". 01 hands this graph a face and a style
+       * donor and 02 hands it a page and a figure; here it is the sheet and
+       * the room, and nothing about the wiring is rung-specific, so it is
+       * the same two loaders into the same encoder with this rung's names.
+       * THE SHEET LEADS, AND THE NODE'S OWN RULE IS WHY - a free read of
+       * `ReferenceMultiLatent` says the list may be omitted entirely, but
+       * "if you use it, images.image0 must be filled". So the reference
+       * that DROPS can never be slot 0, and on this rung the one that drops
+       * is the place: the sheet is `required` and the room is the half of
+       * the slot that may arrive as words. That settles the order without
+       * a run.
+       * WHICH MEANS THE FRAME COMES BACK THE SHAPE OF THE SHEET, because
+       * this encoder sizes the latent from its first reference - the
+       * opposite arrangement from 02, where the page leads for exactly that
+       * reason. On Hero, the default, that is the 16:9 this rung defaults
+       * to anyway; a Bible sheet would give a portrait frame. No AR cell,
+       * as everywhere this row appears.
+       * (*) IF A PORTRAIT FRAME EVER READS WRONG, the swap is the place
+       * first and `required` with it - and the cost is the words-only half
+       * of this slot refusing on this one row, which is why it is written
+       * down rather than taken. */
+      "FLUX-3-KLEIN": {
+        graph: "flux3-klein-2ref.json",
+        label: "Find your place",
+        sys: (v) => PLACE_LINE(v.lens, !!v.place, "<ref_image_0>", "<ref_image_1>"),
+        inputs: {
+          sheet: { node: "11", input: "image" },
+          place: { node: "12", input: "image" },
+          prompt: { node: "100", input: "value" },
+          steps: { node: "7", input: "steps", cast: Number },
+          seed: { node: "7", input: "seed", cast: Number },
+        },
+        required: ["sheet", "prompt"],
+        /* the second loader goes when nobody filled it and the reference
+         * slot on the conditioning node goes with it, so the sentence stops
+         * naming <ref_image_1> in the same breath. */
+        dropWhenEmpty: { place: ["12"] },
+        defaults: { steps: 16 },
+        params: ["seed", "steps", "lens"],
       },
     },
   },
@@ -3121,7 +3180,38 @@ async function apiRun(req, res) {
 
 async function apiJob(res, id) {
   const st = await fetch(`${BASE}/api/job/${id}/status`, { headers: headers() });
-  if (!st.ok) return json(res, 502, { error: `status failed (${st.status})` });
+  /* A JOB WE JUST SUBMITTED IS NOT AN UNKNOWN JOB, AND THAT COST AN AGENT -
+   * Babe, 2026-10-29: "agent is not working". It was: the same question,
+   * asked of the same server a minute later, came back with a beach written
+   * exactly as the panel asks for. WHAT FAILED WAS THE FIRST POLL. Comfy
+   * answers 404 for a few hundred milliseconds between handing back a job id
+   * and being able to report on it, this turned that into a 502, and the
+   * page ends a run on any poll that is not ok - correctly, for a poll that
+   * means anything. So a job that was about to succeed was killed two
+   * seconds after it started, and nothing anywhere said why.
+   * THE SERVER IS WHERE THIS BELONGS, because the server is the only thing
+   * that knows the difference: it SUBMITTED this one, so a 404 against an id
+   * in `JOBS` means not yet, and a 404 against anything else means no such
+   * job. A retry in the client would be a second mechanism guessing at what
+   * this one can simply answer. */
+  const made = JOBS.get(id);
+  if (!st.ok) {
+    /* WHICH FAILURES ARE A MOMENT AND WHICH ARE AN ANSWER. A 404 is Comfy
+     * not knowing the id yet, a 429 or a 5xx is it being unable to say, and
+     * all three are worth asking again. A 401 or a 403 is a refusal that
+     * will be a refusal next time too, so it goes straight through - a key
+     * that stopped working must not read as a job that is still running. */
+    const again = st.status === 404 || st.status === 408 || st.status === 429
+      || st.status >= 500;
+    if (made && again && (made.misses = (made.misses || 0) + 1) <= JOB_MISSES) {
+      console.log(`  .. ${id} status ${st.status} (${made.misses}/${JOB_MISSES}) - asking again`);
+      return json(res, 200, { state: "waiting", done: false });
+    }
+    return json(res, 502, { error: `status failed (${st.status})` });
+  }
+  /* and a poll that answered puts the count back, so five scattered hiccups
+   * over a long job are five hiccups rather than a death */
+  if (made) made.misses = 0;
   const state = (await st.json()).status;
 
   if (!DONE.has(state)) return json(res, 200, { state, done: false });

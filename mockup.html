@@ -1577,10 +1577,12 @@
      pressed="true"]` fills the cell with sand and sets the text to ink; this
      had put `color: var(--sand)` on top of that, which is sand on sand. The
      rail draws a pressed cell one way and this is a cell. */
-  /* AND NOT IN THE AGENT'S FACE, where the box it would cover is not drawn at
-     all (`.slot.is-agent .drop { display: none }`) - a press there would be a
-     lit cell doing nothing, and the agent can answer for itself. */
-  .slot.is-agent .tr.why { display: none; }
+  /* AND IT IS DRAWN IN THE AGENT'S FACE TOO, which took deleting the rule
+     that said otherwise. `.slot.is-agent .tr.why` is four classes and the
+     rule above it is five, so the cell has been pressable there since the
+     day it was written while this said it was not - and the note it opened
+     went into `.drop`, which that face hides. It hangs on `.helper` now; see
+     `whyBits`. A press that reaches a cell has to be answered. */
   /* the panel is the other side of the box you were writing in */
   .slot.is-agent .drop { display: none; }
   /* THE ANGLE IS SINGLE's ONE CONTROL - Babe, 2026-10-25: "so SINGLE [camera
@@ -4178,6 +4180,28 @@
          says environment throughout for the same reason. */
       right: { k: 'Environment', t: '', acts: ['Prompt', 'Import', 'Random'],
                writes: true, ask: 'Describe an environment…',
+               /* (*) AND THE ? ANSWERS FOR THIS SLOT TOO - Babe, 2026-10-29:
+                  "for consistency we should add the ? next to the prompt for
+                  this as well. to explain how the sheet / character is added
+                  to the environment or something".
+                  IT IS THE FIRST ? ON A SLOT WITH NO TABS, which is what it
+                  cost: 01's and 06's hang off a MODE, and this slot has one
+                  face and no modes to hang anything on. So a slot may carry
+                  its own, the way it carries its own `help` - one flag, one
+                  string, and the panel names it from the strip rather than
+                  from a second copy of the slot's name.
+                  AND IT IS THE HALF OF THE SCAFFOLDING WORTH SHOWING: what
+                  the sheet is read FOR and what about it stays behind is the
+                  part an artist can act on, and it is the thing this rung
+                  gets wrong when it goes wrong. Mine, and Babe's to cut. */
+               why: 'Puts the character from your sheet into this place, as '
+                  + 'one photograph rather than a page of panels. The sheet '
+                  + 'is read for the face, the hair and everything they are '
+                  + 'wearing; its panels, its flat light and its plain ground '
+                  + 'stay behind. All the light on them comes from here.',
+               sends: ['Your sheet → Image 1',
+                       'A picture here → Image 2',
+                       'What you write → the direction'],
                /* IT ASKS FOR BOTH HALVES - Babe, 2026-10-26. "where are
                   they?" got a place and never a look, so the style only ever
                   arrived on a second turn. */
@@ -4195,11 +4219,29 @@
          the server - so a place imported as a picture with nothing typed is
          the same job it always was. */
       agent: '<span class="lede">One place to call your own.</span>',
+      /* THE OPEN ROWS COME BACK HERE TOO, on the cut's own bar rather than
+         as an exception to it: the test was HAS ANYONE LOOKED AT IT, and on
+         this rung both qwen rows had - the kitchen lit by its own gas flames
+         was the 25-step row in the open-weights pass, "this one turned out
+         good btw". FLUX.3 KLEIN IS THE ONE THAT HAS NOT, and it goes on
+         because this rung is its own shape: two references, a figure to read
+         and a room to put them in, which is the graph it already runs on 01
+         and 02. (*) Its timing is an em-dash until a real run sets it.
+         AR IS DECLARED AND TWO ROWS HIDE IT - the turbo and Klein both size
+         their latent off a reference, so the frame comes back the shape of
+         what it was handed rather than of what was asked for. STEPS is the
+         one quality knob the open rows have, the same cell 02 grew for the
+         same reason; LENS reaches no node on any row and shapes the sentence
+         instead. */
       models: [
-        { n: 'NANO-BANANA-2.1',     t: '~17cr', c: 'one reference &middot; ~17 credits &middot; partner' }
+        { n: 'NANO-BANANA-2.1',     t: '~17cr', c: 'one reference &middot; ~17 credits &middot; partner' },
+        { n: 'QWEN-IMAGE-EDIT-21',  t: '14.6s', c: 'one reference &middot; 25 steps &middot; open weights' },
+        { n: 'QWEN-IMAGE-21-TURBO', t: '49.0s', c: 'one reference &middot; 8 steps &middot; open weights' },
+        { n: 'FLUX-3-KLEIN',        t: '&mdash;', c: 'one reference &middot; 16 steps &middot; open weights' }
       ],
       params: [{ p: 'ar', k: 'AR', v: '16:9', o: ['1:1', '2:3', '3:4', '3:2', '4:3', '9:16', '16:9', '21:9'] },
                { p: 'seed' },
+               { p: 'steps', k: 'STEPS', v: '25', o: ['8', '16', '25', '32', '40'] },
                { p: 'lens', k: 'LENS', v: '35MM', o: ['24MM', '35MM', '50MM', '85MM'] }],
       /* IT ASKS RATHER THAN DESCRIBES - Babe, 2026-10-26: "now that you have
          found yourself, where are you?". The old line said what the rung
@@ -5387,6 +5429,9 @@
        is the nearer question. A string written here cannot disagree with the
        cell, since the same `s.boxes` draws both. */
     if (s.boxes) att += ' data-boxes="' + String(s.boxes).replace(/"/g, '&quot;') + '"';
+    /* and a tabless slot's own note rides on the slot for the same reason the
+       box face's does - the same `s.why` draws the cell and fills it */
+    if (s.why) att += ' data-why="' + String(s.why).replace(/"/g, '&quot;') + '"';
     var h = '<div class="inp"><div class="' + cls + '"' + att + '>';
     /* THE TABS SIT ABOVE WHAT THEY CHOOSE BETWEEN, here as on 04: on that
        rung they pick which form you are looking at, and here they pick what
@@ -5733,7 +5778,10 @@
        offering to explain something nobody is doing. It appears only where
        the modes have something to say, so a table without `why` has no cell
        rather than an empty panel. */
-    if (s.tabs && s.tabs.some(function (t) { return t.why; })) {
+    /* AND A SLOT MAY CARRY ITS OWN, which is what 03 needed: that slot has
+       one face and no modes, so there was no table for the string to live in
+       and no tab for the cell to be drawn from. One flag either way. */
+    if ((s.tabs && s.tabs.some(function (t) { return t.why; })) || s.why) {
       h += '<button class="tr why" data-act="why" aria-label="What this mode does">?</button>';
     }
     h += '</div></div>';

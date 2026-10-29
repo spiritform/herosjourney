@@ -64,6 +64,6 @@
   },
   "9": {
     "class_type": "SaveImage",
-    "inputs": { "filename_prefix": "hj-01-flux3-klein", "images": ["8", 0] }
+    "inputs": { "filename_prefix": "hj-flux3-klein", "images": ["8", 0] }
   }
 }

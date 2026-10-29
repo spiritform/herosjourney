@@ -5398,9 +5398,38 @@
     var now = (slot.dataset.mode || '').toUpperCase();
     var mine = rows.find(function (r) { return String(r.k).toUpperCase() === now; })
             || rows[0];
-    if (!mine || !mine.why) return null;
-    return { n: mine.n || mine.k, why: mine.why,
-             host: slot.querySelector('.drop'), sends: true };
+    /* AND A SLOT WITH NO TABS ANSWERS FOR ITSELF - Babe, 2026-10-29, on 03:
+       "for consistency we should add the ? next to the prompt for this as
+       well". Every note until now hung off a MODE, because every slot that
+       had one had tabs; this slot has one face, so the string is the slot's
+       and the name is read off the strip it is already drawn in rather than
+       emitted a second time. The mode is still asked first, since a slot
+       that has both has a nearer question. */
+    /* AND THE NOTE HANGS WHERE THE FACE YOU ARE IN CAN SHOW IT - Babe,
+       2026-10-29: "if you have agent enabled and press help it doesnt
+       appear". It did not: `.slot.is-agent .drop { display: none }` takes
+       the writing box away, so the note was being drawn into a box nobody
+       could see - the same thing the box face found and answered by hanging
+       its own on the stage.
+       AND THE RULE THAT WAS MEANT TO STOP THAT HAD BEEN DEAD SINCE IT WAS
+       WRITTEN. `.slot.is-agent .tr.why` is four classes and the rule that
+       shows the cell, `.slot.is-asking.writes .tr.why`, is five - so on
+       every writing slot on the rail the cell has been pressable in the
+       agent face the whole time, doing nothing, while a comment beside it
+       said it was not drawn there. A press that reaches a cell is a press
+       that has to be answered: the panel is the visible surface, so that is
+       where it goes, and the hiding rule is deleted rather than given
+       another class to win with. */
+    var host = slot.classList.contains('is-agent')
+      ? slot.querySelector('.helper')
+      : slot.querySelector('.drop');
+    if (!mine || !mine.why) {
+      if (!slot.dataset.why) return null;
+      var k = slot.querySelector('.ftab-k');
+      return { n: (k && k.textContent.trim()) || slot.dataset.face0 || 'Prompt',
+               why: slot.dataset.why, host: host, sends: true };
+    }
+    return { n: mine.n || mine.k, why: mine.why, host: host, sends: true };
   }
 
   function toggleWhy(slot) {
