@@ -3760,7 +3760,19 @@
        for a character beside a picture of one is the slot asking you to
        answer the question the other slot answered. The STYLE is the half
        that is still open. */
+    /* (*) AND THE `?` COMES TO 01 - Babe, 2026-10-29, after running the same
+       character through both tabs: "i think we should add the question mark
+       next to agent". It is pure data: `slotHTML` draws the cell whenever a
+       tab on this slot carries a `why`, so 06's panel arrives here with no
+       new mechanism and nothing to keep in step.
+       AND BOTH LINES CARRY WHAT A REAL RUN TAUGHT, which is the pattern 06's
+       already follow - its EDIT line says an object in shot stays that
+       object because of the mouse that became a submarine-dressed mouse.
+       Here it is the GLASSES: one line asking for a horse head came back
+       with the horse wearing Babe's own spectacles, because nothing named
+       them. Mine, and Babe's to cut. */
     { k: 'STYLE', n: 'Style', writes: true, ask: 'Describe the style you want to apply to the source…',
+      why: 'Builds a NEW picture around the person in your source. The photograph gives the framing, the pose and the face; the wardrobe, the light and the world around them are made again. Use it when they have to become somebody else.',
       line: "<span class='lede'>A new transformation.</span> " +
             "<b class='tok'>STYLE</b>" },
     /* `writes` IS WHAT MAKES THE SLOT THE PLACE YOU WRITE. On STYLE the
@@ -3786,6 +3798,7 @@
        red on EDIT with an empty box and the server refused the press, which
        is the one thing a lit button must never do. */
     { k: 'EDIT',  n: 'Edit',  writes: true, needs: true, ask: 'Say what to change…',
+      why: 'Keeps every pixel of your source and changes the one thing you name. The room, the light and the framing stay exactly as they were - which also means anything you do NOT name stays too, down to the glasses.',
       line: "<span class='lede'>Time for change.</span> " +
             "<b class='tok'>EDIT</b>" }
   ];
@@ -3857,7 +3870,8 @@
                sendPh: 'Message the agent...' },
       agent: STYLEMODES[0].line,
       models: [
-        { n: 'NANO-BANANA-2.1',     t: '~17cr', c: 'two references &middot; ~17 credits &middot; partner' }
+        { n: 'NANO-BANANA-2.1',     t: '~17cr', c: 'two references &middot; ~17 credits &middot; partner' },
+        { n: 'FLUX-3-KLEIN',        t: '&mdash;', c: 'two references &middot; 16 steps &middot; open weights' }
       ],
       params: [{ p: 'ar', k: 'AR', v: '1:1', o: ['1:1', '2:3', '3:4', '3:2', '4:3', '9:16', '16:9', '21:9'] },
                { p: 'res', k: 'RES', v: '2K', o: ['1K', '2K', '4K'] },

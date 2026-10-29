@@ -5708,6 +5708,26 @@
       row.classList.toggle('off', off);
       if (off && row.getAttribute('aria-pressed') === 'true') fell = true;
     });
+    /* AND `solo` IS PER TAB, BECAUSE A ROW CAN BELONG TO A MODE. The trigger
+       was drawn solo from the rung's whole list (`models.length < 2`), which
+       held for exactly as long as every row on a rung was usable by every
+       tab. 01 has two rows and FLUX-3-KLEIN is `only: "EDIT"`, so STYLE has
+       ONE row it can use and a caret that opened a menu with nothing in it -
+       a pressed row and an `off` row are both `display: none`, so the box is
+       empty rather than short. The count to watch is per tab, not per rung,
+       which this picker's own rule already says one level in.
+       IT IS COUNTED HERE BECAUSE THIS IS THE FUNCTION THAT KNOWS - the
+       `only` of every row, the wired state and the pressed one, all three in
+       one walk. A second count anywhere else is a second thing to disagree.
+       USABLE, NOT UNPRESSED: a press moves a row out of the menu but does
+       not change how many this tab can reach, so the test cannot depend on
+       which row is pressed or on the order the clicks below land in. It also
+       covers a rung whose one alternative is not wired. */
+    var usable = rows.filter(function (r) {
+      return !r.classList.contains('off') && !r.disabled;
+    }).length;
+    var trig = slide.querySelector('.param.model');
+    if (trig) trig.classList.toggle('solo', usable < 2);
     if (!fell) return;
     /* AND IT GOES BACK TO WHAT YOU PICKED, NOT TO THE TOP OF THE LIST - Babe,
        2026-10-27, after a run they thought was on an open row: "when i went

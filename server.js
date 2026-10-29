@@ -2038,25 +2038,42 @@ const RUNGS = {
        * output follows the shape of what you put in, exactly as on the turbo
        * row above, and a control that does nothing is worse than no control.
        * 16 steps and cfg 1 are the distilled checkpoint's own numbers. */
-      /* AND IT IS THE EDIT ROW AND NOTHING ELSE - Babe, 2026-10-27, looking
-       * at a STYLE run that came back as the photograph it was given: "i
-       * dont think edit is the right workflow for this. maybe it should only
-       * appear when you are in the edit tab".
-       * THE GRAPH IS AN EDIT GRAPH, which the filename has said all along:
-       * `ReferenceMultiLatent` hands the sampler a latent sized from the
-       * reference and the conditioning steers it from there, so a
+      /* IT WAS THE EDIT ROW AND NOTHING ELSE, AND THE PIN CAME OFF
+       * 2026-10-29. It went on 2026-10-27 after one STYLE run came back as
+       * the photograph it was given - Babe: "i dont think edit is the right
+       * workflow for this. maybe it should only appear when you are in the
+       * edit tab" - and the argument written down beside it was that
+       * `ReferenceMultiLatent` sizes the latent from the reference, so a
        * preservation-heavy become-someone sentence over a photograph of you
-       * is a job whose correct answer is that photograph. STYLE is a restyle
-       * so large that the only thing asked to survive is the face, and this
-       * row has no way to do it.
-       * SO THE BASE SENTENCE IS GONE RATHER THAN LEFT UNREACHABLE. `only`
-       * forces the mode, so `modes.EDIT` is the spec every run on this row
-       * resolves to - and a string nothing can compose is a string that goes
-       * stale without anything flagging it. */
+       * is a job whose correct answer is that photograph.
+       * THREE THINGS SAY OTHERWISE, AND THE FIRST IS THE MODEL'S OWN PAGE.
+       * BFL ships Klein as "generation, editing and multi-reference in a
+       * single set of weights", it "combines several references into one
+       * image", and restyling is a named use - which is STYLE's whole job in
+       * Babe's own words: "so we want style to be model where you combine
+       * two images".
+       * AND THE LATENT ARGUMENT PROVES TOO MUCH: QWEN-IMAGE-21-TURBO samples
+       * the latent the encoder derives from the source in exactly the same
+       * way, and it ran STYLE clean in 23.3s - a true 1024 square with the
+       * head-and-shoulders crop held. A row cannot be refused for a property
+       * the row above it shares and works with.
+       * SO THE SUSPECT WAS THE SENTENCE, WHICH IS THIS RUNG'S OWN LESSON.
+       * The open rows were never short of ability, they were being talked
+       * over: the same STYLE line that came back photographic on qwen
+       * produced a real restyle once it was cut to the encoder's register.
+       * That cut is what `STYLE_SYS` is now, and this row never had it - the
+       * base sentence was deleted when the pin went on, so what goes back is
+       * the short one rather than the long one that failed.
+       * (*) UNPROVEN ON SCREEN. If STYLE here hands back the photograph with
+       * the short sentence in front of it, the pin was right for a reason
+       * nobody has named yet and this comment is the thing to correct. */
       "FLUX-3-KLEIN": {
         graph: "flux3-klein-edit.json",
         label: "Become someone",
-        only: "EDIT",
+        /* addressed by the encoder's own token names, the way qwen's is
+         * addressed as image_1 and image_2 - `modes.EDIT` below overrides
+         * this with the edit line and passes the same two names. */
+        sys: (v) => STYLE_SYS(!!v.ref, "<ref_image_0>", "<ref_image_1>"),
         inputs: {
           source: { node: "11", input: "image" },
           ref: { node: "12", input: "image" },
