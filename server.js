@@ -25,6 +25,16 @@ import { fileURLToPath } from "node:url";
 
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const PORT = Number(process.env.PORT || 8800);
+/* LOOPBACK UNLESS SOMEBODY ASKS OTHERWISE. This binds to 127.0.0.1 because
+ * the thing it is is a local app holding your own API key, and a server that
+ * answers the network by default is one nobody decided should. `HOST=0.0.0.0`
+ * is the decision, for putting it behind a proxy or in a container.
+ * THE KEY PANEL DOES NOT COME WITH IT, and that is deliberate: `/api/key`
+ * refuses anything that is not loopback whatever this is set to, so a hosted
+ * instance takes its key from `COMFY_API_KEY` in the environment - which
+ * `loadKey` already prefers - and the one endpoint that writes a credential
+ * stays unreachable from outside. */
+const HOST = process.env.HOST || "127.0.0.1";
 const BASE = "https://cloud.comfy.org";
 
 /* EVERY FINISHED FILE IS KEPT, filed by day and by the rung that made it:
@@ -3354,7 +3364,7 @@ createServer(async (req, res) => {
     console.error(err);
     json(res, 500, { error: String(err && err.message || err) });
   }
-}).listen(PORT, "127.0.0.1", () => {
+}).listen(PORT, HOST, () => {
   console.log(`\n  Hero's Journey  →  http://127.0.0.1:${PORT}`);
   console.log(KEY
     ? `  key: ${KEY.slice(0, 7)}… (${KEY.length} chars)\n`
