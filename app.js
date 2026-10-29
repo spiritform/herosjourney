@@ -2195,6 +2195,12 @@
     movePlate(toAgent ? box : panel, toAgent ? panel : box);
   }
   window.HJ.facePlate = facePlate;
+  /* AND THE BOX READER GOES OVER TOO. The page's box face draws on the LEFT
+     slot's picture, and a slot's boxes are addressed by slot and never by
+     position in the slide - which is what this function is for and what the
+     page cannot do for itself. Lending it beats the page walking `.drop`,
+     which is the bug `boxesOf` was written to end. */
+  window.HJ.boxesOf = boxesOf;
 
   function exitAsk(box, cell) {
     box.classList.remove('is-ask');
@@ -3569,6 +3575,50 @@
        the server holds it per variant and prepends it — it never reaches the
        browser and there is nothing here to keep in sync. */
     v.prompt = [said.trim(), agent.trim()].filter(Boolean).join(' ');
+
+    /* AND THE BOX TABLE RIDES AT THE END, which is the one place it can go:
+       BFL's annotator format is the instruction paragraph, ONE SPACE, then
+       one JSON array, and the server's scaffolding is already in front of
+       the paragraph. So the three parts land in the order the model was
+       trained to read them without anything having to know about the other
+       two.
+       IT IS THE ONLY PLACE A RUN KNOWS THIS FACE EXISTS, because the
+       sentence came through the writing box like every other sentence.
+       AND NUMBERS ARE NOT WORDS, which is why they are not in the line the
+       artist edits: the boxes on the picture ARE the visible form of this
+       table, so `what you are looking at is what gets sent` holds - you are
+       looking at them, drawn on the thing they point at, rather than at
+       sixteen integers in a prompt box. */
+    if (window.HJ && window.HJ.boxTable) {
+      var bslot = slide.querySelector('.slot[data-boxes]');
+      var table = bslot ? window.HJ.boxTable(bslot) : [];
+      /* AND A PICTURE WITH BOXES ON IT IS THE SUBJECT, NOT A SECOND
+         REFERENCE - Babe, 2026-10-29, on `NEEDS SOURCE` over a drawn box:
+         "i think for these we need the image loaded in edit to be the
+         source".
+         THE RIGHT SLOT ON EDIT IS NORMALLY THE THING THE INSTRUCTION REFERS
+         TO - a jacket, a hat - and this file has refused to make it the
+         subject before, because a character there is the averaging problem
+         one tab over. A TABLE OF COORDINATES IS THE EXCEPTION THAT PROVES
+         IT: boxes drawn on a picture anchor every word to a position in
+         THAT picture, so it cannot be a loose second reference to be
+         averaged - it is the thing being edited, by construction.
+         ONLY WHEN THERE IS NO SOURCE. With one in the left slot both go,
+         the table cites `ref_image_1`, and nothing moves - which is the
+         take-that-and-put-it-here job the format exists for. */
+      if (table.length && !v.source && v.ref) {
+        v.source = v.ref;
+        delete v.ref;
+        /* and the table has to say so, or it names an image that is now the
+           other one - the box-lying rule read from the payload's end */
+        table.forEach(function (row) {
+          if (row.from === 'ref_image_1') row.from = 'ref_image_0';
+        });
+      }
+      if (table.length && v.prompt) {
+        v.prompt = v.prompt + ' ' + JSON.stringify(table);
+      }
+    }
 
     /* ON 04 THE TWO LINES ARE TWO JOBS, NOT ONE SENTENCE - Babe, 2026-10-25:
        "swap... thats why we renamed the prompt to motion prompt below". The
@@ -5211,25 +5261,47 @@
      the traits card do, so nothing new is invented for it to sit on. */
   function whyOff(slot) {
     slot.classList.remove('is-why');
+    /* wherever it was hung - the box on a mode note, the stage on a box one */
     var old = slot.querySelector('.whybox');
     if (old) old.remove();
     var cell = slot.querySelector('.tr.why');
     if (cell) cell.setAttribute('aria-pressed', 'false');
   }
 
-  function toggleWhy(slot) {
-    if (slot.classList.contains('is-why')) return whyOff(slot);
+  /* AND THE FACE IS ASKED BEFORE THE MODE - Babe, 2026-10-29: "the ? needs
+     to talk about the boxes feature". The question this cell answers is
+     "what does the thing in front of me do", and inside the box face the
+     thing in front of you is the box face, not the tab two rows up. Same
+     shape as `openAsk` reading the pressed tab's `ask` before the slide's:
+     the nearer question wins.
+     AND THE NOTE NEEDS SOMEWHERE VISIBLE TO STAND. It hosts in `.drop`,
+     which the box face hides - so a note hung there would have been drawn
+     into a box nobody can see, which is why the cell was hidden rather than
+     answered in the first draft. The stage is the visible surface there. */
+  function whyBits(slot) {
+    if (slot.classList.contains('is-boxing') && slot.dataset.boxes) {
+      return { n: 'Boxes', why: slot.dataset.boxes,
+               host: slot.querySelector('.boxer-stage') };
+    }
     var rows = window.HJ.modeHelp ? window.HJ.modeHelp(slot) : [];
     var now = (slot.dataset.mode || '').toUpperCase();
     var mine = rows.find(function (r) { return String(r.k).toUpperCase() === now; })
             || rows[0];
-    if (!mine || !mine.why) return;
-    var box = slot.querySelector('.drop');
+    if (!mine || !mine.why) return null;
+    return { n: mine.n || mine.k, why: mine.why,
+             host: slot.querySelector('.drop'), sends: true };
+  }
+
+  function toggleWhy(slot) {
+    if (slot.classList.contains('is-why')) return whyOff(slot);
+    var mine = whyBits(slot);
+    if (!mine) return;
+    var box = mine.host;
     if (!box) return;
     var el = document.createElement('div');
     el.className = 'whybox';
     var b = document.createElement('b');
-    b.textContent = mine.n || mine.k;
+    b.textContent = mine.n;
     var t = document.createElement('span');
     t.textContent = mine.why;
     el.appendChild(b);
@@ -5239,7 +5311,7 @@
        is pressed - see `sends` in the slide table. A slot that does not
        declare one simply has no line, the way a mode without `why` has no
        cell. */
-    if (slot.dataset.sends) {
+    if (mine.sends && slot.dataset.sends) {
       var how = document.createElement('div');
       how.className = 'whyhow';
       slot.dataset.sends.split('|').forEach(function (one) {

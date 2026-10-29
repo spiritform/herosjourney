@@ -885,6 +885,131 @@
     flex-direction: column; min-height: 0;
   }
   .slot.is-agent .helper { display: flex; }
+
+  /* ---------------------------------------------------------- THE BOX FACE
+     Babe, 2026-10-29: "then we can explore a simple bounding box control
+     panel. maybe you can draw boxes on the image to be more specific".
+     IT IS THE THIRD FACE OF THE WRITING BOX, built exactly like the agent
+     panel beside it - same square, same cap, same glass - because it is the
+     same kind of thing: a place you step INTO to work on the sentence, and
+     then step back out of with what you did still held.
+     AND IT IS THE ONE FACE WHOSE PICTURE IS NOT BLURRED. Every other plate
+     on this rail is a thing you write OVER, so `--ask-plate-blur` keeps it
+     out of the way of the words; here the picture is the thing you are
+     working ON and a blur would make it impossible to say where anything
+     is. Same node, opposite job. */
+  .boxer {
+    display: none; aspect-ratio: 1 / 1; max-height: var(--slot-cap);
+    border: 1px solid var(--edge); background: var(--plate-glass);
+    flex-direction: column; min-height: 0;
+    position: relative; overflow: hidden;
+  }
+  .slot.is-boxing .boxer { display: flex; }
+  /* AND IT REPLACES THE BOX, the way the agent panel does - one face of one
+     slot is up at a time, which is what makes stepping in a step rather
+     than a second thing appearing beside the first. */
+  .slot.is-boxing .drop,
+  .slot.is-boxing .helper { display: none; }
+  .boxer-stage { position: relative; flex: 1 1 auto; min-height: 0; }
+  .boxer-plate {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: contain; display: block; pointer-events: none;
+  }
+  /* THE SURFACE IS THE WHOLE PANEL AND IT TAKES THE POINTER, which is the
+     one thing the plate must not do - a drag has to start anywhere,
+     including on top of a box that is already there. */
+  .boxer-draw { position: absolute; inset: 0; z-index: 1; cursor: crosshair; }
+  /* A BOX IS A STROKE AND A NUMBER, nothing else. No fill: a tint over the
+     picture hides the thing the box is pointing at, which is the whole
+     reason somebody drew it there. */
+  /* EVERY BOX IS ITS OWN COLOUR, which is the whole mechanism: a random one
+     at birth, written as `--bx-c` on the element, and the frame beside the
+     prompt reads the same property off whichever box is selected. One fact,
+     one place, so the two can never disagree about which box you are
+     talking about. */
+  .bx {
+    position: absolute; border: 1px solid var(--bx-c, var(--red));
+    box-shadow: 0 0 0 1px rgba(8, 9, 10, .55);
+    pointer-events: auto; cursor: pointer;
+  }
+  /* SELECTED IS THICKER, NOT A DIFFERENT COLOUR - the colour is the box's
+     NAME here, so spending it on a state would make the selected box read as
+     a different box. `outline` at a negative offset takes no space and sits
+     on top of the border, the lesson the model row paid four goes for. */
+  .bx[aria-pressed="true"] {
+    outline: 1px solid var(--bx-c, var(--red)); outline-offset: -2px;
+  }
+  .bx-k {
+    position: absolute; top: -1px; left: -1px;
+    font: 600 10px/1 var(--ui); letter-spacing: .06em;
+    padding: 3px 5px; background: var(--bx-c, var(--red)); color: var(--ink);
+  }
+  /* THE PROMPT ROW IS THE AGENT'S COMPOSE ROW, WEARING A COLOUR.
+     Babe, 2026-10-29, with a screenshot of that row: "maybe a frame next to
+     the chat that is a random color of your box selection. since you can
+     create multiple. when you select and move around the box that color
+     changes next to the prompt you add."
+     SO ONE FIELD, NOT A STACK. A column of fields would draw every box
+     twice - once on the picture where it belongs and once as a row of text
+     beside it - and the picture is better at it. The frame is what says
+     which box this sentence is about, and the box lighting up on the plate
+     says it from the other end. */
+  /* AND THE ROW IS THERE FROM THE MOMENT THE FACE OPENS - Babe, 2026-10-29:
+     "lets keep the bounding box panel there, not when you draw one". A row
+     that appears on your first box is a row that moves the picture the
+     instant you have drawn something on it, and it is also the only thing
+     on that face saying what the face is FOR. Standing there empty, it is
+     the invitation; the hint line this replaced was saying the same thing
+     from a worse place. */
+  .boxer-say {
+    display: none; position: relative; flex: 0 0 auto;
+    align-items: flex-start; gap: 10px; padding: 10px 12px;
+    border-top: 1px solid var(--edge); background: rgba(0, 0, 0, .3);
+  }
+  .slot.is-boxing .boxer-say { display: flex; }
+  /* WITH NOTHING SELECTED IT IS AN EMPTY FRAME AND A DIFFERENT SENTENCE, and
+     the field does not take the caret: a box is what a line belongs TO, so
+     typing before there is one would be writing into nothing - the same
+     refusal as a lit button that cannot run. */
+  .slot.is-boxing:not(.has-pick) .boxer-desc { pointer-events: none; }
+  .slot.is-boxing:not(.has-pick) .boxer-desc:empty::before { content: attr(data-ph0); }
+  .slot.is-boxing:not(.has-pick) .bf-del { visibility: hidden; }
+  /* A FRAME AND NOT A SWATCH - it is the box, drawn small: the same 1px
+     stroke in the same colour around the same nothing, so the thing beside
+     your sentence reads as the thing on the picture rather than as a
+     legend entry about it. */
+  /* AND ITS RESTING COLOUR IS A SEAM, NOT THE ACCENT. `--red` is the one
+     colour on this page that already means something, and an empty frame
+     wearing it would read as a box that exists somewhere off screen. */
+  .bx-chip {
+    flex: 0 0 auto; width: 15px; height: 15px; margin-top: 3px;
+    border: 1px solid var(--bx-c, var(--edge-lit));
+    box-shadow: inset 0 0 0 1px rgba(8, 9, 10, .5);
+  }
+  .boxer-desc {
+    flex: 1 1 auto; min-width: 0;
+    font: 400 13px/1.5 var(--body); color: var(--sand);
+    background: none; border: 0; outline: 0;
+    white-space: pre-wrap; overflow-wrap: anywhere;
+  }
+  .boxer-desc:empty::before { content: attr(data-ph); color: var(--sand-dim); }
+  .boxer-say .bf-del {
+    flex: 0 0 auto; background: none; border: 0; padding: 0 2px;
+    margin-top: 1px; color: var(--sand-dim); cursor: pointer;
+    font-size: 15px; line-height: 1;
+  }
+  .boxer-say .bf-del:hover { color: var(--red); }
+  /* AND A SQUARE OF NOTHING SAYS SO. With an empty source slot there is no
+     picture to point at, and an empty panel reads as a bug - which is how
+     this was first seen. */
+  .boxer-none {
+    position: absolute; inset: 0; z-index: 2;
+    display: none; align-items: center; justify-content: center;
+    padding: 0 24px; text-align: center;
+    font: 400 11px/1.5 var(--body); color: var(--sand-dim);
+  }
+  .slot.is-boxing:not(.has-pic) .boxer-none { display: flex; }
+  .slot.is-boxing:not(.has-pic) .boxer-draw { cursor: default; }
   /* AND THE AGENT STANDS ON THE SAME PLATE THE PROMPT DOES - Babe,
      2026-10-25: "when you go to the agent. can we keep the blurred image you
      have loaded in the prompt". Which is the rule one level in again: the
@@ -1372,22 +1497,46 @@
      the cells name the way across and the way to act, and the row reads the
      same as every other row on the rail. */
   .tr.face { display: none; }
-  .slot.has-form.is-inface .tr.face,
+  .slot.has-form.is-inface:not(.is-boxing) .tr.face,
   /* AND ON A SLOT THAT IS ONLY A BOX, ALWAYS. The two rules either side are
      scoped to being inside a face because on those slots the writing is one;
      here it is the slot, and there is no picture tray for the cell to be a
      fourth thing in. */
-  .slot.is-writing .tr.face,
+  .slot.is-writing:not(.is-boxing) .tr.face,
   /* and on a writing slot only while the box is open: in the picture tray it
      would be a fourth cell offering to write something nobody is writing. */
-  .slot.is-asking.writes .tr.face { display: block; flex: 0 0 auto; padding: 0 22px; }
+  .slot.is-asking.writes:not(.is-boxing) .tr.face { display: block; flex: 0 0 auto; padding: 0 22px; }
+  /* AND THE BOX CELL TAKES THAT RULE TOO, for the reason written above it:
+     in a picture tray it would be a fourth cell offering to draw on
+     something nobody is writing about. The one difference is that it must
+     not show while the box face is UP - the row inside a face is the way
+     back and the thing that acts, and a cell offering the face you are
+     standing in is the never-both rule the camera row already keeps. */
+  .tr.boxes { display: none; }
+  .slot.has-form.is-inface:not(.is-boxing) .tr.boxes,
+  .slot.is-writing:not(.is-boxing) .tr.boxes,
+  .slot.is-asking.writes:not(.is-boxing) .tr.boxes { display: block; flex: 0 0 auto; padding: 0 14px; }
+  /* AND THE AGENT CELL AND THE ? STAND DOWN WHILE IT IS UP - which has to be
+     said on the SHOW rules and not as a hide rule of its own.
+     `.slot.is-asking.writes .tr.face` is three classes to
+     `.slot.is-boxing .tr.face`'s two, so the hide lost the race and the row
+     drew AGENT and ? beside a face they cannot reach. Babe's screenshot,
+     2026-10-29. Draw a state on the rule that owns it; a second rule
+     arguing with the first is the seam this picker already paid for. */
+
   /* THE ? IS THE AGENT CELL'S RULE EXACTLY, because it is that cell's
      neighbour and the two are only ever wanted in the same breath. Narrower,
      because a single glyph does not want a word's padding. */
+  /* AND THE ? STAYS UP INSIDE THE BOX FACE - Babe, 2026-10-29: "the ? needs
+     to talk about the boxes feature". It is the one cell in that row with
+     something to say there: AGENT helps you write a sentence and the box
+     face is not where you write one, but what a box DOES is exactly the
+     question somebody standing in front of an empty square has. */
   .tr.why { display: none; }
   .slot.has-form.is-inface .tr.why,
   .slot.is-writing .tr.why,
-  .slot.is-asking.writes .tr.why { display: block; flex: 0 0 auto; padding: 0 14px; }
+  .slot.is-asking.writes .tr.why,
+  .slot.is-boxing .tr.why { display: block; flex: 0 0 auto; padding: 0 14px; }
   /* THE NOTE STANDS ON THE WRITING FACE'S OWN PLATE - Babe, 2026-10-27: "can
      we add the help into the actual panel as like a toggle. so its per mode in
      the prompt sections of that mode". It was the result overlay with all four
@@ -3860,7 +4009,23 @@
          sentence goes straight to the rung, and IMPORT and RANDOM are the
          two ways to answer with a picture instead. The SOURCE tray still
          opens on IMPORT because there is nothing to write over there. */
+      /* (*) THE BOX FACE IS ON 01 ALONE, 2026-10-29. FLUX.3 Klein is the
+         only row on this rail whose encoder reads a layout table, and a
+         face that can only ever be ignored is the WAN-2.7 shape wearing a
+         different hat. It is a prototype: it draws, selects, describes and
+         deletes, `HJ.boxTable()` reads the rows out in the shape they would
+         be sent in, and NOTHING is wired to a run - so the feel can be
+         judged before a credit is spent on it. */
       right: { k: 'Modify', t: '', acts: ['Prompt', 'Import', 'Random'],
+               /* (*) THE FLAG IS THE COPY, which is how `help` next door
+                  works and for the same reason: a slot asks for the face by
+                  declaring the line it opens with, so there is no second
+                  table to keep in step. Mine, and Babe's to cut. */
+               boxes: 'Draw a box on your source and say what happens inside '
+                 + 'it. Each box gets its own colour, and the frame beside '
+                 + 'the prompt tells you which one you are talking about. '
+                 + 'The boxes guide where and how big - they are not a mask, '
+                 + 'so what you ask for can spill past the edges.',
                /* THE SLOT'S OWN QUESTION IS THE TAB IT OPENS ON. `openAsk`
                   reads the pressed tab's `ask` before this one, and STYLE is
                   pressed from the first frame - so a different string here
@@ -5172,6 +5337,11 @@
                line would be four things that can disagree. */
             + (s.sends ? ' data-sends="' + s.sends.join('|') + '"' : '')
             + (s.tabs ? ' data-mode="' + s.tabs[0].k + '"' : '');
+    /* AND THE BOX FACE'S OWN NOTE RIDES ON THE SLOT, because the ? asks the
+       slot what face it is in before it asks which tab is pressed - the face
+       is the nearer question. A string written here cannot disagree with the
+       cell, since the same `s.boxes` draws both. */
+    if (s.boxes) att += ' data-boxes="' + String(s.boxes).replace(/"/g, '&quot;') + '"';
     var h = '<div class="inp"><div class="' + cls + '"' + att + '>';
     /* THE TABS SIT ABOVE WHAT THEY CHOOSE BETWEEN, here as on 04: on that
        rung they pick which form you are looking at, and here they pick what
@@ -5322,6 +5492,40 @@
                '</svg></button></div>' +
            '</div>';
     }
+    /* AND THE BOX FACE IS ASKED FOR THE SAME WAY THE AGENT IS - one flag on
+       the slot, and the panel and its cell arrive together. It is on 01
+       alone for now: FLUX.3 Klein is the only row on this rail whose
+       encoder reads a layout table, and a face that can only ever be
+       ignored is the WAN-2.7 shape wearing a different hat. */
+    if (s.boxes) {
+      h += '<div class="boxer">' +
+             /* THE STAGE IS ITS OWN BOX, which is what lets the prompt row
+                live INSIDE the panel the way the agent's compose row does
+                without standing on the picture. The plate, the surface and
+                every box are children of the stage, so a coordinate is
+                measured against the drawing area rather than against the
+                panel that also holds a row of text. */
+             '<div class="boxer-stage">' +
+               '<div class="boxer-draw"></div>' +
+               '<div class="boxer-none">Put a picture in either slot and it appears here to draw on.</div>' +
+             '</div>' +
+           /* AND THE PROMPT ROW IS THE AGENT'S OWN - Babe, 2026-10-29, with
+              a shot of the compose row: "maybe a frame next to the chat that
+              is a random color of your box selection". It is the same
+              furniture because it is the same gesture, and the only thing
+              added is the frame that says WHICH box you are talking about.
+              IT SITS OUTSIDE THE PANEL, not in it: the picture wants every
+              pixel of the square, and a row laid over the bottom of it
+              covers the one place a box is most likely to be drawn. */
+             '<div class="boxer-say">' +
+               '<span class="bx-chip" aria-hidden="true"></span>' +
+               '<div class="boxer-desc" contenteditable="true" spellcheck="false"' +
+               ' data-ph="what happens to this selection…"' +
+               ' data-ph0="drag a box and add prompt"></div>' +
+               '<button class="bf-del" type="button" aria-label="remove">&times;</button>' +
+             '</div>' +
+           '</div>';
+    }
     /* AND A DRAWN BOARD GETS ONE TOO - Babe, 2026-10-26: "lets also add the
        x to remove the image". The X means throw away what is in this box on
        every other slot, and a board sitting in the panel is the one thing on
@@ -5404,6 +5608,10 @@
            '<button class="tr pick-face" data-face="board" aria-pressed="false">Image</button>' +
            '<button class="tr" data-act="import">Import</button>';
       h += '<button class="tr face" data-back="Prompt">Agent</button>';
+      /* (*) AND THE BOX CELL SITS BESIDE IT, because the two are the same
+         kind of door: one opens a face that helps you say it, the other a
+         face that helps you point at it. The word is mine and Babe's. */
+      if (s.boxes) h += '<button class="tr boxes" data-act="boxes">Boxes</button>';
     } else {
       var acts = s.acts || [];
       for (var j = 0; j < acts.length; j++) {
@@ -5470,6 +5678,10 @@
        other writing slot on the rail gets one. */
     if (!s.board && s.help) {
       h += '<button class="tr face" data-back="Prompt">Agent</button>';
+      /* (*) AND THE BOX CELL SITS BESIDE IT, because the two are the same
+         kind of door: one opens a face that helps you say it, the other a
+         face that helps you point at it. The word is mine and Babe's. */
+      if (s.boxes) h += '<button class="tr boxes" data-act="boxes">Boxes</button>';
     }
     /* AND THE ? SITS BESIDE IT, on the same rule: it only draws while the
        writing box is open, because in a picture tray it would be a cell
@@ -5997,7 +6209,12 @@
      step across to the agent and back. */
   function faceHome(slot, name) {
     slot.dataset.face0 = name || 'Prompt';
+    /* AND THE BOX FACE GOES HOME WITH THE AGENT. This function is what
+       "you are back at the door" MEANS, so a face that is not in it is a
+       face that survives being left - which is how a class gets stranded on
+       a slot and the next open inherits it. */
     slot.classList.remove('is-agent');
+    slot.classList.remove('is-boxing');
     var f = slot.querySelector('.tray .face');
     if (f) { f.textContent = 'Agent'; f.dataset.back = slot.dataset.face0; }
     var k = slot.querySelector('.tray .tray-k');
@@ -6082,7 +6299,19 @@
     var k = e.target.closest && e.target.closest('.tray .tray-k, .tray .tr.back');
     if (!k) return;
     var slot = k.closest('.slot');
-    if (!slot || !slot.classList.contains('is-agent')) return;
+    /* AND THE BOX FACE LEAVES BY THE SAME ARROW, one level at a time. It is
+       a face, so the arrow has to claim the press here too - otherwise it
+       falls through to app.js, which closes the WRITING face underneath and
+       the one press jumps two levels. That is the bug `__backDone` below was
+       written for, arriving on a third face. */
+    if (!slot) return;
+    if (slot.classList.contains('is-boxing')) {
+      var bx = slot.querySelector('.tr.boxes');
+      if (bx) bx.click();
+      e.__backDone = 1;
+      return;
+    }
+    if (!slot.classList.contains('is-agent')) return;
     var f = slot.querySelector('.tray .face');
     if (f) f.click();
     /* AND THE OTHER HANDLER MUST NOT UNDO IT. app.js listens for this same
@@ -7250,7 +7479,7 @@
      DIRECTION IS WHICH WAY YOU WENT. Gaining a face class is stepping in and
      the new row arrives from the right; losing one is stepping back and it
      arrives from the left, the way the chevron in the header points. */
-  var FACE_CLASSES = ['is-inface', 'is-asking', 'is-describing', 'is-agent', 'has-board'];
+  var FACE_CLASSES = ['is-inface', 'is-asking', 'is-describing', 'is-agent', 'is-boxing', 'has-board'];
 
   function swapTray(slot, back) {
     var tray = slot.querySelector('.tray');
@@ -7331,7 +7560,354 @@
     return out;
   }
 
+  /* ------------------------------------------------------------ THE BOXES
+   *
+   * Babe, 2026-10-29: "then we can explore a simple bounding box control
+   * panel. maybe you can draw boxes on the image to be more specific".
+   *
+   * WHAT THE MODEL ACTUALLY WANTS is a caption, one space, then ONE JSON
+   * array of rows {id, from, src_bbox, tgt_bbox, desc} - boxes as
+   * [y_min, x_min, y_max, x_max], integers 0..1000, top-left origin, from
+   * BFL's own `i2i_bbox` annotation prompt. So the panel's job is to produce
+   * that table from a drag, and nothing here invents a format.
+   *
+   * AND NOTHING IS WIRED YET, DELIBERATELY. This draws, selects, describes
+   * and deletes, and `HJ.boxTable()` reads the rows out - so the FEEL can be
+   * judged before a single credit is spent on it. The run path does not know
+   * this exists.
+   *
+   * THE PICTURE IS THE LEFT SLOT'S, WHICH IS THE ONE EXCEPTION TO THE PLATE
+   * RULE. Every other face stands on the picture the box ITSELF is holding,
+   * because you write over what the box holds. A box table is addressed to
+   * `<ref_image_0>`, which on 01 is the SOURCE - the thing being edited -
+   * so this face reaches across to the left slot for it.
+   * AND IT IS CLONED RATHER THAN MOVED, which is the opposite of what
+   * `facePlate` does and for the opposite reason: facePlate moves the node
+   * because the box it comes from is being hidden anyway, and a re-made
+   * <video> reloads. Here the left slot stays on screen holding that
+   * picture, so moving it would blank the thing you are drawing on top of.
+   * A still cloned twice cannot disagree with itself. */
+  function leftPicOf(slot) {
+    var slide = slot.closest('.slide');
+    if (!slide) return null;
+    /* IT WALKS `.inp` AND NOT `.drop`, which is the same thing `boxesOf`
+       does and the reason that function exists: every slot is wrapped in one
+       `.inp`, so the FIRST of them is the left slot however many faces it
+       has. Walking `.drop` by position breaks the moment a left slot grows a
+       second face, because the alt box sits between the two slots.
+       AND IT DOES IT HERE RATHER THAN BORROWING `HJ.boxesOf`. The first
+       draft asked app.js for the reader and silently got nothing when the
+       answer was undefined - six lines that cannot be undefined beat one
+       line that can.
+       AND IT DRAWS ON WHICHEVER PICTURE IS THERE, LEFT FIRST. Measured in
+       the page, 2026-10-29, after Babe said the image was gone three times:
+       the SOURCE slot held nothing but its file input, and the picture they
+       were looking at was in the RIGHT slot. The panel was right and right
+       uselessly - it sent somebody hunting for a bug when there was a
+       picture on screen it could have drawn on.
+       SO THE LEFT IS PREFERRED AND THE RIGHT IS THE FALLBACK, which is also
+       what the two mean to the model: the left is <ref_image_0>, the thing
+       being edited, and the right is <ref_image_1>, the thing the
+       instruction refers to - and `from` on every row says which, so a box
+       drawn on the second reference is expressible rather than mislabelled.
+       It is the rail's own rule arriving here too: you write over what the
+       box is holding, and this face is the one that points at it. */
+    var inps = slide.querySelectorAll('.inp');
+    for (var i = 0; i < inps.length; i++) {
+      var box = inps[i].querySelector('.drop:not(.alt)');
+      var pic = box && box.querySelector('img, video');
+      if (pic) return { el: pic, from: i === 0 ? 'ref_image_0' : 'ref_image_1' };
+    }
+    return null;
+  }
+
+  /* 0..1000, TOP-LEFT ORIGIN, AND MEASURED AGAINST THE PICTURE RATHER THAN
+   * THE PANEL. `object-fit: contain` bars a non-square picture out inside a
+   * square panel, so the bars are panel and not image - a box drawn over one
+   * would come out as a coordinate outside the frame. This finds the drawn
+   * rect of the image inside its box and maps into that. */
+  function picRect(stage) {
+    var img = stage.querySelector('.boxer-plate');
+    var r = stage.getBoundingClientRect();
+    var nw = img ? (img.naturalWidth || img.videoWidth || 0) : 0;
+    var nh = img ? (img.naturalHeight || img.videoHeight || 0) : 0;
+    if (!nw || !nh) return { x: 0, y: 0, w: r.width, h: r.height };
+    var scale = Math.min(r.width / nw, r.height / nh);
+    var w = nw * scale, h = nh * scale;
+    return { x: (r.width - w) / 2, y: (r.height - h) / 2, w: w, h: h };
+  }
+
+  function clamp(n, lo, hi) { return n < lo ? lo : n > hi ? hi : n; }
+
+  /* A RANDOM COLOUR PER BOX, AND IT IS THE BOX'S NAME. Babe, 2026-10-29:
+     "a random color of your box selection... when you select and move around
+     the box that color changes next to the prompt you add".
+     IT IS A HUE AND NOT A PALETTE, because a palette runs out: the fifth box
+     would repeat the first and two boxes with one name is the one thing the
+     colour exists to prevent. Spun off the golden angle from a random start,
+     so consecutive boxes are always far apart on the wheel rather than
+     occasionally adjacent, which a plain random hue is about a fifth of the
+     time.
+     AND THE SATURATION AND LIGHTNESS ARE FIXED, high and bright: this page
+     is near-black with one red in it, and a colour picked freely would
+     sooner or later land on that red or disappear into the plate. */
+  var bxHue = Math.random() * 360;
+  function nextColour() {
+    bxHue = (bxHue + 137.508) % 360;
+    return 'hsl(' + Math.round(bxHue) + ' 85% 62%)';
+  }
+
+  /* THE ROW IS KEPT ON THE ELEMENT, NOT IN A LIST BESIDE IT. The boxes ARE
+   * the state - one mechanism per fact - so there is nothing to keep in step
+   * when one is deleted and nothing to rebuild when the panel re-opens. */
+  function bboxOf(el, stage) {
+    var p = picRect(stage);
+    var x0 = parseFloat(el.style.left), y0 = parseFloat(el.style.top);
+    var w = parseFloat(el.style.width), h = parseFloat(el.style.height);
+    var k = function (v, off, span) {
+      return Math.round(clamp((v - off) / (span || 1), 0, 1) * 1000);
+    };
+    return [k(y0, p.y, p.h), k(x0, p.x, p.w),
+            k(y0 + h, p.y, p.h), k(x0 + w, p.x, p.w)];
+  }
+
+  function renumber(stage) {
+    var all = stage.querySelectorAll('.bx');
+    for (var i = 0; i < all.length; i++) {
+      all[i].dataset.n = i + 1;
+      var k = all[i].querySelector('.bx-k');
+      if (k) k.textContent = i + 1;
+    }
+    var slot = stage.closest('.slot');
+    if (slot) slot.classList.toggle('has-bx', all.length > 0);
+  }
+
+  function pickBox(stage, el) {
+    var slot = stage.closest('.slot');
+    var all = stage.querySelectorAll('.bx');
+    for (var i = 0; i < all.length; i++) {
+      all[i].setAttribute('aria-pressed', all[i] === el ? 'true' : 'false');
+    }
+    if (slot) slot.classList.toggle('has-pick', !!el);
+    if (!slot) return;
+    if (!el) {
+      var bare = slot.querySelector('.boxer-say');
+      if (bare) {
+        bare.style.removeProperty('--bx-c');
+        var bd = bare.querySelector('.boxer-desc');
+        if (bd) bd.textContent = '';
+      }
+      return;
+    }
+    /* THE ROW IS THE AGENT'S COMPOSE ROW IN THE AGENT'S POSITION - inside
+       the panel, at the foot, which is where this slot's other face already
+       puts it. It sat outside for one draft, and a row that is a sibling of
+       a square grows the column when it appears: selecting your first box
+       would have moved the tray and RUN down the screen. The stage takes the
+       remaining height instead, so nothing below the panel ever moves. */
+    var say = slot.querySelector('.boxer-say');
+    if (!say) return;
+    say.style.setProperty('--bx-c', el.style.getPropertyValue('--bx-c'));
+    var d = say.querySelector('.boxer-desc');
+    d.textContent = el.dataset.desc || '';
+    d.focus();
+  }
+
+  function addBox(stage, x, y, w, h) {
+    var el = document.createElement('div');
+    el.className = 'bx';
+    el.setAttribute('aria-pressed', 'false');
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.width = w + 'px'; el.style.height = h + 'px';
+    /* THE COLOUR ARRIVES AS A CUSTOM PROPERTY, never as `border-color`. An
+       inline style beats a stylesheet rule forever, so writing the stroke
+       directly would make the selected state impossible to draw - the same
+       lesson the collage shards paid for with `--op` and `--blr`. */
+    el.style.setProperty('--bx-c', nextColour());
+    el.innerHTML = '<span class="bx-k"></span>';
+    stage.appendChild(el);
+    renumber(stage);
+    return el;
+  }
+
+  /* DRAWING. Pointer capture on the surface, so a drag that leaves the panel
+   * still ends properly - the same reason the collage arranger takes the
+   * pointer rather than watching the document. */
+  document.addEventListener('pointerdown', function (e) {
+    var surf = e.target.closest && e.target.closest('.boxer-draw');
+    var hit = e.target.closest && e.target.closest('.bx');
+    var stage = (surf || hit) && (surf || hit).closest('.boxer-stage');
+    if (!stage) return;
+    if (hit) { pickBox(stage, hit); return; }
+    var owner = stage.closest('.slot');
+    if (owner && !owner.classList.contains('has-pic')) return;
+    var r = stage.getBoundingClientRect();
+    var ox = e.clientX - r.left, oy = e.clientY - r.top;
+    var el = null;
+    surf.setPointerCapture(e.pointerId);
+    var move = function (ev) {
+      var cx = ev.clientX - r.left, cy = ev.clientY - r.top;
+      var x = Math.min(ox, cx), y = Math.min(oy, cy);
+      var w = Math.abs(cx - ox), h = Math.abs(cy - oy);
+      /* A CLICK IS NOT A BOX. Under about eight pixels it is somebody
+         putting the current one down, which is what the empty space is for. */
+      if (!el && w < 8 && h < 8) return;
+      if (!el) el = addBox(stage, x, y, w, h);
+      el.style.left = x + 'px'; el.style.top = y + 'px';
+      el.style.width = w + 'px'; el.style.height = h + 'px';
+    };
+    var up = function (ev) {
+      surf.removeEventListener('pointermove', move);
+      surf.removeEventListener('pointerup', up);
+      try { surf.releasePointerCapture(ev.pointerId); } catch (err) {}
+      pickBox(stage, el);
+    };
+    surf.addEventListener('pointermove', move);
+    surf.addEventListener('pointerup', up);
+    e.preventDefault();
+  });
+
+  /* THE BOX FACE AUTHORS THE RUNG'S SENTENCE, which is what lights RUN -
+     Babe, 2026-10-29: "then we need the RUN to highlight red so you can run
+     the bounding box edit".
+     IT WRITES INTO THE WRITING BOX RATHER THAN INVENTING A SECOND ROUTE,
+     which is exactly what the agent does with its proposal: there is one
+     place the artist's line lives and one gate reading it, so a third face
+     that produces a line puts it there and every rule downstream - the cold
+     RUN, `valuesFor`, the carry - keeps working without being told this
+     face exists.
+     THE SENTENCE IS THE DESCRIPTIONS AND NOTHING ELSE. Each box cites its
+     own id, which is the half BFL's annotator format needs from the
+     paragraph; the coordinates ride in the table `HJ.boxTable` builds and
+     never in here, because a sentence full of numbers is not a sentence
+     anybody can take the last word on. */
+  function boxSaid(slot) {
+    var stage = slot.querySelector('.boxer-stage');
+    if (!stage) return '';
+    return [].slice.call(stage.querySelectorAll('.bx')).map(function (el) {
+      var d = (el.dataset.desc || '').trim();
+      return d ? d.replace(/[.;]\s*$/, '') + ' <region_' + el.dataset.n + '>' : '';
+    }).filter(Boolean).join('; ');
+  }
+
+  function pushSaid(slot) {
+    var line = boxSaid(slot);
+    slot.dataset.boxSaid = line;
+    /* `.ask` IS THE ONE THE GATE READS and the one `valuesFor` reads, so
+       writing it is the whole wiring. The box's own memory is written too,
+       because the words have to outlive a step back out of the face. */
+    var ask = slot.querySelector('.ask');
+    if (ask) ask.textContent = line;
+    var drop = slot.querySelector('.drop');
+    if (!drop) return;
+    drop.dataset.said = line;
+    /* AND A BOX DRAWN ON THIS SLOT'S OWN PICTURE KEEPS IT, which `data-keeps`
+       already exists to say: one box one answer is the rule for words
+       INSTEAD of a picture, and `.slot.writes.is-asking` drops the file for
+       exactly that reason. A table of coordinates is the opposite case - the
+       words are anchored TO the picture by position, which is as far from
+       ambiguous as this rail gets - and without this the run would cite
+       <ref_image_1> in the table while node 12 was dropped for having no
+       reference: a prompt pointing at a picture that was never sent, which
+       is the box-lying rule arriving in the face built to point at things.
+       ONLY WHILE THERE ARE BOXES ON IT. Delete the last one and this is an
+       ordinary writing slot again, so the flag goes with them. */
+    var stage = slot.querySelector('.boxer-stage');
+    var drawn = stage ? stage.querySelectorAll('.bx').length : 0;
+    if (drawn && slot.dataset.bxFrom === 'ref_image_1') drop.dataset.keeps = '1';
+    else delete drop.dataset.keeps;
+  }
+
+  document.addEventListener('input', function (e) {
+    var d = e.target.closest && e.target.closest('.boxer-desc');
+    if (!d) return;
+    var owner = d.closest('.slot');
+    var stage = owner && owner.querySelector('.boxer-stage');
+    var el = stage && stage.querySelector('.bx[aria-pressed="true"]');
+    if (el) el.dataset.desc = d.textContent.trim();
+    if (owner) pushSaid(owner);
+  });
+
+  document.addEventListener('click', function (e) {
+    var del = e.target.closest && e.target.closest('.bf-del');
+    if (!del) return;
+    var owner = del.closest('.slot');
+    var stage = owner && owner.querySelector('.boxer-stage');
+    var el = stage && stage.querySelector('.bx[aria-pressed="true"]');
+    if (el) el.remove();
+    renumber(stage);
+    pickBox(stage, null);
+    if (owner) pushSaid(owner);
+  });
+
+  /* STEPPING IN. The same shape as the agent cell beside it: one class on
+     the slot, the header names the face, and the back arrow is the way out -
+     which `closeAsk`'s handler already owns, so nothing here binds Escape or
+     a second way back. */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.tr.boxes');
+    if (!b) return;
+    var slot = b.closest('.slot');
+    if (!slot) return;
+    var panel = slot.querySelector('.boxer');
+    if (!panel) return;
+    var on = !slot.classList.contains('is-boxing');
+    /* one face at a time - the agent and this cannot both be up */
+    if (on && slot.classList.contains('is-agent')) {
+      var face = slot.querySelector('.tray .face');
+      if (face) face.click();
+    }
+    slot.classList.toggle('is-boxing', on);
+    if (on) {
+      var found = leftPicOf(slot);
+      var src = found && found.el;
+      slot.dataset.bxFrom = (found && found.from) || 'ref_image_0';
+      var stage = panel.querySelector('.boxer-stage');
+      var old = stage.querySelector('.boxer-plate');
+      if (old) old.remove();
+      if (src) {
+        var clone = src.cloneNode(true);
+        clone.className = 'boxer-plate';
+        clone.removeAttribute('style');
+        if (clone.tagName === 'VIDEO') { clone.muted = true; clone.defaultMuted = true; }
+        stage.insertBefore(clone, stage.firstChild);
+      }
+      /* WHETHER THERE IS ANYTHING TO POINT AT, said once on the slot so the
+         empty line, the cursor and the drag all read one fact. */
+      slot.classList.toggle('has-pic', !!src);
+      /* AND THE FRAME STARTS EMPTY. The row survives between openings, so a
+         colour left on it is last session's box pointing at nothing. */
+      var say0 = slot.querySelector('.boxer-say');
+      if (say0) say0.style.removeProperty('--bx-c');
+      renumber(stage);
+    }
+    var k = slot.querySelector('.tray .tray-k');
+    if (window.HJ && window.HJ.faceHead) window.HJ.faceHead(slot, on ? 'Boxes' : 'Prompt');
+    else if (k) k.textContent = on ? 'Boxes' : (slot.dataset.face0 || 'Prompt');
+  });
+
+  /* WHAT THE PANEL IS WORTH, read out in the shape it would be sent in.
+     `from` is `ref_image_0` because on 01 the box is drawn on the SOURCE;
+     `tgt_bbox` is the same box, since nothing here moves anything yet, and
+     a row whose target is null is how a removal would be said. */
+  function boxTable(slot) {
+    slot = slot || document.querySelector('.slot.is-boxing');
+    var stage = slot && slot.querySelector('.boxer-stage');
+    if (!stage) return [];
+    return [].slice.call(stage.querySelectorAll('.bx')).map(function (el) {
+      var bb = bboxOf(el, stage);
+      return {
+        id: 'region_' + el.dataset.n,
+        from: slot.dataset.bxFrom || 'ref_image_0',
+        src_bbox: bb,
+        tgt_bbox: bb,
+        desc: el.dataset.desc || ''
+      };
+    });
+  }
+
   window.HJ = { go: go, jump: jump, intro: intro, cascade: cascade, modeHelp: modeHelp,
+    boxTable: boxTable, boxSaid: boxSaid,
                 slides: slides, index: function () { return i; }, setVoid: setVoid,
                 setShards: setShards,
                 sheets: SHEETS, modes: MODES, traits: TRAITS, sheetTemplate: sheetTemplate,
