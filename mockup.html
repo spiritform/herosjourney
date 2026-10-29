@@ -4068,12 +4068,57 @@
       sig: 'IMAGE + TEXT &rarr; <b>IMAGE</b>',
       head: 'TAKE<br><span class="hl">SHAPE</span>',
       sub: 'Head to feet, every angle',
+      /* (*) AND THE HERO SLOT WRITES NOW, 2026-10-29. Babe, looking at a
+         sheet that had given their character Hawaiian-print pyjama
+         trousers: "i guess the issue with this is there is no place to
+         prompt... because i couldn't tell the model what type of pants he
+         should have", then "add to the hero section a third first tab".
+         IT REVERSES A CALL FROM 2026-10-25 - "two is more like system
+         prompting you dont really need a custom prompt" - and the sheet is
+         what argued it round: 01 hands this rung a picture from the chest
+         up, so everything from the waist down is INVENTED, and there was no
+         way to say a word about it. The panel sentence says where each view
+         goes and the traits say who they are; nothing said what they wear.
+         PROMPT LEADS, the way 01's tray does - Babe, 2026-10-25: "im
+         curious what your thoughts are on moving prompt to the left so its
+         first" - because a tray is read left to right and the first answer
+         here is now words.
+         AND `keeps` IS NOT OPTIONAL ON THIS ONE. A box showing words drops
+         the picture behind them - one box, one answer - and the figure is
+         `required` here, so without this the first sentence anybody typed
+         would have refused the run rather than enriched it. The words are
+         ABOUT the hero rather than instead of it, which is exactly what
+         that flag says. */
       left:  { k: 'Hero', held: true, t: '<b>Your character</b>carried from 01',
-               acts: ['Import'], traits: true },
+               acts: ['Prompt', 'Import'], traits: true,
+               writes: true, keeps: true,
+               ask: 'What the photo does not show&hellip; trousers, shoes, what they carry' },
       right: { k: 'Sheet', sheets: true },
       agent: 'Four panels, one character.',
+      /* AND THE OPEN ROWS COME BACK, 2026-10-29 - Babe: "i think we can
+         re-add the qwen stuff we did on take shape before". They were cut
+         in the launch pass on the bar of HAS ANYONE LOOKED AT IT, and they
+         had been: the open-weights pass drew Hero, Turn and Faces on them,
+         and Faces - six expressions that actually differ - was the riskiest
+         of the four presets. So this is that cut's own rule letting them
+         back rather than an exception to it.
+         AND FLUX-3-KLEIN GOES ON TOO - Babe, the same minute: "lets add
+         flux". It is the better-suited of the open rows on a page of panels
+         (see the note beside its variant) and this is the rung where that
+         matters most.
+         (*) WHICH MAKES FOUR, AND THREE PER RUNG IS THE RULE. It is a real
+         rule and not a preference - a dropdown is a tile, and tiles are how
+         LatentLab reached 142 rows - so this is a deliberate exception and
+         not a quiet one. The honest row to give up if it ever reads as a
+         wall is the TURBO: it samples the latent the encoder derives from
+         the figure, so the sheet comes back the shape of the photograph it
+         was given, which is a cramped place to put four full-length views.
+         The other three each do something the others cannot. */
       models: [
-        { n: 'NANO-BANANA-2.1',     t: '~17cr', c: 'one reference &middot; ~17 credits &middot; partner' }
+        { n: 'NANO-BANANA-2.1',     t: '~17cr', c: 'one reference &middot; ~17 credits &middot; partner' },
+        { n: 'QWEN-IMAGE-EDIT-21',  t: '17.0s', c: 'one reference &middot; 25 steps &middot; open weights' },
+        { n: 'QWEN-IMAGE-21-TURBO', t: '13.2s', c: 'one reference &middot; 8 steps &middot; open weights' },
+        { n: 'FLUX-3-KLEIN',        t: '&mdash;', c: 'one reference &middot; 16 steps &middot; open weights' }
       ],
       /* THE SHEET PRESET OWNS THE RATIO, so AR is declared and every row's
          `params` hides it - see the note above. STEPS IS THE ONE QUALITY

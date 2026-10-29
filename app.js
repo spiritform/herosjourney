@@ -1111,8 +1111,42 @@
     return made;
   }
 
+  /* A NEW HERO MAKES THE PICTURE-TRAITS WRONG, AND ONLY THOSE - Babe,
+     2026-10-29, on a sheet that dressed their Hawaiian character in the
+     previous one's wetsuit: "that is not the hero", then "yeah maybe
+     auto-clear", and the constraint that shapes it: "traits card should be
+     info saved later for video models tho", "esp with new sesion".
+     SO THE `vis` FLAG DECIDES, which is the flag that already means exactly
+     this. `features` is marked "the picture shows this", is the only `vis`
+     trait left after the cut from nine fields to five, and is the only one
+     that reaches 02's sheet - so it is the one that ROTS when the picture
+     under it is replaced. Everything else on the card is the PERFORMANCE -
+     the name, the voice, how they carry themselves, how they move - which is
+     what 05 and 06 are given and what the card exists to carry. Clearing
+     those would throw away the thing it is for.
+     IT WAS NOT AN IMAGE LEAK AND THAT IS THE POINT: the wetsuit arrived as
+     WORDS, in a sentence the card had been writing into every run on this
+     rung since the diver. A card describing a picture that is gone is the
+     box-lying rule one level out.
+     THE TEST IS THE CARD, NOT THE RUNG NUMBER. The box that has a traits
+     card on its back IS the hero, wherever that ends up living. */
+  function staleTraits(box) {
+    var slot = box && box.closest('.slot');
+    if (!slot || !slot.querySelector('.card')) return;
+    var slide = slot.closest('.slide');
+    var gone = 0;
+    (window.HJ.traits || []).forEach(function (t) {
+      if (!t.vis) return;
+      var el = slide && slide.querySelector('.tf[data-t="' + t.k + '"]');
+      if (el && el.textContent.trim()) { el.textContent = ''; gone++; }
+    });
+    if (gone) saveJourney();
+  }
+
   async function putFile(box, file, rung, key) {
     markAct(box, null);
+    /* the card is about the picture, so a new one invalidates it */
+    staleTraits(box);
     /* AND IT IS AN IMPORT UNTIL SOMETHING SAYS OTHERWISE. Every file that
        arrives by hand comes through here - the chooser, a drop, and the
        capture and preset paths on their way past - and the two that are not
@@ -2529,9 +2563,36 @@
        SO THE BOX HAS ONE GESTURE: double-click for a bigger look. The result
        panel with nothing under it, nothing to decide, only the thing you are
        holding. Click away or press Escape to put it down. */
+    /* AND ON AN EMPTY BOX THAT GESTURE IS FREE, SO IT IMPORTS - Babe,
+       2026-10-29, having just done it to a bare HERO: "can we make it so you
+       can double click on the empty slot to import as well? i just did that
+       by instinct".
+       IT DOES NOT RE-OPEN THE DOOR THAT WAS SHUT. What came off in October
+       was the SINGLE click, because it fired on the way to a double-click
+       and again when a click dismissed the big view onto the slot beneath,
+       so the box did two unrelated things depending on how fast you were.
+       A double-click on an EMPTY box collides with nothing: the one gesture
+       this box has means "show me this bigger", and there is nothing to
+       show - so the meaning is going spare rather than being shared.
+       AND IT PRESSES THE TRAY CELL RATHER THAN THE PICKER, so a slot that
+       does not offer IMPORT does not quietly grow it - 02's SHEET slot is a
+       tray of four presets and must not open a file chooser - and so the
+       face handling, the key and the provenance are the ones that cell
+       already does. One mechanism, reached two ways.
+       NOT WHILE THE BOX IS BEING WRITTEN IN: there the empty box is a
+       sentence nobody has typed yet, not a picture nobody has brought. */
     box.addEventListener('dblclick', function (e) {
       var shown = box.querySelector('img, video');
-      if (!shown) return;
+      if (!shown) {
+        if (box.classList.contains('is-ask')) return;
+        var slot = box.closest('.slot');
+        var imp = slot && slot.querySelector(
+          '.tray .tr[data-act="import"], .tray .tr[data-act="replace"]');
+        if (!imp) return;
+        e.preventDefault();
+        imp.click();
+        return;
+      }
       e.preventDefault();
       peek(box.closest('.slide'), shown.src, shown.tagName === 'VIDEO');
     });
@@ -4220,15 +4281,30 @@
     return o;
   }
 
+  /* AND THE TRAIT'S NAME ONLY GOES IN WHEN THERE IS SOMETHING TO TELL IT
+     APART FROM. It was written when NINE traits could be visible and four of
+     them were - "age 40s, build lean, eyes brown" reads properly and needs
+     every one of those words. The cut to five left `features` as the only
+     `vis` trait, and a list of one does not need labelling: every 02 run
+     since has been sending "The character is FEATURES serious expression,
+     brown eyes, ...", which is a stale mechanism outliving the thing it was
+     for, and ungrammatical on the way out. Found in a captured payload,
+     2026-10-29.
+     (*) THE STEM IS STILL "The character is", which reads a little oddly in
+     front of a bare description. Babe's to change. */
   function traitSentence(slide) {
     var said = [];
     (window.HJ.traits || []).forEach(function (t) {
       if (!t.vis) return;
       var el = slide.querySelector('.tf[data-t="' + t.k + '"]');
       var v = el && el.textContent.trim();
-      if (v) said.push(t.n.toLowerCase() + ' ' + v);
+      if (v) said.push({ n: t.n.toLowerCase(), v: v });
     });
-    return said.length ? 'The character is ' + said.join(', ') + '.' : '';
+    if (!said.length) return '';
+    var parts = said.map(function (one) {
+      return said.length > 1 ? one.n + ' ' + one.v : one.v;
+    });
+    return 'The character is ' + parts.join(', ') + '.';
   }
 
   /* whatever the trigger says is what gets sent; the server refuses a model
@@ -5168,6 +5244,11 @@
            still reading it - a left slot with a second face puts its alt box
            between the two slots in the DOM. */
         var box = boxesOf(next).front[0];
+        /* AND A CARRIED RESULT IS A NEW CHARACTER TOO. 01 hands 02 a figure
+           it has never seen; the card below it may still be describing the
+           last one, and `features` travels from here to the end of the rail.
+           Same call as the import path, for the same reason. */
+        if (box) staleTraits(box);
         if (box) showMedia(box, file.url, vid);
         noteSlot(rung + 1, key, lastingUrl(file), vid);
       }

@@ -747,11 +747,16 @@ const FREE_SYS = (hasSheet) =>
  * the sentence rather than a second instruction after one.
  * NANO KEEPS THE LONG ONE. A sheet is a layout job before it is a rendering
  * job and nano is unusually good at being told how. (*) Mine. */
-const SHEET_LINE =
-  "A character contact sheet. Image 1 is the character. Image 2 is a blank "
-  + "layout page: fill its panels, never copy its lines, gutters or labels. "
-  + "The same face, hair and build in every panel, flat even light, plain "
-  + "ground, no text anywhere:";
+/* AND IT TAKES THE TOKEN NAMES, because the open rows do not address their
+ * references alike: qwen's encoder reads `image_1` and `image_2` and is
+ * happy with the words, and Klein's reads `<ref_image_0>` / `<ref_image_1>`
+ * and says so in its own node description. Same sentence, two vocabularies -
+ * the pattern `STYLE_SYS` and `EDIT_LINE` already follow on 01. */
+const SHEET_LINE = (one = "Image 1", two = "Image 2") =>
+  "A character contact sheet. " + cap(one) + " is the character. " + cap(two)
+  + " is a blank layout page: fill its panels, never copy its lines, gutters "
+  + "or labels. The same face, hair and build in every panel, flat even "
+  + "light, plain ground, no text anywhere:";
 
 const SHEET_SYS =
   "You are building a character reference sheet as a single contact sheet image. "
@@ -2198,7 +2203,7 @@ const RUNGS = {
       "QWEN-IMAGE-EDIT-21": {
         graph: "qwen-image-21-edit.json",
         label: "Take shape",
-        sys: SHEET_LINE,
+        sys: () => SHEET_LINE(),
         /* qwen's encoder takes the two references as image_1 and image_2, and
          * SHEET_SYS addresses them in those terms, so the template rides the
          * same slot here as it does on nano. */
@@ -2219,7 +2224,7 @@ const RUNGS = {
       "QWEN-IMAGE-21-TURBO": {
         graph: "qwen-image-21-turbo.json",
         label: "Take shape",
-        sys: SHEET_LINE,
+        sys: () => SHEET_LINE(),
         /* AR DOES NOTHING ON THIS ROW. The turbo graph samples the latent the
          * encoder derives from the figure, so the sheet comes back the shape
          * of the figure — a square photograph gives a square sheet, which is
@@ -2234,6 +2239,44 @@ const RUNGS = {
         required: ["figure", "prompt"],
         dropWhenEmpty: { template: ["475"] },
         defaults: { steps: 8 },
+        params: ["seed", "steps"],
+      },
+      /* AND FLUX.3 KLEIN DOES THIS JOB TOO - Babe, 2026-10-29, on putting
+       * the open rows back here: "not sure if flux can also do that".
+       * IT CAN, AND IT IS BETTER SUITED TO IT THAN THE ROW ABOVE. A contact
+       * sheet is a STRUCTURED LAYOUT, and Klein is the one model on this
+       * rail that was trained on them: BFL's own upsampler prompt names
+       * "tables, grids, calendars, keyboards, charts, maps, posters, pages"
+       * as things that decompose into regions with a box each. Everything
+       * else here is a general image model asked to fill a page.
+       * THE WIRING IS 01's GRAPH WITH 02's NAMES. `ReferenceMultiLatent`
+       * takes two references and nothing about them is rung-specific, so
+       * the figure is `image0` and the template is `image1` - the same two
+       * loaders, addressed by the names this rung uses.
+       * (*) THE BOX TABLE IS THE UNSPENT IDEA HERE. 02 already knows every
+       * panel's rectangle - `SHEETS` is a table of fractions, which is what
+       * `cellOf` and `sheetTemplate` both read - so the layout could go as
+       * coordinates rather than as a drawn page and a sentence describing
+       * it. That would make the template image unnecessary on this row and
+       * is the one thing that might finally stop a model painting the
+       * gutters. It needs a run, not a rewrite. */
+      "FLUX-3-KLEIN": {
+        graph: "flux3-klein-edit.json",
+        label: "Take shape",
+        sys: () => SHEET_LINE("<ref_image_0>", "<ref_image_1>"),
+        inputs: {
+          figure: { node: "11", input: "image" },
+          template: { node: "12", input: "image" },
+          prompt: { node: "100", input: "value" },
+          steps: { node: "7", input: "steps", cast: Number },
+          seed: { node: "7", input: "seed", cast: Number },
+        },
+        required: ["figure", "prompt"],
+        dropWhenEmpty: { template: ["12"] },
+        defaults: { steps: 16 },
+        /* no AR: the latent is sized from the figure, exactly as on the
+         * turbo row above, so the sheet comes back the shape of the
+         * photograph it was given. */
         params: ["seed", "steps"],
       },
     },
