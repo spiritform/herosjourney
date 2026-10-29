@@ -1,6 +1,6 @@
 # Hero's Journey
 
-Built for the **Open Source Higgsfield Competition**, October 2026, by
+Built for the [**Open Source Higgsfield Competition**](https://comfy.org/open-source-higgsfield), October 2026, by
 [spiritform](https://github.com/spiritform). It runs locally with an API key on
 [Comfy Cloud](https://platform.comfy.org).
 
