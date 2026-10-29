@@ -207,7 +207,17 @@
      IT IS ON `body` RATHER THAN `*`, so the exceptions can win by being more
      specific instead of by being listed twice. */
   body { user-select: none; -webkit-user-select: none; }
-  .ask, .say, .tf, .compose-in, .agent-v, [contenteditable="true"], input, textarea {
+  /* AND THE KEY PANEL'S PROSE, because it names two addresses and a page
+     you cannot copy a URL off is a page that makes you type it - Babe,
+     2026-10-29: "you can make that text selectable btw". It is the one
+     paragraph on this page that is instructions rather than furniture.
+     AND THE AGENT'S TRANSCRIPT, which is the other half of that - "can you
+     make sure the text inside of the agent/prompt boxes are selectable".
+     The boxes you type in were always exceptions; the panel you type them
+     INTO was not, so the one sentence worth copying - the line it just
+     wrote, or the failure it just reported - was the one you could not take.
+     It is `.helper-log` alone and every turn inherits it. */
+  .ask, .say, .tf, .compose-in, .agent-v, .helper-log, .keyform p, [contenteditable="true"], input, textarea {
     user-select: text; -webkit-user-select: text;
   }
   html, body { height: 100%; }
@@ -749,6 +759,21 @@
   .slot:not(.is-full) .drop { border-color: var(--sand-dim); }
   .slot:not(.is-full) .drop:hover { border-color: var(--sand-mid); }
   .drop:hover { border-color: var(--sand-dim); color: var(--sand-mid); }
+  /* AND A FILLED BOX KEEPS THE QUIET EDGE ON HOVER TOO - Babe, 2026-10-29,
+     on a rolled style reference: "i didnt notice this thicker line before",
+     "if there is a line its thin like this". It was not thicker and it was
+     not in the picture - measured, the roll's own top row averages 28
+     against an interior 31, so there is no frame in the file. It is
+     --sand-dim, the same 1px as the thin line on an empty slot, which reads
+     as a hairline over black and as a crisp frame over a lit photograph.
+     SO THE RULE THIS PAGE ALREADY STATES WINS: a filled box is the picture,
+     not a frame around one. A held box has kept --edge on hover since it was
+     drawn, for the same reason; this is that rule arriving at the other kind
+     of full box. The affordance does not go - the X still fades in, which is
+     the thing you were reaching for.
+     IT SITS ABOVE `.slot.is-want`, which has to go on winning: a box the run
+     is waiting FOR is red whether or not you are pointing at it. */
+  .slot.is-full .drop:hover { border-color: var(--edge); }
   /* A REFUSAL POINTS AT THE BOX IT NAMES - Babe, 2026-10-27, on EDIT THE
      PICTURE NEEDS SOURCE filling the stage: "this message should prob not
      appear as a modal". Nothing ran and nothing was spent; the whole answer
@@ -3028,6 +3053,15 @@
   }
   .keyform input:focus { outline: none; border-color: var(--sand-dim); }
   .keyform input::placeholder { color: var(--sand-dim); }
+  /* AND A KEY ALREADY IN PLACE SAYS SO IN THE BOX - Babe, 2026-10-29: "should
+     we make it look more like i have something there?", "like comfyui***",
+     "a brighter text". The panel was identical whether or not there was a
+     key, so an empty field read as an empty key and the honest answer was
+     two floors away in the bar. It is a PLACEHOLDER and never a value: there
+     is nothing to put in it, because the server never sends a key back - the
+     box is genuinely empty and what it shows is that it does not need to be
+     filled. Brighter than the ask, because this one is an answer. */
+  .keyform input.is-set::placeholder { color: var(--sand-mid); }
   .runover.is-shots .runover-media {
     display: flex; flex-direction: column; place-items: stretch;
     width: 100%; height: 100%; min-height: 0;
@@ -6085,16 +6119,25 @@
     ask(slot, log);
   }
 
-  /* THE SWEEP ABOVE THE TRAY RUNS TOO - it is the same two pixels that say a
-     job is out on every other rung, and the agent asking a model something is
-     a job out. One vocabulary for waiting, not two. */
+  /* AND THE SWEEP ABOVE THE TRAY DOES NOT RUN - Babe, 2026-10-29: "i dont
+     really want that red line animation just the flashing agent box". It did,
+     on the argument that the 2px bar is one vocabulary for waiting and the
+     agent asking a model something is a job out. THE ARGUMENT IS RIGHT ABOUT
+     A JOB AND WRONG ABOUT WHERE YOU ARE LOOKING: the chip is inside the panel
+     you just typed into, an inch from the cursor, and the bar is on the
+     slot's bottom seam saying the same thing somewhere you are not. Two marks
+     for one wait, and the quieter one is better placed.
+     SO THE SLOT IS `is-waiting` AND NOT `is-working` - the first is what
+     stops a second send and marks the chip, the second is what lights
+     `.slot-prog`. They were added together and only one of them was for
+     this. */
   function ask(slot, log) {
     var pending = turn(log, 'Agent', '', 'pending');
     /* the chip IS the waiting mark now, so it is marked rather than a bar */
     var chip = pending.previousElementSibling;
     if (chip) chip.classList.add('is-waiting');
     var f = slot.querySelector('.compose-in');
-    slot.classList.add('is-working', 'is-waiting');
+    slot.classList.add('is-waiting');
     if (f) {
       f.dataset.phHeld = f.dataset.ph || '';
       f.dataset.ph = 'Waiting…';
@@ -6105,7 +6148,7 @@
        the not-connected line below - leaves it dark, because the cell means
        "run what it just wrote" and there has to be something it just wrote. */
     function answered(text, direction) {
-      slot.classList.remove('is-working', 'is-waiting');
+      slot.classList.remove('is-waiting');
       if (f) {
         f.dataset.ph = f.dataset.phHeld || '';
         f.contentEditable = 'true';

@@ -5232,10 +5232,18 @@
     /* WHERE TO GET ONE IS HALF THE ANSWER. The key is shown once on Comfy's
        side and never again, which is worth saying here rather than being
        found out by going back to look for it. */
-    p.innerHTML = 'Every run goes to <b>Comfy Cloud</b> and spends ' +
-      'your own credits, so it needs your own API key. Make one at ' +
-      '<a href="https://platform.comfy.org" target="_blank" rel="noreferrer">platform.comfy.org</a>' +
-      ' &rarr; Profile &rarr; API Keys. Comfy shows it once.';
+    /* BABE'S, 2026-10-29, WORD FOR WORD. It replaced a sentence of mine that
+       explained what Comfy Cloud is, what credits are and that the key is
+       shown once - three facts, where the person reading this needs one
+       instruction and a door. THE LINK IS THE DEEP ONE and it is its own
+       text: a URL you can read is a URL you can check before you click it,
+       and `.keyform p` is selectable so it can be copied rather than typed.
+       A `Comfy Cloud` link to comfy.org/cloud went in an hour earlier and
+       came out with the reword, which no longer names it. */
+    p.innerHTML = 'Hero&rsquo;s Journey requires a Comfy API key. Create one now at ' +
+      '<a href="https://platform.comfy.org/profile/api-keys" target="_blank" rel="noreferrer">' +
+      'https://platform.comfy.org/profile/api-keys</a>' +
+      ' and paste it into the textbox below.';
     var input = document.createElement('input');
     /* A PASSWORD FIELD BECAUSE THIS SCREEN GETS RECORDED. The whole reason
        this panel exists is that other people are going to run this, which
@@ -5245,7 +5253,12 @@
     input.type = 'password';
     input.autocomplete = 'off';
     input.spellcheck = false;
-    input.placeholder = 'comfyui-…';
+    /* WHAT IT SAYS DEPENDS ON WHETHER THERE IS ONE. (*) `comfyui***` is
+       Babe's. It is masked rather than real - the server never sends a key
+       back, so nothing here could show the true one even if it should. */
+    var had = KEY_STATE === 'set';
+    input.placeholder = had ? 'comfyui***' : 'comfyui-…';
+    if (had) input.classList.add('is-set');
     input.setAttribute('aria-label', 'Comfy API key');
 
     /* THE BUTTON IS THE PAGE'S ONE RED ACTION BUTTON, not a fifth drawing of
@@ -5293,12 +5306,35 @@
            to do with it here and a box still holding a credential is a box
            that can be read over somebody's shoulder. */
         input.value = '';
+        /* AND THE EMPTIED BOX HAS TO SAY WHY IT IS EMPTY - Babe, 2026-10-29,
+           on a successful save: "it looks like this like you need to paste it
+           in again and save". The field is cleared the moment the key is kept
+           and the ask came back with it, so a panel that had just succeeded
+           read as one waiting to be used. The masked placeholder was chosen
+           at OPEN, which is right for a panel you open with a key already in
+           place and says nothing about one that has just been given one. */
+        input.placeholder = 'comfyui***';
+        input.classList.add('is-set');
         markKey('set');
         msg.textContent = 'Saved · ' + (j.chars || '?') + ' characters. Every workflow can run now.';
         /* AND THE ROW HAS TO HEAR ABOUT IT, because Run has been cold since
            boot for exactly this reason. One health call, the same one boot
            makes, rather than a second opinion about what is wired. */
         health();
+        /* AND THEN IT GETS OUT OF THE WAY - Babe, 2026-10-29: "a user
+           already reads it so yeah, when you save it should prob just
+           close". This panel is the one face on the rail with a hidden foot,
+           so after a save there is nothing left to press and the only way
+           out is a click on something that is not it. A beat first, long
+           enough for `Saved` to register, and the bar's key going quiet is
+           the confirmation that stays.
+           ONLY ON A SAVE: a refusal keeps the panel, because the panel is
+           where the sentence about it is. And only if the key face is still
+           the one up - you can click away or open something else inside the
+           beat, and closing then would take whatever that is with it. */
+        setTimeout(function () {
+          if (o.classList.contains('is-on') && o.classList.contains('is-key')) closeResult();
+        }, 900);
       } catch (e) {
         msg.className = 'runover-msg bad';
         msg.textContent = niceError(e && e.message || String(e));

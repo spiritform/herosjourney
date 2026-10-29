@@ -6,6 +6,8 @@ Built for the **Open Source Higgsfield Competition**, October 2026, by
 
 ![Workflow 01 on a cold start: the preset bust in the source slot, the style slot empty, nano-banana-2.1 on the model row](docs/01-become-someone.png)
 
+**[Watch the demo video](https://www.youtube.com/watch?v=w0SOO4E2NZs)**
+
 <!-- screenshots go here -->
 
 | | workflow | out |
@@ -38,7 +40,7 @@ The server binds to `127.0.0.1` and nothing else. It is a local tool.
 
 ![The key panel: press the key in the top right of the page, paste it in, SAVE KEY](docs/comfy-api-key.jpg)
 
-Make one at [platform.comfy.org](https://platform.comfy.org) → Profile → API
+Make one at [platform.comfy.org](https://platform.comfy.org/profile/api-keys) → Profile → API
 Keys. Comfy shows it once.
 
 If you would rather do it by hand, copy `.env.example` to `.env` and put the

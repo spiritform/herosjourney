@@ -17,6 +17,7 @@
  */
 
 import { createServer } from "node:http";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { exec } from "node:child_process";
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync, chmodSync } from "node:fs";
@@ -35,6 +36,40 @@ const PORT = Number(process.env.PORT || 8800);
  * `loadKey` already prefers - and the one endpoint that writes a credential
  * stays unreachable from outside. */
 const HOST = process.env.HOST || "127.0.0.1";
+
+/* ONE INSTANCE, MANY STRANGERS - AND THIS APP OPENS ON WHAT IT FINDS.
+ * `fill()` dresses every empty slot from output/ at boot, which is right on
+ * the machine that made those files and is the one thing that would break
+ * the premise of the app on a shared one: the second visitor would arrive to
+ * find the first visitor's character already standing in the slots. Babe,
+ * 2026-10-28, on the hosted demo: "should be empty hero's journey session /
+ * brand new".
+ *
+ * THE MECHANISM ALREADY EXISTS AND IT IS A SITTING. Everything that dresses
+ * the rail - fill, dress, S, newestIn - already filters on the session in
+ * the path, and the browser's drawer is keyed by session name, so a visitor
+ * with a sitting of their own opens on an empty rail by the rule the rail
+ * already runs on. All this adds is WHO the visitor is: a cookie, minted
+ * where the page already asks which sitting it is in, and read by the three
+ * places that write a file and the two that serve one.
+ *
+ * SO `DEMO=1` IS A SWITCH AND NOT A FORK. The repo people clone is this
+ * code; the hosted thing is this code with the flag set. */
+const DEMO = process.env.DEMO === "1";
+
+/* AND NOBODY'S KEY IS BAKED INTO IT. Babe, 2026-10-28: "empty the api key
+ * out, the users testing it will use their own key to unlock". The release
+ * already says you need one, so this is not a second design: it is the SAME
+ * design, which is the key panel being the only way in. The only difference
+ * is where the key is kept - a file on the machine you installed it on, and
+ * nothing but memory on a shared one, because a stranger's credential is not
+ * ours to write down and the next visitor must never inherit it.
+ *
+ * SO A DEMO IS NOT METERED AND DOES NOT NEED TO BE. A visitor spends their
+ * own credits, and with no key nothing under /api/ that reaches Comfy
+ * answers at all - so there is nothing of Babe's left to bound. The run
+ * budget this was planned with was an answer to a bill that no longer
+ * exists, and a cap that protects nothing is a mechanism to delete. */
 const BASE = "https://cloud.comfy.org";
 
 /* EVERY FINISHED FILE IS KEPT, filed by day and by the rung that made it:
@@ -117,13 +152,33 @@ function currentSession() {
 
 /* THE ONLY WAY A SESSION IS EVER MADE, so the numbering and the two markers
  * cannot be written in two places and disagree. */
+/* AND THE FOLDER IS WHAT CLAIMS THE NUMBER, NOT THE SCAN. One person at one
+ * keyboard cannot race themselves, so reading the highest number and adding
+ * one was enough for as long as that was the only way in. Two visitors
+ * landing on a hosted instance in the same second both read the same highest
+ * number, and then they are in one another's sitting - which is the single
+ * thing per-visitor sessions exist to prevent. `mkdirSync` without
+ * `recursive` throws EEXIST, so the directory is the lock: whoever creates
+ * it owns the name and the other one tries the next.
+ * AND `.current` IS NOT WRITTEN ON A SHARED INSTANCE. It means "the sitting
+ * this machine is in", which is a fact about one person at one keyboard; on
+ * a demo the visitor's cookie says which sitting is theirs and a global
+ * marker could only be the last stranger to arrive. */
 function makeSession(day) {
-  const next = sessionNames().reduce((n, x) => Math.max(n, +x.slice(7) || 0), 0) + 1;
-  const name = `session${String(next).padStart(2, "0")}`;
-  mkdirSync(join(OUT, name), { recursive: true });
-  writeFileSync(join(OUT, name, DAY_MARK), day + "\n");
-  writeFileSync(join(OUT, CURRENT), name + "\n");
-  return name;
+  let n = sessionNames().reduce((m, x) => Math.max(m, +x.slice(7) || 0), 0) + 1;
+  for (;;) {
+    const name = `session${String(n).padStart(2, "0")}`;
+    try {
+      mkdirSync(join(OUT, name));
+    } catch (err) {
+      if (err.code === "EEXIST") { n++; continue; }
+      if (err.code === "ENOENT") { mkdirSync(OUT, { recursive: true }); continue; }
+      throw err;
+    }
+    writeFileSync(join(OUT, name, DAY_MARK), day + "\n");
+    if (!DEMO) writeFileSync(join(OUT, CURRENT), name + "\n");
+    return name;
+  }
 }
 
 function sessionDir(day) {
@@ -145,11 +200,65 @@ function sessionDir(day) {
   catch { return `session${String(names.length + 1).padStart(2, "0")}`; }
 }
 
+/* ------------------------------------------------------- who is visiting
+ * ONLY ON A DEMO, AND THE COOKIE IS THE SESSION NAME ITSELF. A table mapping
+ * visitors to sittings would be a second record of the same fact, free to
+ * disagree with the folders on disk; the name already passes the one test
+ * anything here makes of it. So there is nothing to keep in step: the cookie
+ * is either a session that exists or it is nobody. */
+const VISITOR = "hj";
+const DEMO_DAYS = 30;
+
+function cookieOf(req, name) {
+  for (const bit of String(req.headers.cookie || "").split(";")) {
+    const i = bit.indexOf("=");
+    if (i > 0 && bit.slice(0, i).trim() === name) return bit.slice(i + 1).trim();
+  }
+  return "";
+}
+
+function visitorSession(req) {
+  if (!DEMO) return "";
+  const want = cookieOf(req, VISITOR);
+  return /^session\d+$/.test(want) && existsSync(join(OUT, want)) ? want : "";
+}
+
+/* A SITTING OF THEIR OWN, HANDED OVER IN THE SAME BREATH AS THE PAGE ASKING
+ * WHICH ONE IT IS IN. `Secure` is conditional because the demo is behind
+ * https and every test of it is not, and a cookie a browser refuses is a
+ * visitor who shares the next one's rail. */
+function mintVisitor(req, res) {
+  const name = makeSession(stamp().day);
+  const https = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim() === "https";
+  res.setHeader("Set-Cookie", `${VISITOR}=${name}; Path=/; Max-Age=${DEMO_DAYS * 86400}` +
+    `; SameSite=Lax${https ? "; Secure" : ""}`);
+  console.log(`  <- a visitor arrives: ${name}`);
+  return name;
+}
+
+/* WHOSE FILE IS THIS. Nobody is handed a path they did not make - the
+ * listing is already scoped - so this is about a path somebody typed. The
+ * thumbnails are shared because a thumbnail is of a file this already
+ * answered for. */
+function maySee(req, rel) {
+  if (!DEMO) return true;
+  const slashed = String(rel).replace(/\\/g, "/").replace(/^\/+/, "");
+  if (!slashed.startsWith("output/")) return true;
+  const who = visitorSession(req);
+  const whose = slashed.split("/")[1] || "";
+  return whose === ".thumbs" || (!!who && whose === who);
+}
+
 async function keep(id, file) {
   const made = JOBS.get(id);
   if (!made) return null;
   const { day, time } = stamp();
-  const session = sessionDir(day);
+  /* THE SITTING IS THE ONE THAT PRESSED RUN, not the one that is current
+   * when the file lands. A poll has no visitor on it - it is a request about
+   * a job id - so the session rides on the record of what made this, beside
+   * the model and the seed, which is where every other fact about this file
+   * that the path cannot carry already lives. */
+  const session = made.session || sessionDir(day);
   const dir = join(OUT, session, made.rungName);
   const ext = (file.filename.match(/\.[a-z0-9]+$/i) || [".png"])[0];
   const name = [time, made.modelSlug, made.seed].filter(Boolean).join("-") + ext;
@@ -218,9 +327,47 @@ const headersFor = (key, extra) => ({
  * that is not KEY yet - it is checking whether to keep it - and a second copy
  * of this branch is a second thing that can be wrong about what a comfyui-
  * key is. */
-const headers = (extra) => headersFor(KEY, extra);
-const extraData = () =>
-  KEY.startsWith("comfyui-") ? { api_key_comfy_org: KEY } : { auth_token_comfy_org: KEY };
+/* AND ON A SHARED INSTANCE THE KEY BELONGS TO THE REQUEST, NOT TO THE
+ * PROCESS. Every call to Comfy in this file goes through `headers()` or
+ * `extraData()` - the submit, the poll, the two uploads, the view, the carry,
+ * and whatever is added next month - so the honest way to hand nine call
+ * sites a different key is to not tell them about it. `AsyncLocalStorage` is
+ * in node and costs nothing: the request handler runs inside a store holding
+ * that visitor's key, the two readers below prefer it, and a site added later
+ * is right without knowing any of this exists. THREADING IT AS AN ARGUMENT
+ * WOULD BE NINE SIGNATURES AND ONE OF THEM FORGOTTEN - and the one forgotten
+ * is a visitor's job quietly submitted on somebody else's credits. */
+const ASKING = new AsyncLocalStorage();
+/* `undefined` IS THE ONLY THING THAT FALLS BACK, and an empty string must
+ * not: on a demo the store is always set, to the visitor's key or to nothing,
+ * and `||` would have handed somebody who has pasted no key the process's own
+ * - which on a hosted instance is the one thing that must never happen. */
+const keyNow = () => { const s = ASKING.getStore(); return s === undefined ? KEY : s; };
+const headers = (extra) => headersFor(keyNow(), extra);
+const extraData = () => {
+  const k = keyNow();
+  return k.startsWith("comfyui-") ? { api_key_comfy_org: k } : { auth_token_comfy_org: k };
+};
+
+/* WHOSE KEY IS WHOSE, AND IT IS NEVER WRITTEN DOWN. A demo visitor pastes
+ * their own into the same panel the installed app uses; what differs is that
+ * this one keeps it in memory, under the cookie that already says which
+ * sitting is theirs, and the process forgets every one of them when it
+ * stops. A restart costs a paste, which is the right price for not holding
+ * somebody else's credential on a disk.
+ * AND IT LAPSES. A key left here by somebody who closed the tab a day ago is
+ * a key we are keeping for nobody, so an unused one is dropped. */
+const DEMO_KEYS = new Map();
+const DEMO_KEY_TTL = 12 * 60 * 60 * 1000;
+
+function demoKey(req) {
+  const who = visitorSession(req);
+  const held = who && DEMO_KEYS.get(who);
+  if (!held) return "";
+  if (Date.now() - held.at > DEMO_KEY_TTL) { DEMO_KEYS.delete(who); return ""; }
+  held.at = Date.now();
+  return held.key;
+}
 
 /* ------------------------------------------------------------ the three rungs
  *
@@ -2837,6 +2984,11 @@ async function apiRun(req, res) {
     });
   }
 
+  /* WHOSE SITTING THIS RUN BELONGS TO, settled here because this is the
+   * first moment anything is written on their behalf - and read by `keep()`,
+   * which is called from a POLL and has no visitor on it. */
+  const visitor = DEMO ? (visitorSession(req) || mintVisitor(req, res)) : "";
+
   const sub = await fetch(`${BASE}/api/prompt`, {
     method: "POST",
     headers: headers({ "Content-Type": "application/json" }),
@@ -2852,6 +3004,10 @@ async function apiRun(req, res) {
 
   /* remember what made this, so the finished file can be filed under it */
   JOBS.set(jobId, {
+    /* AND WHOSE IT IS, on a shared instance - see keep(). Empty on the
+     * machine somebody installed this on, where the session is simply the
+     * sitting that is current. */
+    session: visitor,
     /* the section number, which is what every part of the page already
      * calls it. `random` is the one entry that is not on the rail. */
     rungName: /^\d+$/.test(String(body.rung))
@@ -2964,6 +3120,21 @@ async function apiSession(req, res, url) {
     const want = String(body && body.session || "");
     const { day } = stamp();
     let name;
+    /* ON A DEMO A SITTING IS SOMEBODY'S, so going back to one means going
+     * back to your own and `?session=new` means a fresh one with the cookie
+     * re-pointed at it. Any other name is refused in the words the client
+     * already handles - it is not that the sitting does not exist, it is
+     * that it is not yours, and a stranger has no business learning the
+     * difference. The old one keeps its folder, as always. */
+    if (DEMO) {
+      const mine = visitorSession(req);
+      if (want) {
+        if (want !== mine) return json(res, 400, { error: `no such session: ${want}` });
+        return json(res, 200, { session: mine, day: sessionDay(mine) });
+      }
+      name = mintVisitor(req, res);
+      return json(res, 200, { session: name, day: sessionDay(name) });
+    }
     if (want) {
       if (!/^session\d+$/.test(want) || !existsSync(join(OUT, want))) {
         return json(res, 400, { error: `no such session: ${want}` });
@@ -2981,6 +3152,18 @@ async function apiSession(req, res, url) {
      that writes is a read nobody can call twice. With no answer the client
      behaves as it did before sessions existed, and the first file written
      makes the folder. */
+  /* AND ON A DEMO THIS IS WHERE A VISITOR GETS ONE. The page asks which
+   * sitting it is in before it restores anything or dresses anything, which
+   * makes this the one place a cookie can be handed over in time to matter -
+   * and the listing is theirs alone, because the sittings on this disk are
+   * other people's. */
+  if (DEMO) {
+    const mine = visitorSession(req) || mintVisitor(req, res);
+    return json(res, 200, {
+      session: mine,
+      sessions: [{ name: mine, day: sessionDay(mine) }]
+    });
+  }
   const names = sessionNames();
   const today = stamp().day;
   const cur = currentSession() ||
@@ -3023,11 +3206,19 @@ const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
 const LOCAL_ONLY = new Set(["/api/health", "/api/key", "/api/session", "/api/output", "/api/take", "/api/thumb"]);
 
 async function apiKey(req, res) {
+  /* AND THE TWO REFUSALS ABOVE ARE ABOUT WRITING A FILE, which is why a demo
+   * is exempt from them rather than refused by them. On the machine somebody
+   * installed this on, a key pasted here is written to .env and belongs to
+   * that machine - so it may only be set FROM that machine, and an
+   * environment that already has one wins. On a shared instance the key is
+   * the visitor's, nothing is written, and the only thing either test could
+   * do is stop a judge getting in: a reverse proxy arrives AS loopback
+   * anyway, so the first test cannot even see the difference it is for. */
   const from = req.socket.remoteAddress || "";
-  if (!LOOPBACK.has(from)) {
+  if (!DEMO && !LOOPBACK.has(from)) {
     return json(res, 403, { error: "the key can only be set from this machine" });
   }
-  if (process.env.COMFY_API_KEY) {
+  if (!DEMO && process.env.COMFY_API_KEY) {
     return json(res, 409, {
       error: "COMFY_API_KEY is set in this terminal's environment and that wins over .env — unset it and restart to save a key here"
     });
@@ -3048,6 +3239,21 @@ async function apiKey(req, res) {
     if (!r.ok) return json(res, 502, { error: `Comfy answered ${r.status} — nothing was saved` });
   } catch (err) {
     return json(res, 502, { error: `could not reach Comfy: ${err.message}` });
+  }
+
+  /* ON A DEMO IT IS KEPT FOR THIS VISITOR AND NOWHERE ELSE. Comfy has just
+     confirmed the key, which is the same check the installed app makes - the
+     panel, the sentence and the press are identical, and all that differs is
+     that this one hands it to a Map instead of a file. The sitting is minted
+     if they somehow have no cookie yet, because a key with nobody to belong
+     to is a key the next request cannot find. */
+  if (DEMO) {
+    const who = visitorSession(req) || mintVisitor(req, res);
+    DEMO_KEYS.set(who, { key, at: Date.now() });
+    /* THE LENGTH, NEVER THE KEY - and not whose, either: a demo's log is a
+       line in somebody else's terminal. */
+    console.log(`  a visitor unlocked ${who} (${key.length} chars)`);
+    return json(res, 200, { ok: true, key: "set", chars: key.length });
   }
 
   /* THE FILE MAY HOLD OTHER THINGS, so the line is replaced and everything
@@ -3101,7 +3307,7 @@ async function apiTake(req, res, url) {
   const asked = String(url.searchParams.get("name") || "take.mp4");
   const ext = (asked.match(/\.[a-z0-9]+$/i) || [".mp4"])[0].toLowerCase();
   const { day, time } = stamp();
-  const session = sessionDir(day);
+  const session = (DEMO && (visitorSession(req) || mintVisitor(req, res))) || sessionDir(day);
   const dir = join(OUT, session, "takes");
   const name = `${time}-webcam-${Date.now() % 100000}${ext}`;
   try {
@@ -3115,9 +3321,16 @@ async function apiTake(req, res, url) {
   return json(res, 200, { saved: rel, name });
 }
 
-async function apiOutput(res) {
+async function apiOutput(req, res) {
   const files = [];
   const sides = [];
+  /* THE LISTING IS WHAT DRESSES THE RAIL, so on a shared instance it is the
+   * one answer that has to be a visitor's own: `fill`, `dress`, `S` and the
+   * review panel all read it. The panel showing EVERYTHING is a rule about
+   * the disk of the person who made those files, and on a demo the disk is
+   * other people's work. One scope here is every one of them. */
+  const only = DEMO ? visitorSession(req) : "";
+  if (DEMO && !only) return json(res, 200, { files: [], days: {}, traits: {} });
   async function walk(dir, rel) {
     let entries;
     try { entries = await readdir(dir, { withFileTypes: true }); } catch { return; }
@@ -3132,7 +3345,7 @@ async function apiOutput(res) {
       else if (/\.json$/i.test(e.name)) sides.push([e.name.replace(/\.json$/i, ""), next]);
     }
   }
-  await walk(OUT, "");
+  await walk(only ? join(OUT, only) : OUT, only);
   files.sort().reverse();
   /* WHICH DAY EACH SESSION WAS, because the path stopped carrying it. The
    * folder used to BE the date and now it is a session, which is the right
@@ -3140,7 +3353,9 @@ async function apiOutput(res) {
    * that names the session comes back with the listing and the review panel
    * can still say when a shot was made. */
   const days = {};
-  try {
+  if (only) {
+    days[only] = sessionDay(only);
+  } else try {
     for (const e of await readdir(OUT, { withFileTypes: true })) {
       if (!e.isDirectory()) continue;
       try { days[e.name] = readFileSync(join(OUT, e.name, ".day"), "utf8").trim(); }
@@ -3181,7 +3396,7 @@ async function apiCarry(req, res) {
   const rel = saved
     ? normalize(String(saved)).replace(/\\/g, "/").replace(/^\/+/, "")
     : "";
-  if (rel.startsWith("output/") && !rel.includes("..")) {
+  if (rel.startsWith("output/") && !rel.includes("..") && maySee(req, rel)) {
     try {
       /* by name if the path has moved - see findKept */
       const where = await findKept(rel);
@@ -3271,7 +3486,11 @@ async function findKept(rel) {
       else if (e.name === want) hit = next;
     }
   }
-  await walk(OUT);
+  /* AND ON A DEMO IT LOOKS NO FURTHER THAN THE SITTING THE PATH NAMES. The
+   * reason this walks at all is that Babe moves files between sessions; a
+   * visitor's never move, and a search of the whole disk is a search of
+   * other people's. */
+  await walk(DEMO && slashed.split("/")[1] ? join(OUT, slashed.split("/")[1]) : OUT);
   return hit;
 }
 
@@ -3303,18 +3522,34 @@ async function serveStatic(res, pathname) {
 
 /* ----------------------------------------------------------------- the loop */
 
-createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
+/* AND THE REQUEST IS WHAT HOLDS THE KEY, which is why the whole of it runs
+ * inside a store. On the machine somebody installed this on that store is
+ * the one key there is; on a shared one it is whichever visitor is asking,
+ * or nothing at all - and `nothing` is what makes the refusal below theirs
+ * rather than the instance's. See `keyNow`. */
+async function route(req, res, url) {
   try {
-    if (!KEY && url.pathname.startsWith("/api/") && !LOCAL_ONLY.has(url.pathname)) {
+    if (!keyNow() && url.pathname.startsWith("/api/") && !LOCAL_ONLY.has(url.pathname)) {
       return json(res, 503, { error: "no Comfy API key yet — press the key in the top right" });
+    }
+    /* ON A DEMO, A PICTURE UNDER output/ IS WHOSE IT IS. Nobody is handed a
+     * path they did not make - the listing is scoped and so is the search
+     * that heals a moved one - so this is about a path somebody typed, and
+     * the answer to that is the same 404 a path that does not exist gets.
+     * One gate covers the static route a plate draws from and every reader
+     * that takes the path as a parameter, including the ones added later. */
+    if (DEMO) {
+      const asked = url.pathname.replace(/^\/+/, "").startsWith("output/")
+        ? url.pathname
+        : (url.searchParams.get("path") || url.searchParams.get("saved") || "");
+      if (asked && !maySee(req, asked)) { res.writeHead(404); return res.end("not found"); }
     }
     if (url.pathname === "/api/upload" && req.method === "POST") return await apiUpload(req, res, url);
     if (url.pathname === "/api/run" && req.method === "POST") return await apiRun(req, res);
     if (url.pathname === "/api/carry" && req.method === "POST") return await apiCarry(req, res);
     if (url.pathname.startsWith("/api/job/")) return await apiJob(res, url.pathname.slice(9));
     if (url.pathname === "/api/file") return await apiFile(res, url);
-    if (url.pathname === "/api/output") return await apiOutput(res);
+    if (url.pathname === "/api/output") return await apiOutput(req, res);
     if (url.pathname === "/api/thumb") return await apiThumb(res, url);
     if (url.pathname === "/api/session") return await apiSession(req, res, url);
     if (url.pathname === "/api/key" && req.method === "POST") return await apiKey(req, res);
@@ -3357,16 +3592,26 @@ createServer(async (req, res) => {
                                        defaults: spec.defaults || {} };
         }
       }
-      return json(res, 200, { ok: true, key: KEY ? "set" : "MISSING", wired });
+      return json(res, 200, { ok: true, key: keyNow() ? "set" : "MISSING", wired });
     }
     return await serveStatic(res, url.pathname);
   } catch (err) {
     console.error(err);
     json(res, 500, { error: String(err && err.message || err) });
   }
+}
+
+createServer(async (req, res) => {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  return await ASKING.run(DEMO ? demoKey(req) : KEY, () => route(req, res, url));
 }).listen(PORT, HOST, () => {
   console.log(`\n  Hero's Journey  →  http://127.0.0.1:${PORT}`);
-  console.log(KEY
+  /* AND A DEMO HAS NO KEY OF ITS OWN TO REPORT, BY DESIGN. Every visitor
+   * brings theirs and the process keeps none - so a line about .env here
+   * would be an instruction for a machine nobody is sitting at. */
+  console.log(DEMO
+    ? `  DEMO: a sitting per visitor, and each one brings their own key.\n`
+    : KEY
     ? `  key: ${KEY.slice(0, 7)}… (${KEY.length} chars)\n`
     : `  NO KEY YET. Press the key in the top right of the page, or put\n` +
       `  COMFY_API_KEY=... in ${join(HERE, ".env")} and restart.\n`);
