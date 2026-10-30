@@ -3932,6 +3932,22 @@
      The run already asked this question inline; the agent asked the slot and
      got nothing, which is the same fact resolved in two places with one of
      them wrong. */
+  /* AND THE LAYOUT IS 04's SIX WHATEVER THE SLATE IS - deliberately, proven
+     2026-10-29, and DO NOT "FIX" THIS INTO ASKING WHETHER 04 DREW A BOARD.
+     It reads like an oversight and it is a feature: pressed on a SINGLE
+     FRAME, the cut takes six crops at six positions and scales out of that
+     one picture and anchors them across the clip, and six crops of one image
+     are six framings of ONE MOMENT - which is this rail's own definition of
+     a board. The model reads them as coverage and invents the motion
+     between. Babe, the first time it happened by accident: "i made like a
+     short edit of like 6 shots from one image!", "totally works".
+     SO SEQUENCE ON ONE STILL IS A SIX-SHOT EDIT OF IT, a shorter path than
+     01 to 04 for somebody who only wants coverage of one picture.
+     AND NOTHING IS LIED TO, which is why it is safe as well as good: in this
+     mode the grid NEVER REACHES THE MODEL - the panels are cut out and sent
+     one at a time as anchors - and `H3_BOARD_SYS()` takes no arguments, so
+     the `slate` flag that says whether 04 drew a board is not consulted
+     here at all. There is no sentence describing a board that is not there. */
   function panelLayout(slide) {
     if (!slide) return null;
     if (rungOf(slide) === 5 && modeOf(slide) === 'seq') return modeObj('sequence');

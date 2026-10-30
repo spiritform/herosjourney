@@ -20,12 +20,6 @@
       "vae_name": "flux2-vae.safetensors"
     }
   },
-  "100": {
-    "class_type": "PrimitiveStringMultiline",
-    "inputs": {
-      "value": ""
-    }
-  },
   "4": {
     "class_type": "CLIPTextEncode",
     "inputs": {
@@ -35,56 +29,6 @@
       ],
       "text": [
         "100",
-        0
-      ]
-    }
-  },
-  "32": {
-    "class_type": "ConditioningZeroOut",
-    "inputs": {
-      "conditioning": [
-        "4",
-        0
-      ]
-    }
-  },
-  "11": {
-    "class_type": "LoadImage",
-    "inputs": {
-      "image": "",
-      "upload": "image"
-    }
-  },
-  "12": {
-    "class_type": "LoadImage",
-    "inputs": {
-      "image": "",
-      "upload": "image"
-    }
-  },
-  "17": {
-    "class_type": "ReferenceMultiLatent",
-    "inputs": {
-      "resolution": "resize",
-      "resolution.megapixels": 1,
-      "positive": [
-        "4",
-        0
-      ],
-      "negative": [
-        "32",
-        0
-      ],
-      "vae": [
-        "3",
-        0
-      ],
-      "images.image0": [
-        "11",
-        0
-      ],
-      "images.image1": [
-        "12",
         0
       ]
     }
@@ -132,9 +76,50 @@
   "9": {
     "class_type": "SaveImage",
     "inputs": {
-      "filename_prefix": "hj-flux3-klein-board",
+      "filename_prefix": "hj-flux3-klein",
       "images": [
         "8",
+        0
+      ]
+    }
+  },
+  "11": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  },
+  "17": {
+    "class_type": "ReferenceMultiLatent",
+    "inputs": {
+      "resolution": "resize",
+      "resolution.megapixels": 1,
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "32",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "images.image0": [
+        "11",
+        0
+      ],
+      "images.image1": [
+        "12",
         0
       ]
     }
@@ -148,6 +133,21 @@
       "width": 1360,
       "height": 768,
       "batch_size": 1
+    }
+  },
+  "32": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "4",
+        0
+      ]
+    }
+  },
+  "100": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": ""
     }
   }
 }

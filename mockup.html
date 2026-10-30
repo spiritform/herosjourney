@@ -4761,6 +4761,17 @@
       models: [
         { n: 'SEEDANCE-2.5',  t: '&mdash;', c: 'twenty references &middot; up to 30s &middot; partner' },
         { n: 'MINIMAX-H3',    t: '57.2s', c: 'two references &middot; audio in the same pass &middot; open weights' },
+        /* AND PIKA H3 FLEX IS THAT SAME CHECKPOINT WEARING A DIFFERENT
+           FINE-TUNE - Babe, 2026-10-29, the evening it dropped: "i guess its
+           a fine-tune", "supposed to be faster too", "also open weights". A
+           Pika post-trained adapter on the Ref2VA weights the row above it
+           already runs, at six sampling steps against that row's twenty.
+           IT SITS NEXT TO WHAT IT IS BUILT ON, on purpose: the two rows are
+           one question with the picker in the middle of it, which is what
+           this file means by the preset being the product and the other rows
+           being there to be tested against it. CUSTOM only - see the server,
+           where `only` says why. */
+        { n: 'PIKA-H3-FLEX', t: '&mdash;', c: 'two references &middot; six steps &middot; open weights' },
         { n: 'LTX-2.5 I2V',   t: '27.3s', c: 'one reference &middot; audio &middot; open weights' },
         /* AND FLUX 3 MAX IS THE ROW THAT DOES BOTH OF THIS RUNG'S JOBS -
            Babe, 2026-10-29: "i think we should add flux 3 video btw", "i guess
@@ -5014,6 +5025,18 @@
          ends on had no open way to do the job it is named for. */
       models: [
         { n: 'SEEDANCE-2.5', t: '&mdash;', c: 'partner' },
+        /* AND PIKA H3 FLEX IS THE OPEN ROW THE RUNG THAT LOOPS NEVER HAD -
+           Babe, 2026-10-29: "we may want it in 06 too tho". It is the same
+           Pika adapter 05 carries, on the same Ref2VA weights, with a clip
+           wired in, and it is RESHOOT by `only` because `reference` is the
+           only task these weights perform.
+           IT IS HERE BECAUSE OF THE NUMBER. 06's open RESHOOT ran at 249.1s
+           and that is what kept it off the rail - "a long wait in front of a
+           demo" - so the workflow every shot after the return is made on had
+           no open way to do the job it is named for. Six steps against twenty
+           is that number's only real lever and it did not exist until this
+           shipped. */
+        { n: 'PIKA-H3-FLEX', t: '&mdash;', c: 'six steps &middot; audio &middot; open weights' },
         /* AND FLUX EDITS A CLIP FROM ONE SENTENCE - Babe: "could also be in
            the video edit mode". It is pinned to EDIT by `only`, the way
            SCAIL-2 is pinned to SWAP, because the node takes its length, its

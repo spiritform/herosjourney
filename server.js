@@ -2123,21 +2123,34 @@ const RUNGS = {
        * WHICH MEANS THE FRAME COMES BACK THE SHAPE OF THE SHEET, because
        * this encoder sizes the latent from its first reference - the
        * opposite arrangement from 02, where the page leads for exactly that
-       * reason. On Hero, the default, that is the 16:9 this rung defaults
-       * to anyway; a Bible sheet would give a portrait frame. No AR cell,
-       * as everywhere this row appears.
-       * (*) IF A PORTRAIT FRAME EVER READS WRONG, the swap is the place
-       * first and `required` with it - and the cost is the words-only half
-       * of this slot refusing on this one row, which is why it is written
-       * down rather than taken. */
+       * reason - WHICH IS WHY THIS ROW SAMPLES A LATENT OF ITS OWN. Babe,
+       * 2026-10-29, looking at the row with Klein pressed: "i kind of want
+       * aspect ratio for the 03 workflows too". Two of this rung's four
+       * already had one; the two without are the two that DERIVE their
+       * latent from a reference, and only one of those can be given a
+       * choice. `EmptyFlux2LatentImage` is that choice - the references
+       * still arrive through the conditioning, so the sheet and the place
+       * guide a picture whose SHAPE is the row's own rather than the
+       * sheet's. It is the same move 04 asked for the same day, and it is
+       * now the same graph: `flux3-klein-2ref-latent.json`.
+       * THE SIZE SNAPS TO 16, because this family wants both sides a
+       * multiple of sixteen and `arSize` rounds to eight.
+       * AND THE TURBO STILL HAS NO AR, which is not an oversight: it samples
+       * the latent its own encoder derives from the sheet, so there is no
+       * empty latent to size and a cell would be a control that does
+       * nothing. 01 and 02 keep the plain two-reference graph for reasons of
+       * their own - 01 wants a character shaped like the photograph it was
+       * given, and 02's preset owns the ratio outright. */
       "FLUX-3-KLEIN": {
-        graph: "flux3-klein-2ref.json",
+        graph: "flux3-klein-2ref-latent.json",
         label: "Find your place",
         sys: (v) => PLACE_LINE(v.lens, !!v.place, "<ref_image_0>", "<ref_image_1>"),
         inputs: {
           sheet: { node: "11", input: "image" },
           place: { node: "12", input: "image" },
           prompt: { node: "100", input: "value" },
+          width: { node: "20", input: "width", cast: (v) => Math.round(v / 16) * 16 },
+          height: { node: "20", input: "height", cast: (v) => Math.round(v / 16) * 16 },
           steps: { node: "7", input: "steps", cast: Number },
           seed: { node: "7", input: "seed", cast: Number },
         },
@@ -2146,8 +2159,8 @@ const RUNGS = {
          * slot on the conditioning node goes with it, so the sentence stops
          * naming <ref_image_1> in the same breath. */
         dropWhenEmpty: { place: ["12"] },
-        defaults: { steps: 16 },
-        params: ["seed", "steps", "lens"],
+        defaults: { steps: 16, ar: "16:9" },
+        params: ["ar", "seed", "steps", "lens"],
       },
     },
   },
@@ -2951,6 +2964,40 @@ const RUNGS = {
     defaults: { duration: 6 },
     params: ["seed"],
   },
+  /* PIKA H3 FLEX ON THE RUNG THAT LOOPS - the same Pika adapter 05 carries,
+   * on the same Ref2VA weights, with a clip wired in. Wired and deliberately
+   * NOT on the row, for GENJUTSU's reason and MINIMAX-H3-OPEN's: three rows
+   * per rung, and the third seat is SCAIL-2's.
+   * AND IT IS THE ANSWER TO THE ONE THING PARKED AGAINST THAT SEAT. 06's
+   * open RESHOOT ran at 249.1s and this file has said since that it is "a
+   * long wait in front of a demo" - which is the whole reason the open row
+   * on the rung every shot after the return is made on stayed off the rail.
+   * Six steps against twenty is that number's only real lever, and it did
+   * not exist until Pika shipped this.
+   * AND IT TAKES 05 'S OWN NAME, not a `-OPEN` suffix: that suffix means the
+   * same job on the same rung for money. Add its name to 06's `models` in
+   * the slide table and it appears; nothing else changes.
+   * (*) UNRUN - the graph is this rung's own clip graph with three values
+   * moved, and dry-run clean, but no clip has come back from it. */
+  "PIKA-H3-FLEX": {
+    graph: "pika-h3-flex-r2v-clip.json",
+    model: "PIKA-H3-FLEX",
+    label: "Your own shot",
+    sys: (v) => H3_R2V_MOVE_SYS(!!v.ref2),
+    only: "RESHOOT",
+    inputs: {
+      clip: { node: "150", input: "file" },
+      ref1: { node: "137", input: "image" },
+      ref2: { node: "139", input: "image" },
+      prompt: { node: "138", input: "value" },
+      duration: { node: "132", input: "value", cast: Number },
+      seed: { node: "129", input: "noise_seed", cast: Number },
+    },
+    required: ["clip", "ref1", "prompt"],
+    dropWhenEmpty: { ref2: ["139"] },
+    defaults: { duration: 6 },
+    params: ["seed"],
+  },
   /* HIGGSFIELD GENJUTSU - wired and dry-run clean, deliberately NOT on the
    * row. Three rows per rung is the rule this rail keeps, and the third seat
    * belongs to SCAIL-2 because it is the only open-weights row on the only
@@ -3208,7 +3255,7 @@ const RUNGS = {
        * DIFFERS, and this one has a node the other does not and a sampler
        * wired somewhere else. */
       "FLUX-3-KLEIN": {
-        graph: "flux3-klein-board.json",
+        graph: "flux3-klein-2ref-latent.json",
         label: "The board",
         sys: (v) =>
           BOARD_LINE(v.light, v.mode === "single", !!v.template,
@@ -3616,6 +3663,132 @@ const RUNGS = {
           duration: { node: "132", input: "value", cast: Number },
           steps: { node: "146", input: "value", cast: (v) => Number(v) <= 8 },
           seed: { node: "129", input: "noise_seed", cast: Number },
+            },
+            required: ["panel1", "panel6", "prompt"],
+          },
+        },
+      },
+      /* PIKA H3 FLEX - a Pika post-trained ADAPTER for the MiniMax H3 Ref2VA
+       * weights this row already runs, dropped 2026-10-29 and wired the same
+       * evening. Babe: "i guess its a fine-tune", "supposed to be faster
+       * too", "also open weights".
+       * IT IS THE SAME GRAPH WITH THREE VALUES MOVED, which is why it is a
+       * row and not a mechanism: the same int8 Ref2VA base, the same VAEs,
+       * the same encoder and the same `MiniMaxH3ReferenceToVideo`, with the
+       * Pika adapter at strength 1.0 on the `lcm` sampler and Pika's own
+       * six-value sigma list. SIX STEPS against the base's twenty.
+       * AND THAT IS WHY IT EARNS A SEAT BESIDE THE ROW IT IS BUILT ON. Babe
+       * ran this rung's own 4-step turbo and cut it - "i dont want the 4step
+       * lora", "turbo is worse" - so the row defaults to 20 and a minute of
+       * waiting. A Pika post-train is not that distillation: it is a
+       * different fine-tune of the same weights, so whether six of its steps
+       * beat twenty of the base's is a question the picker can now ask.
+       * THE STEPS CELL IS GONE, and that is the sigma list rather than a
+       * decision. `BasicScheduler` took a count and derived a curve; this
+       * graph states seven sigmas outright, so the two switches that chose
+       * between the base and a turbo have nothing left to choose and the
+       * count is not an input any more. A cell that does nothing is worse
+       * than no cell - Mage-Flow's own missing STEPS, one rung over.
+       * AND IT HAS NO `only`: every tab on this rung has a Pika machine
+       * behind it, which is the `modes` block below and the comment on it.
+       * Their T2V adapter is wired nowhere and should stay that way - never
+       * route a shot with a person through text-to-video. */
+      "PIKA-H3-FLEX": {
+        graph: "pika-h3-flex-r2v.json",
+        model: "PIKA-H3-FLEX",
+        label: "Put them in motion",
+        /* THE SAME SENTENCE THE ROW IT IS BUILT ON GETS. The node is the
+         * same class and reads the same `<Picture N>` addressing, so a
+         * scaffolding written for it is written for this - a second copy
+         * could only drift from the one that is proven. */
+        sys: (v) => H3_R2V_SYS(v.mode, !!v.sheet, v.slate),
+        inputs: {
+          board: { node: "137", input: "image" },
+          sheet: { node: "139", input: "image" },
+          prompt: { node: "138", input: "value" },
+          ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+          size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
+          duration: { node: "132", input: "value", cast: Number },
+          refsize: { node: "136", input: "ref_image_size",
+                     cast: (v) => String(v).toLowerCase() === "max" ? "max" : "match" },
+          seed: { node: "129", input: "noise_seed", cast: Number },
+        },
+        required: ["board", "prompt"],
+        defaults: { duration: 5, ar: "16:9", size: "720p", refsize: "FIT" },
+        options: { duration: H3_SECS },
+        dropWhenEmpty: { sheet: ["139"] },
+        /* H3_CELLS MINUS STEPS, which is the one cell this adapter took away */
+        params: ["ar", "size", "duration", "refsize", "seed"],
+        /* AND THE MODE PICKS THE MACHINE HERE TOO, because Pika shipped an
+         * adapter per BASE and not per template. The row above runs three
+         * checkpoints across its three tabs and Pika post-trained two of
+         * them: `ref2va` for CUSTOM and `fl2va` for the other two, which is
+         * the same checkpoint SINGLE SHOT and SEQUENCE have always run. So
+         * every tab has a Pika machine behind it and this row needs no
+         * `only` at all - Babe, asked: "maybe it should show for single shot
+         * and sequence too, no?".
+         * THE FIRST VERSION PINNED IT TO CUSTOM ON A WRONG READING OF THE
+         * CATALOGUE. Pika ship three TEMPLATES - t2v, ref2va and an FL2VA
+         * that animates between a first and a last frame - and reading the
+         * templates as the offering says this rung has one Pika job in it.
+         * The adapter is not the template: `pika_h3_flex_fl2va_v1` loads
+         * onto `minimax_h3_fl2va_pruned_int8_convrot`, our own SINGLE SHOT
+         * and SEQUENCE weights, and `MiniMaxH3ImageToVideo` takes
+         * `first_frame` and `last_frame` as OPTIONAL inputs - so one picture
+         * is as valid as two, and a board of six guides is the same node
+         * with the frames hung off it.
+         * ASK WHAT A LORA LOADS ONTO, NOT WHAT ITS DEMO DOES. */
+        modes: {
+          /* the slate as the first frame, on the `fl2va` adapter - and DO
+           * NOT CROSS THE LORAS, which now has a second family to get wrong:
+           * `pika_h3_flex_ref2va` belongs to the reference weights above and
+           * this one to these. */
+          shot: {
+            graph: "pika-h3-flex-i2v.json",
+            sys: (v) => H3_I2V_SYS(v.mode),
+            firstFrame: true,
+            /* no REF cell: this machine encodes the picture as a first frame,
+             * so there is no reference pipeline to size - the row above says
+             * the same thing on the same tab */
+            params: ["ar", "size", "duration", "seed"],
+            options: { duration: H3_SECS },
+            inputs: {
+              board: { node: "137", input: "image" },
+              prompt: { node: "138", input: "value" },
+              ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+              size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
+              duration: { node: "132", input: "value", cast: Number },
+              seed: { node: "129", input: "noise_seed", cast: Number },
+            },
+            required: ["board", "prompt"],
+          },
+          /* six panels, six anchors, the same chained `MiniMaxH3AddGuide`s -
+           * the grid never reaches the model and its panels do, one at a
+           * time, at the frame each one happens on. All six are required:
+           * dropping one breaks the chain the next guide hangs off. */
+          seq: {
+            graph: "pika-h3-flex-board.json",
+            sys: () => H3_BOARD_SYS(),
+            params: ["ar", "size", "duration", "seed"],
+            options: { duration: H3_SECS },
+            inputs: {
+              panel1: { node: "200", input: "image" },
+              at1: { node: "210", input: "value", cast: Number },
+              panel2: { node: "201", input: "image" },
+              at2: { node: "211", input: "value", cast: Number },
+              panel3: { node: "202", input: "image" },
+              at3: { node: "212", input: "value", cast: Number },
+              panel4: { node: "203", input: "image" },
+              at4: { node: "213", input: "value", cast: Number },
+              panel5: { node: "204", input: "image" },
+              at5: { node: "214", input: "value", cast: Number },
+              panel6: { node: "205", input: "image" },
+              at6: { node: "215", input: "value", cast: Number },
+              prompt: { node: "138", input: "value" },
+              ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+              size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
+              duration: { node: "132", input: "value", cast: Number },
+              seed: { node: "129", input: "noise_seed", cast: Number },
             },
             required: ["panel1", "panel6", "prompt"],
           },
