@@ -2535,6 +2535,12 @@ const RUNGS = {
           seed: { node: "1", input: "model.seed", cast: Number },
         },
         required: ["source", "prompt"],
+        /* AND THE PRESET REACHES THIS ROW AS AN OUTLINE - see `sendLocal`.
+         * Krea holds structure hard, which is what makes its EDIT tab faithful
+         * and what made a bear come back as a bear BUST: shoulders cut like a
+         * carving, on its own plinth. The mannequin stays as what a person sees
+         * in the slot. */
+        guideFile: "bg/preset-outline.png",
         /* the second loader goes when nobody filled it, and the node's own
          * slot goes with it - the prune reads the graph, so the sentence and
          * the wiring cannot disagree about how many pictures there are.
@@ -3826,6 +3832,31 @@ async function apiRun(req, res) {
     values.seed = Math.floor(Math.random() * 1e6);
   }
 
+  /* AND A ROW MAY BE GIVEN A DIFFERENT GUIDE - Babe, 2026-10-29, after Krea
+   * came back with a bear BUST: "or on the back-end for that model we just feed
+   * it something else like an outline of a portrait".
+   * THE WORDS WERE ALREADY THERE AND LOST. `GUIDE_SYS` says "never return a
+   * mannequin, a statue, a bust or a figure" and the picture won anyway, which
+   * is this rail's own lesson twice over: 02's sheet forbids a gutter and the
+   * model draws the one it was SHOWN, 04's board forbids the labels and the
+   * model letters them. A model handed a shape copies the shape, and an edit
+   * checkpoint that holds structure hard copies it hardest.
+   * SO THE PICTURE CHANGES AND THE SENTENCE DOES NOT. An outline has no plinth,
+   * no carved shoulders, no material and no light - it carries the crop, the
+   * distance, the eye level and the head's share of the frame, which is every
+   * single thing `GUIDE_SYS` says to take and none of what it says to refuse.
+   * IT IS THE ONE PLACE THIS SERVER SENDS SOMETHING THE PAGE DID NOT, and the
+   * rule it bends was written for exactly this - "the bust stays as the thing
+   * you SEE; what changes is the file sent behind it". It is allowed because
+   * the preset is a GUIDE and not content: nobody's photograph is being
+   * swapped, and `guide === "preset"` is the one provenance that says so.
+   * A FAILED UPLOAD KEEPS THE BUST rather than failing the run - the old
+   * behaviour is a worse picture, not a broken one. */
+  if (values.guide === "preset" && spec.guideFile && values.source) {
+    try { values.source = await sendLocal(spec.guideFile); }
+    catch (err) { console.warn(`  .. guide swap skipped: ${err.message}`); }
+  }
+
   for (const key of spec.required) {
     if (values[key] === undefined || values[key] === "") {
       return json(res, 400, { error: `${spec.label} needs ${key}` });
@@ -4378,6 +4409,33 @@ async function apiCarry(req, res) {
   const out = await up.json();
   console.log(`  -> carried ${filename} into input/ as ${out.name || filename}`);
   json(res, 200, { name: out.name || filename });
+}
+
+/* A FILE OF OURS, PUT WHERE COMFY CAN SEE IT, ONCE - Babe, 2026-10-29: "or on
+ * the back-end for that model we just feed it something else like an outline of
+ * a portrait", "like a guide".
+ * IT IS CACHED BY PATH FOR THE LIFE OF THE PROCESS, because the bytes are a
+ * file on disk rather than anything a person chose: the same guide uploaded
+ * twice is the same content hash back, which is the proof the cache is right -
+ * the template cache on 02 leans on exactly that. A failure to upload is
+ * returned rather than thrown, so the caller can decide whether the run still
+ * means something without it. */
+const LOCAL_SENT = new Map();
+async function sendLocal(rel) {
+  if (LOCAL_SENT.has(rel)) return LOCAL_SENT.get(rel);
+  const at = join(HERE, rel);
+  const bytes = await readFile(at);
+  const form = new FormData();
+  form.append("image", new Blob([bytes], { type: "image/png" }), rel.split("/").pop());
+  form.append("type", "input");
+  form.append("overwrite", "true");
+  const up = await fetch(`${BASE}/api/upload/image`, { method: "POST", headers: headers(), body: form });
+  if (!up.ok) throw new Error(`guide upload failed (${up.status})`);
+  const out = await up.json();
+  const name = out.name || rel.split("/").pop();
+  LOCAL_SENT.set(rel, name);
+  console.log(`  -> sent ${rel} into input/ as ${name}`);
+  return name;
 }
 
 /* The signed URL is resolved here and the bytes are piped back, so neither the
