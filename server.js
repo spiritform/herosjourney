@@ -2410,6 +2410,18 @@ const RUNGS = {
       "FLUX-3-KLEIN": {
         graph: "flux3-klein-2ref.json",
         label: "Become someone",
+        /* AND THE BOXES ARE THIS ROW'S FORMAT, NOT THE RUNG'S - Babe,
+         * 2026-10-29: "do you think boxes should only show up if you select
+         * flux 3 for edit". They should: the table at the end of the prompt
+         * is BFL's annotator format, one JSON array of rows with coordinates
+         * 0..1000, and it is the thing `i2i_bbox` was trained to read.
+         * EVERY OTHER ROW GETS A BLOCK OF INTEGERS. Nano reads it as part of
+         * an instruction, the qwen rows take it at cfg 1 where conditioning
+         * is the only steering they have, MOSS's edit LoRA has never seen one
+         * and Krea rewrites the prompt before generating - so the face would
+         * be a control that does nothing, drawn on a picture, which is worse
+         * than no control and worse than a lie about what was sent. */
+        boxes: true,
         /* addressed by the encoder's own token names, the way qwen's is
          * addressed as image_1 and image_2 - `modes.EDIT` below overrides
          * this with the edit line and passes the same two names. */
@@ -4529,6 +4541,9 @@ async function route(req, res, url) {
                                         * whether a tab that hands over a GRID
                                         * can use this row at all. */
                                        first: !!spec.firstFrame,
+                                       /* and whether it reads a box table -
+                                        * see the row that does */
+                                       boxes: !!spec.boxes,
                                        modes: Object.keys(modes).length ? modes : null };
         }
       }

@@ -1546,10 +1546,15 @@
      not show while the box face is UP - the row inside a face is the way
      back and the thing that acts, and a cell offering the face you are
      standing in is the never-both rule the camera row already keeps. */
+  /* AND ONLY WHERE THE CHOSEN ROW READS THEM. The table is BFL's annotator
+     format and the cell is drawn from the slot, so without this it offered to
+     draw regions at five rows that would receive a block of integers. `can-box`
+     is written by the page from /api/health, the way the faces are - CSS
+     cannot ask which model is pressed. */
   .tr.boxes { display: none; }
-  .slot.has-form.is-inface:not(.is-boxing) .tr.boxes,
-  .slot.is-writing:not(.is-boxing) .tr.boxes,
-  .slot.is-asking.writes:not(.is-boxing) .tr.boxes { display: block; flex: 0 0 auto; padding: 0 14px; }
+  .slot.can-box.has-form.is-inface:not(.is-boxing) .tr.boxes,
+  .slot.can-box.is-writing:not(.is-boxing) .tr.boxes,
+  .slot.can-box.is-asking.writes:not(.is-boxing) .tr.boxes { display: block; flex: 0 0 auto; padding: 0 14px; }
   /* AND THE AGENT CELL AND THE ? STAND DOWN WHILE IT IS UP - which has to be
      said on the SHOW rules and not as a hide rule of its own.
      `.slot.is-asking.writes .tr.face` is three classes to
@@ -3988,7 +3993,14 @@
        nobody described is nothing to run. Without this the rung's RUN was
        red on EDIT with an empty box and the server refused the press, which
        is the one thing a lit button must never do. */
-    { k: 'EDIT',  n: 'Edit',  writes: true, needs: true, ask: 'Say what to change…',
+    /* AND EDIT OPENS ON THE ROW THAT CAN DRAW - Babe: "but that should be the
+       default edit model". The first row of a rung is the partner default and
+       is what an unpicked tab falls to, which on this tab means the one row
+       whose boxes face cannot be shown. A tab may name its own opening row
+       now; `_pickedBy` still wins the moment somebody presses one, and the
+       page's own press is `isTrusted: false`, so this stays the default
+       rather than becoming a choice nobody made. */
+    { k: 'EDIT',  n: 'Edit', row: 'FLUX-3-KLEIN',  writes: true, needs: true, ask: 'Say what to change…',
       why: 'Keeps every pixel of your source and changes the one thing you name. The room, the light and the framing stay exactly as they were - which also means anything you do NOT name stays too, down to the glasses.',
       line: "<span class='lede'>Time for change.</span> " +
             "<b class='tok'>EDIT</b>" }
@@ -5489,6 +5501,7 @@
          read by the picker, which is the one place that already walks every
          row against the pressed mode. */
       if (ms[i].grid) ln += ' data-grid="1"';
+      if (ms[i].row) ln += ' data-row="' + ms[i].row + '"';
       h += '<button class="tr ftab" data-mode="' + ms[i].k + '"' + ln +
            ' aria-pressed="' + (i === 0) + '">' + ms[i].n + '</button>';
     }

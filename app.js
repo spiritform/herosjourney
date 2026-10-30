@@ -3704,7 +3704,11 @@
        table, so `what you are looking at is what gets sent` holds - you are
        looking at them, drawn on the thing they point at, rather than at
        sixteen integers in a prompt box. */
-    if (window.HJ && window.HJ.boxTable) {
+    /* AND ONLY TO THE ROW THAT READS IT. The face is hidden elsewhere, but a
+       table drawn on Klein and then sent to nano would be a block of integers
+       on the end of somebody's sentence - the boxes outlive the press that
+       changed the model, and this is the one place that can say so. */
+    if (window.HJ && window.HJ.boxTable && (rowSpec(slide) || {}).boxes) {
       var bslot = slide.querySelector('.slot[data-boxes]');
       var table = bslot ? window.HJ.boxTable(bslot) : [];
       /* AND A PICTURE WITH BOXES ON IT IS THE SUBJECT, NOT A SECOND
@@ -6271,7 +6275,6 @@
     }).length;
     var trig = slide.querySelector('.param.model');
     if (trig) trig.classList.toggle('solo', usable < 2);
-    if (!fell) return;
     /* AND IT GOES BACK TO WHAT YOU PICKED, NOT TO THE TOP OF THE LIST - Babe,
        2026-10-27, after a run they thought was on an open row: "when i went
        back to the workflow tho nano was selected". Stepping off a hidden row
@@ -6279,16 +6282,32 @@
        so a look at the other tab and back silently moved the job onto the
        one row that costs real money, and the only thing that said so was a
        label nobody was looking at. A press is remembered per mode and handed
-       back when that mode comes round again; the first legal row is what
-       happens when you have never picked one. */
-    var want = (slide._pickedBy || {})[now];
+       back when that mode comes round again.
+       AND A TAB CAN NAME THE ROW IT OPENS ON - Babe, 2026-10-29, on the box
+       face: "but that should be the default edit model". The first legal row
+       is what happens when you have never picked one, and on 01's EDIT that
+       is the partner default, which is the one row whose boxes face cannot be
+       drawn. So a tab may say which row it opens on, and it applies only
+       while nobody has chosen for that tab: the page's own press is not
+       `isTrusted`, so being moved here never counts as choosing. */
+    var picked = (slide._pickedBy || {})[now];
+    var want = picked || (tab && tab.dataset.row) || '';
     var open = rows.filter(function (r) {
       return !r.classList.contains('off') && !r.disabled;
     });
+    if (!fell) {
+      /* nothing illegal is pressed, so the only reason to move is a tab whose
+         own opening row nobody has overruled yet */
+      if (picked || !want) return;
+      var on = rows.filter(function (r) {
+        return r.getAttribute('aria-pressed') === 'true';
+      })[0];
+      if (on && rowName(on) === want) return;
+    }
     for (var i = 0; i < open.length; i++) {
       if (want && rowName(open[i]) === want) return open[i].click();
     }
-    if (open.length) return open[0].click();
+    if (fell && open.length) return open[0].click();
   }
 
   /* WHICH ROW A PERSON PICKED, PER MODE, AND `isTrusted` IS THE WHOLE TEST.
@@ -6391,6 +6410,7 @@
        does not offer is still corrected, which is `markParams`'s own rule. */
     markParams(slide, false, tab.dataset.mode);
     markFaces(slide, tab.dataset.mode);
+    markBoxes(slide, tab.dataset.mode);
   });
 
   function markWired(wired) {
@@ -6426,6 +6446,7 @@
       markParams(slide, true);
       markOnly(slide);
       markFaces(slide);
+      markBoxes(slide);
       /* A LIT BUTTON THAT CANNOT RUN IS THE ONE THING THIS RAIL MUST NEVER
          DRAW, and with no key none of them can. The two refusals are not the
          same refusal: a rung with no graph behind the chosen row is Not
@@ -6471,6 +6492,31 @@
      about it.
      AND AN OLDER SERVER SAYS NOTHING, so a page talking to one shows every
      face exactly as before rather than hiding them all. */
+  /* AND THE BOX FACE BELONGS TO THE ROW THAT READS IT - Babe, 2026-10-29: "do
+     you think boxes should only show up if you select flux 3 for edit".
+     THE TABLE IS BFL'S ANNOTATOR FORMAT, one JSON array at the end of the
+     prompt, and the cell was drawn from the SLOT - so it offered to draw
+     regions at five rows that would have received a block of integers. Nano
+     reads it as part of an instruction, the qwen rows take it at cfg 1 where
+     conditioning is the only steering they have, MOSS has never seen one and
+     Krea rewrites the prompt before it generates.
+     IT IS THE SAME SHAPE AS THE FACES ONE BESIDE IT: a fact about the row, off
+     /api/health, written onto the slot as a class because CSS cannot ask which
+     model is pressed. AND IT LEAVES THE FACE IT IS CLOSING - a class that
+     merely hides the way back strands you inside it.
+     AN OLDER SERVER SAYS NOTHING, so a page talking to one leaves the cell
+     exactly as it was rather than hiding it everywhere. */
+  function markBoxes(slide, mode) {
+    var live = rowSpec(slide, mode);
+    if (!live || live.boxes === undefined) return;
+    slide.querySelectorAll('.slot[data-boxes]').forEach(function (slot) {
+      slot.classList.toggle('can-box', !!live.boxes);
+      if (live.boxes || !slot.classList.contains('is-boxing')) return;
+      var back = slot.querySelector('.tray .tr.back');
+      if (back) back.click();
+    });
+  }
+
   function markFaces(slide, mode) {
     var live = rowSpec(slide, mode) || {};
     if (!live.takes) return;
@@ -6489,7 +6535,9 @@
     if (!mm) return;
     var slide = mm.closest('.slide');
     /* after the page's own handler has moved the label on the trigger */
-    if (slide) setTimeout(function () { markParams(slide, true); markFaces(slide); }, 0);
+    if (slide) setTimeout(function () {
+      markParams(slide, true); markFaces(slide); markBoxes(slide);
+    }, 0);
   });
 
   /* DEV: draw and upload a layout template without running anything, which is
