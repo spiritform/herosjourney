@@ -2515,8 +2515,17 @@ const RUNGS = {
         label: "Become someone",
         sys: (v) => STYLE_SYS(!!v.ref, "@Image1", "@Image2"),
         inputs: {
-          source: { node: "1", input: "model.images.image_0" },
-          ref: { node: "1", input: "model.images.image_1" },
+          /* AND A FILE GOES TO A LOADER, NEVER TO THE NODE THAT READS IT -
+           * Babe, 2026-10-29, the press after the slot names were corrected:
+           * "node 1 (Krea3ImageNode) input model.images.image_0 expects a
+           * linked image but received a literal value". The slot names were
+           * right by then; the ADDRESS was not. Every other graph on this
+           * rail patches the LoadImage's filename and lets the link carry it,
+           * and this one was addressing the model node directly because its
+           * images arrive as conditional sub-fields in the schema and read
+           * like inputs. They are sockets. */
+          source: { node: "8", input: "image" },
+          ref: { node: "10", input: "image" },
           prompt: { node: "1", input: "model.prompt" },
           ar: { node: "1", input: "model.aspect_ratio",
                 cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
@@ -3832,7 +3841,17 @@ async function apiRun(req, res) {
     for (const addr of [def, ...(def.also || [])]) {
       const target = graph[addr.node];
       if (!target) return json(res, 500, { error: `node ${addr.node} is not in ${spec.graph}` });
-      (target.inputs ||= {})[addr.input ?? def.input] = v;
+      const at = addr.input ?? def.input;
+      /* see the dry run's own note: an input holding an array is a socket,
+       * and writing a literal into it is a 400 from Comfy that costs a
+       * submission to discover. It is a wiring mistake, so it reads like
+       * one. */
+      if (Array.isArray(target.inputs?.[at])) {
+        return json(res, 500, {
+          error: `${addr.node}.${at} in ${spec.graph} is a link, not a widget - patch the node it comes from`,
+        });
+      }
+      (target.inputs ||= {})[at] = v;
     }
   }
 
@@ -3857,9 +3876,19 @@ async function apiRun(req, res) {
       const addrs = [def, ...(def.also || [])];
       patched[key] = addrs.map((ad) => {
         const node = graph[ad.node];
-        return node
-          ? `${ad.node}.${ad.input ?? def.input} (${node.class_type})`
-          : `MISSING node ${ad.node}`;
+        if (!node) return `MISSING node ${ad.node}`;
+        const at = ad.input ?? def.input;
+        /* AND A SOCKET IS NOT A WIDGET. An input that already holds an array
+         * is a LINK from another node, so writing a value there replaces the
+         * wire with a constant - which Comfy refuses at submit, by name, for
+         * money. Every address on this server is meant to be a widget: a
+         * filename on a loader, a number on a sampler, a string on an
+         * encoder. This is the one wiring mistake a dry run could not see
+         * until it was looking for it. */
+        if (Array.isArray(node.inputs?.[at])) {
+          return `${ad.node}.${at} (${node.class_type}) IS A LINK - patch the node it comes from`;
+        }
+        return `${ad.node}.${at} (${node.class_type})`;
       });
     }
     return json(res, 200, {
