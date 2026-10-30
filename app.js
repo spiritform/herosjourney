@@ -3077,18 +3077,46 @@
        at, and neither row is floating under something it is not about. */
     var left = document.createElement('div');
     left.className = 'shots-left';
+    /* THE SITTING IS NAMED HERE AND STARTED HERE - Babe, 2026-10-29: "i think
+       we may need a button to start a new session... a header above the grid
+       that reads SESSIONS with a button on the right".
+       IT WAS A CONSOLE CALL AND NOTHING ELSE. `HJ.newSession()` has started one
+       since sittings existed, and the only way to reach it was to know it was
+       there - which is fine for the person who wrote it and no use to anybody
+       else. The panel that shows every sitting is where the button for one
+       belongs.
+       NOTHING IS LOST BY PRESSING IT: a sitting is never deleted, its drawer is
+       kept under its own key, and `?session=session21` walks back into it. The
+       reload is the whole mechanism - every slot and every plate was built from
+       the old sitting, and putting them back by hand would be a second
+       implementation of boot. (*) The two words are mine. */
+    left.insertAdjacentHTML('beforeend',
+      '<div class="shots-head"><span class="grow">Memories</span>' +
+      '<button class="tr sess-new" type="button">New session</button></div>');
     left.appendChild(grid);
     left.insertAdjacentHTML('beforeend', '<div class="shots-line"></div>');
     var view = document.createElement('div');
     view.className = 'shots-view';
-    view.innerHTML = '<div class="shots-head"></div>' +
-                     '<div class="shots-stage"></div><div class="shots-acts"></div>';
+    /* AND THE WORKFLOW'S NAME SITS IN THE FOOT, NOT OVER THE PICTURE - Babe,
+       2026-10-29: "move this 05 SET IN MOTION to the bottom left of the right
+       column", and then "that 05 SET IN MOTION can be the same font as edit and
+       extend".
+       IT WAS A HEADER AND IT IS A FACT ABOUT THE THING YOU ARE LOOKING AT, which
+       is what the row underneath is already for: the left column puts the file's
+       own facts under its grid and this puts the picture's under the picture.
+       The bar it vacates goes to the stage, which is the one thing in this panel
+       that can always use more room. */
+    view.innerHTML = '<div class="shots-stage"></div>' +
+                     '<div class="shots-acts"><span class="shots-name"></span></div>';
     body.appendChild(left);
     body.appendChild(view);
     media.appendChild(body);
 
     /* it opens on the newest, because a panel that opens on nothing makes
        you do the one thing it was built to save you. */
+    var newer = left.querySelector('.sess-new');
+    if (newer) newer.addEventListener('click', function () { window.HJ.newSession(); });
+
     var firstCell = grid.querySelector('.shot');
     if (firstCell) showShot(o, firstCell);
 
@@ -3125,7 +3153,6 @@
        done, because nobody watches it arrive. */
     var rows = [].slice.call(grid.children);
     var later = [ left.querySelector('.shots-line'),
-                  view.querySelector('.shots-head'),
                   view.querySelector('.shots-stage'),
                   view.querySelector('.shots-acts') ].filter(Boolean);
     rows.concat(later).forEach(function (el) { el.style.opacity = 0; });
@@ -3244,7 +3271,7 @@
     var info0 = shotInfo(cell.dataset.path);
     var stage = panel.querySelector('.shots-stage');
     var line = panel.querySelector('.shots-line');
-    var head = panel.querySelector('.shots-head');
+    var head = panel.querySelector('.shots-name');
     if (!stage) return;
     panel.querySelectorAll('.shot').forEach(function (c) {
       c.setAttribute('aria-pressed', String(c === cell));
@@ -3282,11 +3309,14 @@
         ? [].find.call(document.querySelectorAll('.nav .ck'),
             function (b) { return b.textContent.trim().indexOf(info0.rung) === 0; })
         : null;
-      /* the nav sets the number off from the name with two spaces and uses
-         one inside the name, so collapsing everything to two put a gap in
-         the middle of KEEP MOVING. Only the first run is the separator. */
+      /* AND ONE SPACE, NOT THE NAV'S TWO - Babe, 2026-10-29: "remove the
+         extra space", "in 05 SET IN MOTION". The nav sets the number off from
+         the name with a pair of non-breaking spaces, which is right across the
+         top of the page where six of them are read as a row; in a single label
+         at the end of a row it is a gap in the middle of a name. The words are
+         still the nav's own - only the spacing is this label's. */
       head.textContent = tab
-        ? tab.textContent.trim().replace(/\s+/g, ' ').replace(/ /, '  ')
+        ? tab.textContent.trim().replace(/\s+/g, ' ')
         : '';
     }
 
@@ -3326,7 +3356,17 @@
     /* the row under the picture follows the picture */
     var acts = panel.querySelector('.shots-acts');
     if (acts) {
+      /* AND THE NAME SURVIVES THE REBUILD. It lives in this row and this row
+         empties itself on every selection, so the span written once at build
+         time lasted exactly until the first click - which is why the bottom
+         left was blank. It is taken out, the buttons are rebuilt around it,
+         and it goes back FIRST so it keeps the slack and they stay hard
+         right. Kept rather than re-made, because the text was written into it
+         a few lines above and re-making it would mean composing the name
+         twice. */
+      var nameAt = acts.querySelector('.shots-name');
       acts.innerHTML = '';
+      if (nameAt) acts.appendChild(nameAt);
       /* THE BAR STAYS FOR A STILL TOO - Babe, 2026-10-25: "can we leave the
          bar for images as well and give the option to edit, we may make a
          tab for that in section 01". A row that disappears under half the

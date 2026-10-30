@@ -3386,7 +3386,12 @@
   .shots-div {
     grid-column: 1 / -1; background: var(--ink);
     font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em;
-    text-transform: uppercase; color: var(--sand-dim);
+    /* AND A LITTLE BRIGHTER - Babe, 2026-10-29: "the session rows and prob be
+       a little bit of a brighter grey". `--sand-dim` is the colour of a thing
+       that is off, and a divider naming the sitting you are looking at is a
+       label rather than a disabled control - it is the one piece of structure
+       in a wall of pictures. */
+    text-transform: uppercase; color: var(--sand-mid);
     padding: 9px 11px 7px;
   }
   .shots-div:first-child { padding-top: 7px; }
@@ -3400,14 +3405,29 @@
      not become a flex item of its own. */
   .shots-div { display: flex; align-items: center; }
   .shots-div .x {
-    margin-left: auto; width: 22px; height: 18px; padding: 0; line-height: 1;
+    /* AND IT IS TUCKED INTO THE CORNER, like every other X on this panel -
+       Babe, 2026-10-29: "now just center the x in the right of the session
+       row.. seems off". Measured: 7px above and 7px below, so it was already
+       centred vertically and the odd thing was horizontal - the row carries
+       11px of padding, so the cell stopped 11px short of the edge the tiles
+       below it line up with, and a 22px box centred its glyph 22px in. It
+       gives most of that padding back, so the glyph sits where the eye
+       expects the end of the row rather than floating short of it. */
+    margin-left: auto; margin-right: -4px;
+    width: 22px; height: 18px; padding: 0; line-height: 1;
     display: grid; place-items: center; opacity: 0;
     font-family: var(--mono); font-size: 15px;
     background: transparent; border: 0; color: var(--sand-dim);
     cursor: pointer; transition: opacity .15s, color .15s, background .15s;
   }
   .shots-div:hover .x, .shots-div .x:focus-visible { opacity: 1; }
-  .shots-div .x:hover { color: var(--ink); background: var(--red); }
+  /* AND IT IS A LIGHTER GREY, NOT A BOX - Babe, 2026-10-29: "remove the box
+     from the X just make it highlight a lighter grey or something". A filled
+     red chip on a divider made the one control that PUTS A SITTING AWAY the
+     brightest thing in the panel, and a divider is a line rather than a box:
+     the tile X can wear a fill because it sits on a picture and has to be
+     found, and this one is already found by the row it is on. */
+  .shots-div .x:hover { color: var(--sand); background: none; }
   /* AND THE LINES ARE THE GAPS NOW, NOT THE CELLS' OWN BORDERS. Those two
      rules counted to three - the first of every row, the whole first row -
      which is arithmetic that only holds while every child is a tile. The
@@ -3492,18 +3512,85 @@
   /* full-bleed across the review panel, so it pays for its own edge */
   .shots-head { padding: 0 12px; }
   .shots-head:empty { display: none; }
+  /* AND THE GRID GETS A HEADER OF ITS OWN - Babe, 2026-10-29: "i think we may
+     need a button to start a new session. like maybe we add a header above the
+     grid that reads SESSIONS with a button on the right to start new session".
+     IT IS THE SAME BAR THE VIEWER ALREADY HAS, which is what makes the two
+     columns read as a pair rather than as a grid with a label stuck on it: the
+     right one names the picture you are looking at and this one names what you
+     are looking THROUGH. The cell is a tray cell, pushed right by the name
+     taking the slack - the same construction as the result panel's foot, where
+     an empty info cell gives up its width to the buttons. */
+  /* AND BOTH READ LIKE A SLOT - Babe, 2026-10-29: "can you make memories the
+     same font and new session as the workflow ui", then, with a slot on
+     screen: "just make th top and bottom rows / headers text look like the
+     workflow ones".
+     IT IS `.ftab-k` AND `.tr` EXACTLY - mono at `--btn-f`, `.05em`, uppercase,
+     the header at `--sand` and the cell at `--sand-mid`. The first attempt
+     reached for the rail's small ANNOTATIONS instead (Archivo at `--call-f`,
+     tracked wide), which is the layer the red dot belongs to and the wrong
+     register for a row welded to a box: this panel's two columns are the
+     slot's own construction - a box with a named row at each end - so they
+     take the slot's own type. */
+  .shots-head .grow {
+    flex: 1 1 auto;
+    font-family: var(--mono); font-size: var(--btn-f); font-weight: 400;
+    letter-spacing: .05em; color: var(--sand);
+  }
+  .shots-head .tr {
+    flex: 0 0 auto; align-self: stretch; padding: 0 14px;
+    display: flex; align-items: center;
+    border: 0; border-left: 1px solid var(--edge); background: none;
+    font-family: var(--mono); font-size: var(--btn-f); font-weight: 400;
+    letter-spacing: .05em; text-transform: uppercase;
+    color: var(--sand-mid); cursor: pointer;
+    margin-right: -12px;   /* the header's own padding, given back to the cell */
+  }
+  .shots-head .tr:hover { color: var(--sand); background: rgba(237,225,211,.05); }
 
   .shots-stage {
-    flex: 1 1 auto; min-height: 0; display: grid; place-items: center;
+    /* AND THE BASIS IS ZERO, NOT AUTO - the picture inside is absolutely
+       positioned, so it contributes no height at all, and a content basis on a
+       box with no in-flow content is a box that has to be grown into rather
+       than one with a size of its own. At `0` the height is the free space,
+       full stop, which is what `inset: 0` below is measured against. */
+    flex: 1 1 0; min-height: 0; display: grid; place-items: center;
     /* THE LETTERBOX IS BLACK, NOT PLATE - Babe, 2026-10-25: "can you make
        this letterbox black". A 16:9 clip in a taller box bars out top and
        bottom, and the plate grey made those bars part of the panel rather
        than part of the picture. True black is what a frame sits in, and it
        is also what the result panel already lets a picture bar out to. */
     background: #000; overflow: hidden;
+    /* AND THE PICTURE FILLS THIS BOX RATHER THAN MEASURING ITSELF AGAINST IT -
+       Babe, 2026-10-29: "i noticed the images get cropped in the media
+       library". It was `max-width: 100%; max-height: 100%`, which is the
+       honest way to letterbox and depends on this box having a height a
+       PERCENTAGE can resolve against. It does not: the stage is
+       `flex: 1 1 auto` with a content-based basis, so Chrome treats the
+       percentage as indefinite, only the width binds, and a square picture is
+       sized to the width and then CROPPED by the `overflow: hidden` above.
+       SO IT IS THE PLATE'S OWN CONSTRUCTION INSTEAD: a positioned box and a
+       child at `inset: 0` with `object-fit: contain`. An absolutely positioned
+       child resolves against the USED size of its container, so there is no
+       percentage left to be indefinite, and contain does the letterboxing that
+       the two max- rules were asking for. The black above is what it bars out
+       to, unchanged. */
+    position: relative;
   }
   .shots-stage img, .shots-stage video {
-    max-width: 100%; max-height: 100%; width: auto; height: auto; display: block;
+    position: absolute; inset: 0; display: block;
+    width: 100%; height: 100%; object-fit: contain;
+    /* AND THE RESULT PANEL'S OWN CLAMP COMES OFF - measured, 2026-10-29:
+       stage 818x750, picture 818x631, filling the width and short by 119.
+       `.runover-media img, video` is `max-height: min(70vh, 820px)`, which is
+       right for a panel that sizes to its picture and wrong for a column the
+       picture is meant to fill - and the library is built INSIDE that
+       container, so it inherited the clamp. 70vh of a 902px window is 631.39,
+       which is the number that came back to the pixel.
+       A `max-height` BEATS `height: 100%`, and with `inset: 0` the box keeps
+       its top and loses the difference off the bottom - which is why this read
+       as "off centre" rather than as "too small". */
+    max-width: none; max-height: none;
   }
   .shots-stage:empty::after {
     content: ''; display: block;
@@ -3549,11 +3636,25 @@
     min-height: var(--tray-h); border-top: 1px solid var(--edge);
   }
   .shots-acts .tr { flex: 0 0 auto; padding: 0 22px; }
+  /* WHICH WORKFLOW MADE IT, AT THE OTHER END OF THE ROW THAT ACTS ON IT -
+     Babe, 2026-10-29: "move this 05 SET IN MOTION to the bottom left of the
+     right column", "that 05 SET IN MOTION can be the same font as edit and
+     extend". It was a header over the picture; it is a fact ABOUT the picture,
+     which is the row it is in now - and the bar it vacates goes to the stage.
+     IT TAKES THE SLACK so the buttons stay hard right, the way the result
+     panel's empty info cell does, and it is a span rather than a cell: same
+     font, no divider, no hover, nothing to press. */
+  .shots-name {
+    flex: 1 1 auto; display: flex; align-items: center; padding: 0 13px;
+    font-family: var(--mono); font-size: var(--btn-f); font-weight: 400;
+    letter-spacing: .05em; text-transform: uppercase; color: var(--sand);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   /* AND THE FIRST ONE KEEPS ITS LEFT LINE HERE - Babe, 2026-10-25: "edit
      button needs a line on the left". `.tr:first-child` drops it because in
      a tray the box it is welded to already draws that edge; this row floats
      right with nothing to its left, so the cell has to close itself. */
-  .shots-acts .tr:first-child { border-left: 1px solid var(--edge); }
+  .shots-acts .tr:first-of-type { border-left: 1px solid var(--edge); }
   .shots-acts:empty { display: none; }
 
   /* THE ARROWS ARE OFF THE BAR FOR NOW - Babe, 2026-10-27: "lets remove the
