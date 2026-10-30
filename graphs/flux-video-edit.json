@@ -1,0 +1,22 @@
+{
+  "2": { "class_type": "LoadVideo", "inputs": { "file": "", "video-preview": "" } },
+  "6": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/hj-06-flux-video-edit",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": ["7", 0]
+    }
+  },
+  "7": {
+    "class_type": "FluxVideoEditNode",
+    "inputs": {
+      "video": ["2", 0],
+      "prompt": "",
+      "auto_downscale": true,
+      "safety_tolerance": 4,
+      "seed": 42
+    }
+  }
+}

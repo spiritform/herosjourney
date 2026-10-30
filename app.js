@@ -3536,7 +3536,8 @@
     var info = o.querySelector('.info');
     if (info) info.textContent = '';
     var el = document.createElement(isVid ? 'video' : 'img');
-    if (isVid) { el.controls = true; el.loop = true; el.playsInline = true; el.autoplay = true; }
+    /* and a look does not start itself - see the result panel */
+    if (isVid) { el.controls = true; el.loop = true; el.playsInline = true; }
     /* the listener goes on before the src, or a cached file fires its load
        while nothing is listening - the same order the result panel keeps. */
     el.addEventListener(isVid ? 'loadedmetadata' : 'load', function () {
@@ -3872,7 +3873,37 @@
     for (var i = 0; i < n; i++) {
       at.push(n < 2 ? 0 : Math.round((i / (n - 1)) * (len - 1)));
     }
-    return at;
+    /* AND IT HANDS BACK THE LENGTH IT SNAPPED TO, because two things want it
+       and only one of them is the run: the agent writes the plan these
+       anchors are the skeleton of, and a clip asked for 5s is 124 frames and
+       therefore 5.2s long. Computing it a second time where it is read is
+       how this number ends up written down three times instead of two. */
+    return { len: len, at: at };
+  }
+
+  /* WHICH PANEL LAYOUT A SLIDE'S JOB IS CUT FROM, which is not always the
+     layout its own tab names. 05's SEQUENCE is shot from the board 04 drew,
+     so the table to read is 04's `sequence` while the pressed tab is keyed
+     `seq` - and `modeObj` answers null for a key that is not a layout.
+     The run already asked this question inline; the agent asked the slot and
+     got nothing, which is the same fact resolved in two places with one of
+     them wrong. */
+  function panelLayout(slide) {
+    if (!slide) return null;
+    if (rungOf(slide) === 5 && modeOf(slide) === 'seq') return modeObj('sequence');
+    return modeObj(modeOf(slide));
+  }
+
+  /* THE MOMENTS THE PANELS LAND ON, IN SECONDS, exactly as the run will place
+     them - so the agent is told the times rather than asked to divide for
+     them. It is empty on every job that does not anchor, and the shape on the
+     server falls back to the even division when it is. */
+  function beatList(slide) {
+    var layout = panelLayout(slide);
+    if (!layout || !layout.panels || layout.panels.length < 2) return '';
+    if (rungOf(slide) !== 5 || modeOf(slide) !== 'seq') return '';
+    var plan = anchorFrames(param(slide, 'duration'), layout.panels.length);
+    return plan.at.map(function (f) { return (f / 24).toFixed(1) + 's'; }).join(', ');
   }
 
   function modeObj(id) {
@@ -4165,6 +4196,42 @@
     if (!shown) return;
     e.preventDefault();
     peek(box.closest('.slide'), shown.src, shown.tagName === 'VIDEO');
+  });
+
+  /* AND THE ROOM IS THE WAY BACK TO WHAT MADE IT - Babe, 2026-10-29: "when
+     you close the modal too you can't really get back to it unless you go to
+     the media library".
+     IT IS THE TWO CLIP WORKFLOWS THAT HAD NOWHERE. On 01 to 04 the result
+     lands in the NEXT workflow's left slot, so a double-click there is already
+     the whole panel back - that is what `ownOut` was built for. 05 and 06 have
+     no such box: a clip cannot carry into an image slot, 06 is the end of the
+     rail, and the right slot is what you ADD. So the thing you just made
+     existed on screen only as the room, and the room is not a picture you can
+     point at.
+     SO POINT AT IT. Each section's backdrop IS its own output, double-click is
+     this page's one gesture for a bigger look, and `peek` already decides
+     between a bare foot and the whole panel by asking whether the file is this
+     workflow's own - so the modal comes back exactly as you closed it,
+     Continue journey and all. No new UI, no new word.
+     THE TEST IS AN ALLOWLIST OF CONTAINERS, NEVER A LIST OF EXCEPTIONS. The
+     pointer only reaches MID, and a double-click whose target IS a plane, a
+     slide, the stage or the column is a double-click on empty space - it
+     cannot be wrong the way naming every control it must not fire on could.
+     AND NOTHING HAPPENS BEFORE THERE IS SOMETHING: a workflow that has not run
+     has no `out`, which is also what keeps the first press of the rail quiet. */
+  document.addEventListener('dblclick', function (e) {
+    var t = e.target;
+    var room = t && t.classList && (t.classList.contains('p-mid') ||
+      t.classList.contains('mid-col') || t.classList.contains('slide') ||
+      t.classList.contains('stage') || t.classList.contains('cam'));
+    if (!room) return;
+    var slide = t.closest('.slide') || document.querySelector('.slide.is-on');
+    if (!slide) return;
+    var out = st(rungOf(slide)).out;
+    var src = lastingUrl(out);
+    if (!src) return;
+    e.preventDefault();
+    peek(slide, src, isVideoName(out.filename));
   });
 
   /* A BOARD YOU BRING - Babe, 2026-10-26: "it should actually be PROMPT,
@@ -4569,7 +4636,26 @@
     var info = o.querySelector('.info');
     if (info) info.textContent = '';
     var el = document.createElement(isVideoName(file.filename) ? 'video' : 'img');
-    if (el.tagName === 'VIDEO') { el.controls = true; el.loop = true; el.playsInline = true; el.autoplay = true; el.muted = false; }
+    /* AND IT DOES NOT START ITSELF EITHER - Babe, 2026-10-29: "we should prob
+       kill autoplay when it finishes and pops up in the modal". The library
+       lost its autoplay this morning on the argument that a clip playing the
+       moment a drawer opens takes the room's attention and its sound, and this
+       panel kept its own because a clip here IS the answer you just asked for.
+       THAT PREMISE IS THE ONE BABE REVERSED, so the rule is now the simple
+       one: NOTHING YOU ARE MEANT TO WATCH STARTS ITSELF. A finished run
+       arrives on its first frame and waits, which is the panel that most
+       needs to - it opens by itself, over a blurred rail, with sound.
+       THE TWO THAT STILL START ARE NOT THAT. A clip in a SLOT is muted and
+       looping because that is how a box shows a video at all rather than a
+       black square, and the camera preview is a live stream. Neither is a
+       thing you sat down to watch.
+       AND THE PRESS IS THE PICTURE. `.runover-media` is one of the two
+       parents where a click on a clip plays it, so starting it is one press on
+       the thing you are already looking at rather than a hunt for a control.
+       THE SOUND STAYS ON: a press is a user gesture, so Chrome allows an
+       unmuted start - which is the whole reason the camera's playback works
+       the same way. */
+    if (el.tagName === 'VIDEO') { el.controls = true; el.loop = true; el.playsInline = true; el.muted = false; }
     /* THE SOURCE IS SET BELOW, AFTER THE LISTENER. A cached file fires its
        load before a listener attached a line later can hear it, and the
        info cell is the one thing on this strip that cannot be composed
@@ -4923,13 +5009,21 @@
          declares `panel1`..`panel6`, and a value nothing is addressed to is
          a value the patcher never looks at. Seedance and LTX go on being
          handed the slate. */
-      if (rung === 5 && modeOf(slide) === 'seq') {
+      /* AND ONLY WHERE THE ROW CAN TAKE THEM. SEQUENCE is pressable on every
+         row that does not open on its picture, but only MINIMAX-H3 has
+         `panel1`..`panel6` to put them in - and six uploads nothing is
+         addressed to are six uploads for nothing. Where the row cannot anchor
+         the board goes over whole, as a reference, which is what it did before
+         the anchors existed and what "the cuts you named are the cuts" is
+         written over. */
+      var anchors = ((rowSpec(slide) || {}).takes || []).indexOf('panel1') !== -1;
+      if (rung === 5 && modeOf(slide) === 'seq' && anchors) {
         var board = (boxesOf(slide).front[0] || {}).querySelector &&
                     boxesOf(slide).front[0].querySelector('img');
-        var layout = modeObj('sequence');
+        var layout = panelLayout(slide);
         if (board && layout && layout.panels && layout.panels.length) {
           var cut = await cutPanels(board, layout);
-          var at = anchorFrames(param(slide, 'duration'), cut.length);
+          var at = anchorFrames(param(slide, 'duration'), cut.length).at;
           for (var pn = 0; pn < cut.length; pn++) {
             values['panel' + (pn + 1)] = cut[pn];
             values['at' + (pn + 1)] = at[pn];
@@ -5113,7 +5207,7 @@
      disagree with the drawing. It rides along as a value and reaches no
      node, the way `about` and `lens` already do. */
   function panelNames(slot) {
-    var mode = modeObj(slot.dataset.mode);
+    var mode = panelLayout(slot.closest('.slide'));
     if (!mode || !mode.panels || mode.panels.length < 2) return '';
     return mode.panels.map(function (p) {
       return [].concat(p.label || []).join(' ');
@@ -5172,7 +5266,13 @@
            written to a second that the clip would not have. A timeline that
            ends before the footage does is the summarising this exists to
            stop. */
-        seconds: Math.round(parseFloat(param(slide, 'duration')) || 0)
+        seconds: Math.round(parseFloat(param(slide, 'duration')) || 0),
+        /* AND ON A JOB WHOSE SHOTS ARE ALREADY PLACED, WHEN EACH ONE IS -
+           05's SEQUENCE anchors the board's panels at frames this page works
+           out before it submits, so the exact moments exist and the agent was
+           dividing the length by the count to guess at them. It rides along
+           and reaches no node, the way `panels` and `seconds` do. */
+        beats: beatList(slide)
       }
     });
     if (!job.ok) throw new Error(job.error || 'the agent did not answer');
@@ -6005,9 +6105,32 @@
      with no step count and AR disappears beside one whose output just
      follows the source. A control that does nothing is worse than no
      control. */
-  function markParams(slide, applyDefaults) {
-    var live = WIRED[rungOf(slide)];
-    var spec = live && live[modelOf(slide)];
+  /* WHAT THE CHOSEN ROW DOES ON THE PRESSED TAB, which is not the same thing
+     as what the row does. `apiRun` resolves the variant and then lays the
+     mode over it, so a mode may hand a row a different input table, a
+     different option list or different defaults - and the page only ever
+     heard the row's half of that. Both cells this governs were wrong on 05:
+     STEPS read 4 where 8 would run, and the SHEET face was offered on two
+     tabs whose graphs have no address for a sheet.
+     IT IS THE SERVER'S OWN MERGE, SHALLOW AND IN THE SAME ORDER - a mode
+     overrides what it names and inherits the rest. Keeping a second opinion
+     about what a mode means is how the two ends start to disagree.
+     THE MODE IS PASSED WHERE A PRESS KNOWS IT, because the page writes
+     `slot.dataset.mode` a moment after the click and two listeners agreeing
+     about which of them runs first only has to be got wrong once. */
+  function rowSpec(slide, mode) {
+    var spec = (WIRED[rungOf(slide)] || {})[modelOf(slide)];
+    if (!spec) return null;
+    var m = spec.modes && spec.modes[mode === undefined ? modeOf(slide) : mode];
+    if (!m) return spec;
+    var out = {};
+    for (var k in spec) out[k] = spec[k];
+    for (var j in m) out[j] = m[j];
+    return out;
+  }
+
+  function markParams(slide, applyDefaults, mode) {
+    var spec = rowSpec(slide, mode);
     var allow = spec && spec.params;
     var defs = (spec && spec.defaults) || {};
     slide.querySelectorAll('.param[data-p]').forEach(function (cell) {
@@ -6097,12 +6220,34 @@
     var menu = slide.querySelector('.model-menu');
     if (!menu) return;
     var live = WIRED[rungOf(slide)] || {};
-    var now = String(mode || modeOf(slide) || '').toUpperCase();
+    var raw = mode || modeOf(slide) || '';
+    var now = String(raw).toUpperCase();
+    /* AND A TAB CAN REFUSE A ROW, WHICH IS `only` FROM THE OTHER END - Babe,
+       2026-10-29: "so sequence mode wont work with ltx?", then "yeah basically
+       the mode hides the model".
+       THE SENTENCE IS: A GRID CANNOT BE FRAME ONE. SEQUENCE hands over a board
+       - six panels where a row can anchor them, the whole page where it cannot
+       - and LTX makes whatever picture it is given the OPENING FRAME, so the
+       clip would start on a contact sheet.
+       AND THE FIRST VERSION ASKED THE WRONG QUESTION. It judged a row by
+       whether it took `panel1`, which is only MINIMAX-H3 - Babe: "i lost
+       seedance from the sequence mode tho". SEEDANCE cannot anchor either and
+       is perfectly good here, reading the board as a REFERENCE with the cuts
+       named over it. Not anchoring is not the same as being broken.
+       IT IS READ OFF THE TAB WITH THAT MODE, never off the pressed one: this
+       runs from a click handler before the page has written
+       `slot.dataset.mode`, which is the same reason the mode is passed in. */
+    var tab = slide.querySelector('.ftabs .ftab[data-mode="' + raw + '"]');
+    var grid = !!(tab && tab.dataset.grid);
     var rows = [].slice.call(menu.querySelectorAll('.mm'));
     var fell = false;
     rows.forEach(function (row) {
-      var only = (live[rowName(row)] || {}).only;
-      var off = !!only && String(only).toUpperCase() !== now;
+      var spec = live[rowName(row)] || {};
+      var only = spec.only;
+      var byMode = spec.modes && spec.modes[raw];
+      var first = byMode && byMode.first !== undefined ? byMode.first : spec.first;
+      var off = (!!only && String(only).toUpperCase() !== now) ||
+                (grid && !!first);
       row.classList.toggle('off', off);
       if (off && row.getAttribute('aria-pressed') === 'true') fell = true;
     });
@@ -6232,7 +6377,20 @@
     var tab = e.target.closest && e.target.closest('.ftabs .ftab');
     if (!tab) return;
     var slide = tab.closest('.slide');
-    if (slide) markOnly(slide, tab.dataset.mode);
+    if (!slide) return;
+    markOnly(slide, tab.dataset.mode);
+    /* AND SO DO THE CELLS AND THE FACES, for the same reason the picker does:
+       a mode is a second axis and the row's half of the answer is only half.
+       `markOnly` may press a row, which brings the `.mm` handler and these
+       two with it - but only when the pressed row has to move, so a tab you
+       can stay on needs saying here.
+       AND NOT THE DEFAULTS. A model press resets the row because carrying the
+       last model's numbers across is a bug; a tab is not a new model, and
+       resetting a length somebody set because they looked at another tab is
+       the same discourtesy the other way round. An option list the new mode
+       does not offer is still corrected, which is `markParams`'s own rule. */
+    markParams(slide, false, tab.dataset.mode);
+    markFaces(slide, tab.dataset.mode);
   });
 
   function markWired(wired) {
@@ -6313,8 +6471,8 @@
      about it.
      AND AN OLDER SERVER SAYS NOTHING, so a page talking to one shows every
      face exactly as before rather than hiding them all. */
-  function markFaces(slide) {
-    var live = (WIRED[rungOf(slide)] || {})[modelOf(slide)] || {};
+  function markFaces(slide, mode) {
+    var live = rowSpec(slide, mode) || {};
     if (!live.takes) return;
     var alt = (SLOTS[rungOf(slide)] || {}).alt;
     var off = !!alt && live.takes.indexOf(alt) === -1;
@@ -6432,7 +6590,7 @@
       if (info) info.textContent = '';
       var el = document.createElement(isVideoName(file.filename) ? 'video' : 'img');
       el.src = file.url;
-      if (el.tagName === 'VIDEO') { el.controls = true; el.loop = true; el.playsInline = true; el.autoplay = true; }
+      if (el.tagName === 'VIDEO') { el.controls = true; el.loop = true; el.playsInline = true; }
       el.addEventListener(el.tagName === 'VIDEO' ? 'loadedmetadata' : 'load', function () {
         var w = el.naturalWidth || el.videoWidth, h = el.naturalHeight || el.videoHeight;
         if (info && w) {

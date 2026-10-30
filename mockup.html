@@ -4034,9 +4034,32 @@
      `single` and `sequence` here would have been 04's addresses - its form
      and its stem, on a rung that wants neither. `shot` and `seq` are the same
      three jobs at an address nobody else is standing at. */
+  /* AND ONE OF THEM NEEDS A MACHINE THE OTHER ROWS DO NOT HAVE - Babe,
+     2026-10-29: "so sequence mode wont work with ltx?". It would not: LTX
+     takes ONE picture and makes it the first frame, so the six cut panels
+     have nowhere to land and the BOARD would be frame one - the failure the
+     anchors were built to end, arriving on another row. SEEDANCE is softer,
+     taking the picture as a reference, but it cannot anchor either.
+     SO THE MODE HIDES THE MODEL, WHICH IS BABE'S OWN WORDS FOR THE MECHANISM
+     THAT ALREADY EXISTS. `only` pins a row to one mode and the picker drops
+     it on every other tab; this is the same direction - press the job and the
+     rows that cannot do it go - rather than a tab vanishing out from under the
+     model you just pressed. One function knows both.
+     AND THE TEST IS NOT WHETHER THE ROW CAN ANCHOR - Babe, seeing the first
+     version: "i lost seedance from the sequence mode tho". It judged a row by
+     whether it took `panel1`, which is only MINIMAX-H3, AND THAT IS THE WRONG
+     QUESTION: SEEDANCE cannot anchor either and is perfectly good here, taking
+     the board as a REFERENCE with "the cuts you named are the cuts the clip
+     makes" over it - proven, three shots, "looks great". Only LTX is broken,
+     and what breaks it is not the missing anchors.
+     SO THE SENTENCE IS: A GRID CANNOT BE FRAME ONE. The tab says what it hands
+     over and the row says what it does with what it is handed - two true
+     statements, each declared where it belongs, and one comparison. A row that
+     makes its picture the first frame cannot be given a page of panels; one
+     that reads it as a reference can, and always could. */
   var TAKEMODES = [
     { k: 'shot', n: 'Single shot' },
-    { k: 'seq',  n: 'Sequence' },
+    { k: 'seq',  n: 'Sequence', grid: true },
     { k: 'free', n: 'Custom' }
   ];
 
@@ -4602,7 +4625,15 @@
       models: [
         { n: 'SEEDANCE-2.5',  t: '&mdash;', c: 'twenty references &middot; up to 30s &middot; partner' },
         { n: 'MINIMAX-H3',    t: '57.2s', c: 'two references &middot; audio in the same pass &middot; open weights' },
-        { n: 'LTX-2.5 I2V',   t: '27.3s', c: 'one reference &middot; audio &middot; open weights' }
+        { n: 'LTX-2.5 I2V',   t: '27.3s', c: 'one reference &middot; audio &middot; open weights' },
+        /* AND FLUX 3 MAX IS THE ROW THAT DOES BOTH OF THIS RUNG'S JOBS -
+           Babe, 2026-10-29: "i think we should add flux 3 video btw", "i guess
+           its partner but thats fine". One node animates 1 to 10 keyframes,
+           so the slate alone opens a clip and the board's six panels are
+           spread across one, which is the pair MINIMAX-H3 needed two
+           checkpoints for. BFL is a competition partner and this is the
+           second of their models on the rail. */
+        { n: 'FLUX-3-MAX',    t: '&mdash;', c: 'up to ten keyframes &middot; audio &middot; partner' }
       ],
       /* THE SHAPE AND THE SIZE ARE ON THE ROW - Babe, 2026-10-27: "we should
          prob expose aspect ratio, size like 06". Every row on this rung has
@@ -4632,6 +4663,16 @@
                   scheduler follows it. Babe, having run both: "turbo is
                   worse". */
                { p: 'steps', k: 'STEPS', v: '20', o: ['4', '20'] },
+               /* AND REF IS HOW MUCH OF THE REFERENCE THE MODEL LOOKS AT -
+                  the reference node scales each one DOWN to the generation's
+                  pixel area, or takes it to a 2048px short edge for the
+                  likeness and pays several times the time for it. It is the
+                  first cell on the rail about an INPUT rather than about what
+                  comes out, and it sits beside STEPS because the two are the
+                  same trade. Only the reference machine shows it: SINGLE SHOT
+                  and SEQUENCE have no reference pipeline to size.
+                  (*) REF, FIT and MAX are all mine. */
+               { p: 'refsize', k: 'REF', v: 'FIT', o: ['FIT', 'MAX'] },
                { p: 'seed' }],
       /* BABE'S, 2026-10-26: "its time to shine and make some moves...". Mine
          said EVERYTHING YOU BUILT, MOVING FOR THE FIRST TIME - an inventory,
@@ -4836,7 +4877,13 @@
          these - so having its only open row be a SWAP meant the rung the app
          ends on had no open way to do the job it is named for. */
       models: [
-        { n: 'SEEDANCE-2.5', t: '&mdash;', c: 'partner' }
+        { n: 'SEEDANCE-2.5', t: '&mdash;', c: 'partner' },
+        /* AND FLUX EDITS A CLIP FROM ONE SENTENCE - Babe: "could also be in
+           the video edit mode". It is pinned to EDIT by `only`, the way
+           SCAIL-2 is pinned to SWAP, because the node takes its length, its
+           framing, its camera and its audio from the source clip - which is
+           what this tab means and none of the other three. */
+        { n: 'FLUX-VIDEO-EDIT', t: '&mdash;', c: 'keeps the source clip &middot; partner' }
       ],
       /* 768p WAS NEVER A SIZE EITHER OF THESE MODELS TAKES. Seedance offers
          480/720/1080 and SCAIL-2 hides the cell entirely, so the one row that
@@ -5415,6 +5462,10 @@
       if (ms[i].help) ln += ' data-help="' + ms[i].help + '"';
       if (ms[i].writes) ln += ' data-writes="1"';
       if (ms[i].needs) ln += ' data-needs="1"';
+      /* AND WHETHER THIS TAB HANDS THE MODEL A GRID - see TAKEMODES. It is
+         read by the picker, which is the one place that already walks every
+         row against the pressed mode. */
+      if (ms[i].grid) ln += ' data-grid="1"';
       h += '<button class="tr ftab" data-mode="' + ms[i].k + '"' + ln +
            ' aria-pressed="' + (i === 0) + '">' + ms[i].n + '</button>';
     }

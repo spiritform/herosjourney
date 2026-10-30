@@ -1115,12 +1115,20 @@ const AGENT_JOB = {
    * before a word is written and what is open is the TRAVEL between them -
    * which is the opposite of what `motion` asks for, where the shots are the
    * artist's to invent. */
-  shots:
+  /* AND IT IS HANDED THE SIX BY NAME, the way the board one rung back is -
+   * off the same layout table the template is drawn from. It was not: the
+   * reader asked the SLOT for its mode, and 05's tab is keyed `seq` while the
+   * layout being cut is 04's `sequence`, so the agent was writing beats for
+   * six anonymous moments on the one rung that knows exactly which framing
+   * each of them is. A reader asking the wrong key after a rung grew tabs of
+   * its own, which is a shape this file has paid for before. */
+  shots: (panels) =>
     "You help someone write the MOVEMENT for a clip whose shots are already "
     + "decided. The frames it passes through are fixed - each panel of their "
-    + "board is anchored at its own moment in the clip, in order - so never "
-    + "propose different shots, a different number of them or a different "
-    + "order. Write what happens BETWEEN them and inside them: what the "
+    + "board is anchored at its own moment in the clip, in order"
+    + (panels ? ", and the order is this: " + panels + ". " : ". ")
+    + "Never propose different shots, a different number of them or a "
+    + "different order. Write what happens BETWEEN them and inside them: what the "
     + "character does, how the camera travels from one framing to the next or "
     + "whether it cuts, and what else moves - cloth, hair, dust, water, light. "
     + "Never describe the person, their wardrobe or the room: those arrive as "
@@ -1198,19 +1206,37 @@ const AGENT_SHAPE = {
    * on, so the ceiling is the duration divided by that - two at five seconds,
    * six at ten. It is said as a number rather than left to arithmetic,
    * because a model asked to divide will sometimes answer. */
-  shots: (secs) =>
-    "The prompt is the plan for a clip exactly " + secs + " seconds long whose "
-    + "frames are already anchored: panel 1 at the first frame, the last panel "
-    + "at the last, the rest evenly between them. Write ONE beat per panel, in "
-    + "order, as `0.0s:` and then what is happening at that moment and how the "
-    + "camera got there - `cut to` where it cuts and the move where it does "
-    + "not. The times run from 0.0s to " + secs + "s. "
+  /* AND THE MOMENTS ARE NOT ARITHMETIC - THEY ARE ALREADY DECIDED. The page
+   * cuts the board and places each panel at a frame before anything is
+   * submitted, so the exact times exist and this was asking the agent to
+   * divide for them: "evenly between" is a sum, and a model asked to divide
+   * will sometimes answer. It is the lesson `motion`'s shot ceiling is
+   * written around, one tab across - say the number.
+   * AND THE TIMES CARRY THE WARNING BY THEMSELVES. Six panels inside five
+   * seconds is a beat every 0.8s, under the 1.5s floor this rail uses for a
+   * shot everywhere else; handed the real times the agent writes to the clip
+   * it is going to get rather than to a comfortable one.
+   * `beats` rides along from the page and reaches no node, the way `panels`
+   * and `seconds` do. With none - an older page - it falls back to the even
+   * division it used to ask for. */
+  shots: (v, secs = Number(v.seconds) || 5, beats = String(v.beats || "").trim()) =>
+    "The prompt is the plan for a clip whose frames are already anchored: ONE "
+    + "beat per panel, in order. "
+    + (beats
+        ? "The panels land at exactly these moments and no others: " + beats
+          + ". Write one beat at each of those times, and do not add one, drop "
+          + "one or move one. "
+        : "Panel 1 is at the first frame, the last panel at the last and the "
+          + "rest evenly between them, across " + secs + " seconds. ")
+    + "Write each as `0.0s:` and then what is happening at that moment and "
+    + "how the camera got there - `cut to` where it cuts and the move where "
+    + "it does not. "
     + "End with one line beginning `AUDIO:` giving the ambience, because this "
     + "model makes its own sound - say `No music.` unless they asked for some. "
     + "Say where the camera goes, never what lens or stock it is on, and "
     + "nothing else: no other headings, no instructions to the model, no "
     + "mention of a reference image. ",
-  motion: (secs) =>
+  motion: (v, secs = Number(v.seconds) || 5) =>
     "The prompt is the shot plan for a clip exactly " + secs + " seconds long. "
     + "Write ONE shot unless they have asked for more, and never more than "
     + Math.max(1, Math.floor(secs / 1.5)) + " - there is no room. Each shot is "
@@ -1243,7 +1269,7 @@ const AGENT_SHAPE = {
    * the take they are the spine of the timing, so they are asked for by name
    * and timed - but only ever as words said, never as a description of who is
    * saying them, which is the likeness rule this rung already runs on. */
-  change: (secs) =>
+  change: (v, secs = Number(v.seconds) || 5) =>
     "The prompt is the plan for a clip exactly " + secs + " seconds long, and "
     + "it has to cover ALL of it. "
     + "Write ONE continuous shot - the clip already has the performance in it "
@@ -1362,7 +1388,11 @@ const AGENT_SYS = (v) => {
   + "introducing it. If you genuinely need one more thing to know, ask for that "
   + "one thing and leave `prompt` as an empty string - never ask twice in a row "
   + "and never ask for something they have already told you. "
-  + (typeof shape === "function" ? shape(v.seconds || 5) : shape)
+  /* AND THE SHAPE TAKES THE VALUES TOO. It was handed one position, which
+   * held for exactly as long as the length was the only thing a shape needed
+   * to know; `shots` needs the anchor times as well, and a second argument
+   * is the trap `AGENT_SYS` itself was rewritten to avoid. */
+  + (typeof shape === "function" ? shape(v) : shape)
   /* A MEDIUM IS NOT AN ADJECTIVE - Babe, 2026-10-26, having asked for a look
    * "more like a 3d video game" and got back stylized, angular and clean:
    * "should it say something like in the style of a 3d video game". The
@@ -1461,12 +1491,81 @@ const H3_R2V_SYS = (job, hasSheet, slate) =>
         + "continuous picture filling the whole image."
       : "");
 
+/* FLUX 3 MAX ANIMATES KEYFRAMES, WHICH IS THIS RUNG'S TWO JOBS IN ONE NODE -
+ * Babe, 2026-10-29: "i think we should add flux 3 video btw", "i guess its
+ * partner but thats fine". The node's own description is the whole reason it
+ * is here: "Each image becomes a frame of the clip: one image opens it, two
+ * become its first and last frame, and more are spread across it or pinned to
+ * times you choose." So SINGLE SHOT is one keyframe and SEQUENCE is the six
+ * cut panels, passed through in order - the same two machines MINIMAX-H3
+ * needed two checkpoints for.
+ * AND IT IS ADDRESSED IN PLAIN WORDS. Seedance reads @Image1, H3 reads
+ * <Picture 1>, and this node has no tokens at all - it takes one prompt about
+ * how the scene should move and sound, and reasons about it before rendering.
+ * So the scaffolding names the pictures the way a person would, which is what
+ * GENJUTSU already needed on 06.
+ * THE NO-GRID CLAUSE IS UNCONDITIONAL HERE, unlike H3's: a keyframe becomes a
+ * frame of the clip, so a page of panels handed over whole would be rendered
+ * as a page of panels. SEQUENCE never hands one over - the client cuts it -
+ * and on the other two tabs this is the only thing standing between a board
+ * slate and a contact sheet that moves. */
+const FLUX3_SYS = (job, slate) =>
+  "Animate the picture you have been given. "
+  + "It is the clip's own frame: the character, the place, the light and the "
+  + "grade are all in it and every one of them carries. Do not describe their "
+  + "appearance in words - it is already in front of you - and say what MOVES "
+  + "and what it sounds like instead. "
+  + (job === "seq"
+      ? "The pictures are the shots: they are passed through in order, spread "
+        + "evenly across the clip, and the clip travels or cuts between them as "
+        + "the plan below says. "
+      : "ONE CONTINUOUS TAKE from that opening frame - one camera, one move, "
+        + "and no cut unless the direction below asks for one. ")
+  + "Give the clip its sound - voice, room, effects, whatever the direction "
+  + "calls for. "
+  + "Every frame of the clip is ONE continuous picture filling the whole "
+  + "image: never a grid, never panels, never a split screen, never an inset "
+  + "or a border, whatever the pictures you were given look like."
+  + (slate === "board" && job !== "seq"
+      ? " The picture you have is a contact sheet of one moment seen from "
+        + "several camera positions - take the character, the place, the light "
+        + "and the grade from it and render the moment itself, never the sheet."
+      : "");
+
+/* AND FLUX EDITS A CLIP FROM ONE SENTENCE - Babe: "could also be in the video
+ * edit mode". The node says what it keeps, which is nearly everything:
+ * "Length, framing, camera motion and audio come from the source clip", and
+ * "Anything you do not mention is meant to stay as it was".
+ * SO THE SCAFFOLDING IS SHORT, which is this rail's own lesson about edits
+ * arriving on a clip: every word spent re-describing what is already in frame
+ * is a word an edit model reads as something to preserve, and here the model
+ * assumes that by itself. It states the operation, says the rest is the
+ * source clip's, and gets out of the way. */
+const FLUX_EDIT_SYS = () =>
+  "Edit the clip as instructed, and change nothing the instruction does not "
+  + "name. The length, the framing, the camera, the performance and the sound "
+  + "are the source clip's and stay exactly as they are. Do not describe the "
+  + "person, their face or their build - they are already in the footage:";
+
 /* RESOLUTIONSELECTOR TAKES A LABELLED STRING AND THE LABELS ARE NOT
  * GUESSABLE - "2:3 (Portrait)" is refused and "2:3 (Portrait Photo)" is not,
  * which is a trap this rail has already paid for once on the roll. The row
  * carries the bare ratio because that is what a person reads; this is what
  * goes on the wire, and it is a `cast` rather than an `options` list so the
  * cell is not eight strings wide. Verified against `get_node`, which is free. */
+/* H3's OWN SECONDS, IN ONE PLACE BECAUSE THREE SPECS READ THEM. `length` is
+ * frames at 24fps and the node's tooltip gives the trained range as ~124 to
+ * ~362 - 5.2s to 15.1s - so 4 is below the floor and 15 is the top of it.
+ * A MODE'S `options` REPLACES THE WHOLE TABLE, the way its `inputs` does, so
+ * a mode that changes one cell's list has to restate the other - which is a
+ * list written three times unless it is a const. */
+const H3_SECS = ["5", "8", "10", "15"];
+
+/* AND THE CELLS THE THREE MACHINES SHARE, for the same reason: `params` is
+ * replaced whole by a mode, so the two that do not take REF would otherwise
+ * write the other five out again. */
+const H3_CELLS = ["ar", "size", "duration", "steps", "seed"];
+
 const AR_LABEL = {
   "1:1": "1:1 (Square)",
   "2:3": "2:3 (Portrait Photo)",
@@ -2700,6 +2799,38 @@ const RUNGS = {
     params: ["size", "seed"],
     options: { size: ["480p", "720p", "1080p"] },
   },
+  /* FLUX VIDEO EDIT, WHICH IS ONE TAB'S JOB AND NOTHING ELSE - Babe,
+   * 2026-10-29: "could also be in the video edit mode". The node edits a clip
+   * from a written instruction and takes its length, framing, camera motion
+   * and audio from the source, which is EDIT's definition on this rung and
+   * none of the other three.
+   * SO `only` PINS IT, the way it has pinned SCAIL-2 to SWAP since that row
+   * was wired - and the picker is what stops a tab promising a job this graph
+   * cannot do. EDIT showed two rows; it shows three now, which is the rule
+   * rather than an exception to it.
+   * AND NO REFERENCE GOES WITH IT. EDIT drops both image loaders on the
+   * Seedance row because an image beside an edit is a job that model refuses
+   * at submit; here there is nowhere for one to go at all - the node takes a
+   * clip and a sentence. */
+  "FLUX-VIDEO-EDIT": {
+    graph: "flux-video-edit.json",
+    model: "FLUX-VIDEO-EDIT",
+    label: "Your own shot",
+    sys: () => FLUX_EDIT_SYS(),
+    only: "EDIT",
+    inputs: {
+      clip: { node: "2", input: "file" },
+      prompt: { node: "7", input: "prompt" },
+      seed: { node: "7", input: "seed", cast: Number },
+    },
+    required: ["clip", "prompt"],
+    /* THE SOURCE DECIDES EVERYTHING ELSE. Length, framing and audio come from
+     * the clip, and the output is 24fps capped at about 0.9 megapixels a
+     * frame - so SIZE and DUR would both be controls that do nothing, which
+     * this panel has a rule against. DUR goes on reading the clip's own
+     * length, because that is what it is for on this rung. */
+    params: ["seed"],
+  },
   "SCAIL-2": {
     graph: "scail2-swap.json",
     model: "SCAIL-2",
@@ -2966,17 +3097,27 @@ const RUNGS = {
        * on a rung whose left slot is a frame somebody already framed is the
        * right answer most of the time, and is what every clip made here
        * before today was made with. */
-      ar: { node: "9", input: "model.ratio" },
+      /* AND THE CELL SAYS AUTO - Babe, 2026-10-29: "instead of adaptive for
+       * AR just make it read AUTO". `adaptive` is the node's word for it and
+       * AUTO is everyone's, and this row already has the apparatus for the
+       * difference: the cell carries what a person reads and the cast is what
+       * goes on the wire, which is how a bare ratio reaches a
+       * ResolutionSelector that only answers to "16:9 (Widescreen)".
+       * IT IS ALSO THE WORD THIS PAGE ALREADY USES FOR THE SAME IDEA - 04's
+       * dials say AUTO for the absence of an answer and 06's DUR says it with
+       * no clip. A second word for one thing is one of them wrong. */
+      ar: { node: "9", input: "model.ratio",
+            cast: (v) => String(v).toUpperCase() === "AUTO" ? "adaptive" : v },
       size: { node: "9", input: "model.resolution" },
       duration: { node: "9", input: "model.duration", cast: Number },
       seed: { node: "9", input: "seed", cast: Number },
     },
     required: ["board", "prompt"],
-    defaults: { duration: 5, ar: "adaptive", size: "1080p" },
+    defaults: { duration: 5, ar: "AUTO", size: "1080p" },
     /* ITS VOCABULARY IS ITS OWN: no 2:3 and no 3:2, and an `adaptive` nothing
      * else on the rail has. Seedance 2.5 stops at 1080p - 4k is the 2.0
      * node's - so the list is the three the model will take. */
-    options: { ar: ["adaptive", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
+    options: { ar: ["AUTO", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
                size: ["480p", "720p", "1080p"] },
     drop: ["4"],
     /* the sheet takes its loader and its link with it when it did not arrive,
@@ -3027,9 +3168,84 @@ const RUNGS = {
        * primitives that size the latent. It speaks the same labelled
        * vocabulary H3 does, so it takes the same two casts and the row reads
        * as a plain ratio on all three models. */
+      /* FLUX 3 MAX, THE PARTNER ROW THAT DOES BOTH OF THIS RUNG'S JOBS -
+       * see FLUX3_SYS. One node, one graph, and the mode decides how many
+       * keyframes go into it: the slate alone opens the clip, or the board's
+       * six panels are spread across it in order.
+       * THE LOADERS ARE DROPPED RATHER THAN LEFT EMPTY. A LoadImage with no
+       * filename is a job that fails at Comfy, so the five extra ones go out
+       * of the graph on every tab but SEQUENCE - and taking a node out takes
+       * every reference to it out too, which is what makes one graph serve
+       * both shapes.
+       * AND `placement` IS LEFT ON ITS DEFAULT. "spread across the clip" puts
+       * the first picture at the start, the last at the end and the rest
+       * evenly between - which is exactly what the anchors do on H3 and
+       * exactly what 04's board means, so the times the node also offers
+       * would be a second way to say the same thing. */
+      "FLUX-3-MAX": {
+        graph: "flux3-max-i2v.json",
+        model: "FLUX-3-MAX",
+        label: "Put them in motion",
+        sys: (v) => FLUX3_SYS(v.mode, v.slate),
+        /* one keyframe IS the opening frame, which is what this node does
+         * with a single picture - so a board slate cannot come here, and
+         * SEQUENCE turns it off because there the pictures are the shots. */
+        firstFrame: true,
+        inputs: {
+          board: { node: "17", input: "image" },
+          prompt: { node: "16", input: "prompt" },
+          /* ITS OWN VOCABULARY AGAIN: an `auto` that follows the first
+           * picture, a 2:1 nothing else on the rail offers, and no 2:3 or
+           * 3:2. The cell reads AUTO like every other row that has one. */
+          ar: { node: "16", input: "aspect_ratio",
+                cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+          size: { node: "16", input: "resolution" },
+          /* a COMBO of strings, not a number - 5 through 20 */
+          duration: { node: "16", input: "duration", cast: String },
+          seed: { node: "16", input: "seed", cast: Number },
+        },
+        required: ["board", "prompt"],
+        defaults: { duration: "5", ar: "AUTO", size: "720p" },
+        options: { ar: ["AUTO", "21:9", "2:1", "16:9", "4:3", "1:1", "3:4", "9:16"],
+                   size: ["720p", "1080p"],
+                   duration: ["5", "8", "10", "15", "20"] },
+        params: ["ar", "size", "duration", "seed"],
+        drop: ["18", "19", "20", "21", "22"],
+        modes: {
+          /* THE SIX PANELS ARE THE KEYFRAMES, in order, and nothing is
+           * dropped - which is the whole of the difference between this
+           * rung's two machines on this row. */
+          seq: {
+            firstFrame: false,
+            drop: [],
+            inputs: {
+              panel1: { node: "17", input: "image" },
+              panel2: { node: "18", input: "image" },
+              panel3: { node: "19", input: "image" },
+              panel4: { node: "20", input: "image" },
+              panel5: { node: "21", input: "image" },
+              panel6: { node: "22", input: "image" },
+              prompt: { node: "16", input: "prompt" },
+              ar: { node: "16", input: "aspect_ratio",
+                    cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+              size: { node: "16", input: "resolution" },
+              duration: { node: "16", input: "duration", cast: String },
+              seed: { node: "16", input: "seed", cast: Number },
+            },
+            required: ["panel1", "panel6", "prompt"],
+          },
+        },
+      },
       "LTX-2.5 I2V": {
         graph: "ltx25-i2v.json",
         label: "Put them in motion",
+        /* AND THE PICTURE IT IS GIVEN BECOMES FRAME ONE - Babe, 2026-10-29:
+         * "for ltx i just uses a single image". `LTXVImgToVideoInplace` is
+         * the whole machine, so whatever is in the slate is what the clip
+         * OPENS on - which is why a board cannot be sent here and why
+         * SEQUENCE drops this row. It is a fact about the graph rather than
+         * about any one tab, so it is declared with the graph. */
+        firstFrame: true,
         sys: (v) => SHOOT_SYS(v.mode, v.slate),
         inputs: {
           board: { node: "395", input: "image" },
@@ -3103,17 +3319,40 @@ const RUNGS = {
            * IT DEFAULTS TO 20, because a row somebody is judging a model by
            * should be the model. */
           steps: { node: "146", input: "value", cast: (v) => Number(v) <= 4 },
+          /* HOW MUCH OF THE REFERENCE THE MODEL ACTUALLY LOOKS AT, which is
+           * the first cell on this rail that is about an INPUT rather than
+           * about what comes out. The node's own words: `match` scales each
+           * reference DOWN to the generation's pixel area, `max` uses the
+           * reference pipeline's 2048px short edge "for best identity
+           * fidelity", and "reference tokens ride through every sampling
+           * step, so 'max' can be several times slower".
+           * AND THE SHEET IS WHY IT MATTERS HERE. 05 sends a CONTACT SHEET as
+           * <Picture 2>, so `match` at 720p scales four panels into about one
+           * megapixel - a quarter of that each, and the face inside a panel
+           * down to a couple of hundred pixels. It is rung 01's own lesson
+           * arriving on a reference: a figure at a small size puts the face
+           * in forty pixels, and the face is the whole of what the sheet is
+           * carrying.
+           * IT IS A CELL AND NOT A GRAPH VALUE, which is the STEPS precedent
+           * on this same row: a speed-for-quality trade belongs to whoever is
+           * waiting in front of it. IT DEFAULTS TO FIT, so nothing changes
+           * until somebody presses it and the demo stays as fast as it was.
+           * (*) THE LABEL AND BOTH WORDS ARE MINE and Babe's to cut. The node
+           * says match/max; FIT reads as a thing done to a picture where
+           * MATCH reads as a question about whether two things are the same. */
+          refsize: { node: "136", input: "ref_image_size",
+                     cast: (v) => String(v).toLowerCase() === "max" ? "max" : "match" },
           seed: { node: "129", input: "noise_seed", cast: Number },
         },
         required: ["board", "prompt"],
-        defaults: { duration: 5, ar: "16:9", size: "720p", steps: 20 },
+        defaults: { duration: 5, ar: "16:9", size: "720p", steps: 20, refsize: "FIT" },
         /* AND ITS SECONDS ARE ITS OWN, read off the node rather than off the
          * rung: `length` is frames at 24fps and the tooltip gives the trained
          * range as ~124 to ~362, which is 5.2s to 15.1s. So 4 is BELOW THE
          * FLOOR - the graph's own expression rounds it onto the 17-frame
          * block grid anyway, which is why a 4-second ask came back 4.5 - and
          * 15 is inside a range nothing on this row could reach. */
-        options: { duration: ["5", "8", "10", "15"], steps: ["4", "20"] },
+        options: { duration: H3_SECS, steps: ["4", "20"] },
         /* the sheet takes its loader with it, and the reference slot on the
          * conditioning node goes when the loader does - `<Picture 2>` stops
          * being named by the sentence in the same breath, because `sys` reads
@@ -3122,7 +3361,7 @@ const RUNGS = {
         /* AND NO `adaptive` HERE: this row builds its own latent, so there is
          * nothing for a ratio to adapt TO - the shape has to be stated. The
          * eight the cell already offers are exactly the eight the node takes. */
-        params: ["ar", "size", "duration", "steps", "seed"],
+        params: H3_CELLS.concat("refsize"),
         /* AND THE MODE PICKS THE MACHINE, EACH WITH ITS OWN GRAPH - Babe,
          * 2026-10-29: "should we just build it like four so you do single
          * shot or video sequence", "so its wired correctly on the back-end",
@@ -3140,6 +3379,22 @@ const RUNGS = {
           shot: {
             graph: "minimax-h3-i2v.json",
             sys: (v) => H3_I2V_SYS(v.mode),
+            /* the same thing LTX does, which is what this tab IS */
+            firstFrame: true,
+            /* AND THE TURBO ON THIS MACHINE IS EIGHT STEPS, NOT FOUR. Node
+             * 146 switches the same way on all three graphs and what it
+             * switches to is not the same thing: `ref2v` is the 4-step LoRA
+             * on the reference weights and `fl2v` is the 8-step one on these,
+             * with node 144 reading 8 to prove it. The cell inherited the
+             * reference row's list and so SAID 4 WHILE 8 RAN - a readout off
+             * by a factor on two of three tabs, which is the box lying about
+             * what it holds arriving in the param row. The cast was already
+             * written `<= 8`, as though the list were going to follow. */
+            options: { duration: H3_SECS, steps: ["8", "20"] },
+            /* AND NO REF CELL: `ref_image_size` is the reference node's and
+             * this machine encodes the picture as a first frame, so there is
+             * no reference pipeline to size. */
+            params: H3_CELLS,
             inputs: {
               board: { node: "137", input: "image" },
           prompt: { node: "138", input: "value" },
@@ -3162,6 +3417,10 @@ const RUNGS = {
           seq: {
             graph: "minimax-h3-board.json",
             sys: () => H3_BOARD_SYS(),
+            /* the same 8-step `fl2v` turbo as SINGLE SHOT - see there, and
+               no REF cell there either: the panels arrive as guides */
+            options: { duration: H3_SECS, steps: ["8", "20"] },
+            params: H3_CELLS,
             inputs: {
           panel1: { node: "200", input: "image" },
           at1: { node: "210", input: "value", cast: Number },
@@ -4088,11 +4347,48 @@ async function route(req, res, url) {
            * nano and `TextEncodeQwenImage21` has no third reference, so SHEET
            * was a cell offering to show you a picture that was not going to
            * be sent - the box lying about what it is holding, one level up. */
+          /* AND WHAT A MODE CHANGES ABOUT ANY OF THAT, which is half the
+           * answer and was invisible. `apiRun` resolves the variant and then
+           * lays the pressed mode over it, so a mode may hand a row a
+           * different input table, a different option list or different
+           * defaults - and the page only ever heard the row's half. So the
+           * two cells this mechanism exists for were both wrong on 05: STEPS
+           * read 4 where 8 would run, and the SHEET face was offered on two
+           * tabs whose graphs have no address for a sheet - a cell offering
+           * to show you a picture that was not going to be sent.
+           * IT IS THE FOUR FACTS THE PAGE ACTS ON AND ONLY WHERE THE MODE
+           * NAMES THEM, so the client can lay them over the row with the
+           * same shallow merge the server does rather than keeping a second
+           * opinion about what a mode means. `only` is not among them: that
+           * one pins a mode and is a fact about the row. */
+          const modes = {};
+          for (const [id, m] of Object.entries(spec.modes || {})) {
+            const seen = {};
+            if (m.params) seen.params = m.params;
+            if (m.options) seen.options = m.options;
+            if (m.defaults) seen.defaults = m.defaults;
+            if (m.inputs) seen.takes = Object.keys(m.inputs);
+            /* AND AN EXPLICIT FALSE IS AN ANSWER. FLUX 3 Max opens on its one
+             * picture and its SEQUENCE mode does not - six keyframes are the
+             * shots - so the mode has to be able to say NO where the row says
+             * yes. Testing the value rather than the key reported nothing, the
+             * row's own true stood, and the picker hid FLUX from the one tab it
+             * had been added for - caught by looking at the payload rather than
+             * at the code. */
+            if ("firstFrame" in m) seen.first = !!m.firstFrame;
+            if (Object.keys(seen).length) modes[id] = seen;
+          }
           if (name) wired[k][name] = { params: spec.params || null,
                                        options: spec.options || null,
                                        only: spec.only || null,
                                        takes: Object.keys(spec.inputs || {}),
-                                       defaults: spec.defaults || {} };
+                                       defaults: spec.defaults || {},
+                                       /* AND WHETHER THE PICTURE IT IS HANDED
+                                        * BECOMES FRAME ONE, which decides
+                                        * whether a tab that hands over a GRID
+                                        * can use this row at all. */
+                                       first: !!spec.firstFrame,
+                                       modes: Object.keys(modes).length ? modes : null };
         }
       }
       return json(res, 200, { ok: true, key: keyNow() ? "set" : "MISSING", wired });

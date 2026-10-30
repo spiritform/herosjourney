@@ -1,0 +1,36 @@
+{
+  "5": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/hj-05-flux3-max",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": ["16", 0]
+    }
+  },
+  "16": {
+    "class_type": "Flux3MaxImageToVideoNode",
+    "inputs": {
+      "prompt": "",
+      "keyframes.image_0": ["17", 0],
+      "keyframes.image_1": ["18", 0],
+      "keyframes.image_2": ["19", 0],
+      "keyframes.image_3": ["20", 0],
+      "keyframes.image_4": ["21", 0],
+      "keyframes.image_5": ["22", 0],
+      "placement": "spread across the clip",
+      "aspect_ratio": "auto",
+      "duration": "5",
+      "resolution": "720p",
+      "reasoning_level": "high",
+      "generate_audio": true,
+      "seed": 42
+    }
+  },
+  "17": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } },
+  "18": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } },
+  "19": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } },
+  "20": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } },
+  "21": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } },
+  "22": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } }
+}
