@@ -4120,7 +4120,21 @@
       agent: STYLEMODES[0].line,
       models: [
         { n: 'NANO-BANANA-2.1',     t: '~17cr', c: 'two references &middot; ~17 credits &middot; partner' },
-        { n: 'FLUX-3-KLEIN',        t: '&mdash;', c: 'two references &middot; 16 steps &middot; open weights' }
+        /* AND THE TWO QWEN ROWS COME BACK, 2026-10-29 - Babe: "can we add
+           qwen to the first one". They were cut from this table in the launch
+           pass and have been in the variants ever since, proven on this rung
+           in the open-weights sweep: 19.0s for the edit checkpoint and 23.3s
+           for the turbo, which came back a true 1024 square with the
+           head-and-shoulders crop held. 02, 03 and 04 have had them back for
+           two days; 01 was the rung still short of them. */
+        { n: 'QWEN-IMAGE-EDIT-21',  t: '19.0s', c: 'two references &middot; 25 steps &middot; open weights' },
+        { n: 'QWEN-IMAGE-21-TURBO', t: '23.3s', c: 'two references &middot; 8 steps &middot; open weights' },
+        { n: 'FLUX-3-KLEIN',        t: '&mdash;', c: 'two references &middot; 16 steps &middot; open weights' },
+        /* AND MOSS IS AN EDIT LORA, SO IT IS THE EDIT TAB'S - Babe: "this new
+           one called MOSS", with the Image Edit LoRA card. It redraws the same
+           frame with one named change, at cfg 4 with a negative branch, which
+           is a different machine from the three rows above it. */
+        { n: 'MOSS-IMAGE',          t: '&mdash;', c: 'one or two references &middot; 30 steps &middot; open weights' }
       ],
       params: [{ p: 'ar', k: 'AR', v: '1:1', o: ['1:1', '2:3', '3:4', '3:2', '4:3', '9:16', '16:9', '21:9'] },
                { p: 'res', k: 'RES', v: '2K', o: ['1K', '2K', '4K'] },

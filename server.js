@@ -1509,6 +1509,23 @@ const H3_R2V_SYS = (job, hasSheet, slate) =>
  * as a page of panels. SEQUENCE never hands one over - the client cuts it -
  * and on the other two tabs this is the only thing standing between a board
  * slate and a contact sheet that moves. */
+/* MOSS'S EDIT LINE, WHICH IS ITS LORA'S TRAINING PHRASE WITH THE ARTIST'S
+ * HALF LEFT OPEN. The template names the shape outright - "Change only the X
+ * to Y. Keep the character, face, hair, pose, background and composition
+ * unchanged." - so this says the keeping half and hands over, rather than
+ * inventing a register for a model that already has one.
+ * AND THE SECOND PICTURE IS NAMED ONLY WHEN THERE IS ONE, the way every
+ * two-reference row on this rung does it: the encoder takes image 1 as the
+ * thing being edited and image 2 as whatever the instruction points at. */
+const MOSS_EDIT_LINE = (hasRef) =>
+  "Keep the character, their face, their hair, their pose, the framing, the "
+  + "background and the composition exactly as they are"
+  + (hasRef
+      ? ", and take from the second picture only the thing the instruction "
+        + "names - never its face, its framing, its light or its background. "
+      : ". ")
+  + "Change only this:";
+
 const FLUX3_SYS = (job, slate) =>
   "Animate the picture you have been given. "
   + "It is the clip's own frame: the character, the place, the light and the "
@@ -2442,6 +2459,65 @@ const RUNGS = {
        * picture, the suspect is the int8_convrot unet, which is exactly how
        * the qwen turbo row failed; `mage_flow_edit_turbo_bf16.safetensors`
        * is the one-line swap and the text encoder stays where it is. */
+      /* MOSS-IMAGE, AND ITS SCAFFOLDING IS THE LORA'S OWN TRAINING PHRASE -
+       * Babe, 2026-10-29: "can we add qwen to the first one and this new one
+       * called MOSS", with the Image Edit LoRA card.
+       * THE TEMPLATE SAYS WHAT WORKS AND IT IS NOT A GUESS: "the phrasing the
+       * LoRA was trained on works best: 'Change only the X to Y. Keep the
+       * character, face, hair, pose, background and composition unchanged.'"
+       * So this row's line is that sentence with the artist's half left to
+       * fill, which is EDIT_LINE's construction one model over - operation
+       * first, a colon at the end, the instruction last.
+       * AND IT RUNS AT CFG 4, unlike every other open row on this rung. The
+       * two qwen rows and Klein sample at cfg 1, where conditioning is the
+       * only steering there is and length costs; here there is a negative
+       * branch and the template warns that lowering the cfg is what makes
+       * jewellery appear out of nowhere. The negative stays the model's own
+       * recommended line, in the graph, where it belongs. */
+      "MOSS-IMAGE": {
+        graph: "moss-image-edit.json",
+        label: "Become someone",
+        /* AN EDIT LORA EDITS. It redraws the same frame with one change
+         * applied, which is this tab and not the other one - STYLE is a
+         * restyle so large that only the face survives, and asking this for
+         * that is asking it to do the thing its training says not to. */
+        only: "EDIT",
+        inputs: {
+          source: { node: "8", input: "image" },
+          ref: { node: "40", input: "image" },
+          prompt: { node: "39", input: "prompt" },
+          steps: { node: "37", input: "steps", cast: Number },
+          seed: { node: "37", input: "seed", cast: Number },
+        },
+        required: ["source", "prompt"],
+        /* THE SECOND REFERENCE IS WIRED BECAUSE THE ENCODER TAKES ONE. Its
+         * own note: "the encode nodes autogrow images.image_0, image_1...
+         * connect up to four photos (a garment, a face, a prop) and say in
+         * the prompt what each one is for" - which is exactly what 01's EDIT
+         * tab means by its right slot. Leaving it unwired would have made
+         * that box a picture that never reached the model.
+         * ITS SCALER GOES WITH IT, because a reference enters at the size it
+         * arrives with and an unscaled one is expensive for nothing. */
+        dropWhenEmpty: { ref: ["40", "41"] },
+        defaults: { steps: 30 },
+        options: { steps: ["20", "30", "40"] },
+        /* NO AR CELL: GetImageSize feeds the latent, so the output keeps the
+         * source's own shape - the same arrangement Klein and the qwen turbo
+         * have, and for the same reason. */
+        params: ["steps", "seed"],
+        modes: {
+          EDIT: {
+            label: "Edit the picture",
+            sys: (v) => MOSS_EDIT_LINE(!!v.ref),
+          },
+        },
+        /* (*) IT IS THE int8_convrot UNET, which is the one this rail has
+         * been bitten by: three qwen turbo rolls came back as flat dotted
+         * grey texture and the fix was one line, the catalogue's bf16 build.
+         * If the first MOSS roll is texture rather than a picture, swap node
+         * 30 to moss_image_sft_bf16.safetensors before suspecting anything
+         * else. */
+      },
       "MAGE-FLOW-EDIT": {
         graph: "mage-flow-edit-turbo.json",
         label: "Become someone",
