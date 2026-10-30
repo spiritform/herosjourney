@@ -4134,7 +4134,16 @@
            one called MOSS", with the Image Edit LoRA card. It redraws the same
            frame with one named change, at cfg 4 with a negative branch, which
            is a different machine from the three rows above it. */
-        { n: 'MOSS-IMAGE',          t: '&mdash;', c: 'one or two references &middot; 30 steps &middot; open weights' }
+        { n: 'MOSS-IMAGE',          t: '&mdash;', c: 'one or two references &middot; 30 steps &middot; open weights' },
+        /* AND KREA 3 DOES BOTH TABS - Babe: "yeah, lets wire up krea". It
+           takes up to eight real images and reads @Image1 / @Image2, so the
+           two scaffoldings this rung already has fit it with no word written,
+           and its own `precise_edit` is the difference between the tabs in a
+           boolean. Krea-2's Image Style Reference was the other candidate and
+           cannot do this rung at all: all three of its image inputs are STYLE
+           references and the subject comes from the text, so the face has
+           nowhere to survive. */
+        { n: 'KREA-3',              t: '&mdash;', c: 'up to eight references &middot; 2K &middot; partner' }
       ],
       params: [{ p: 'ar', k: 'AR', v: '1:1', o: ['1:1', '2:3', '3:4', '3:2', '4:3', '9:16', '16:9', '21:9'] },
                { p: 'res', k: 'RES', v: '2K', o: ['1K', '2K', '4K'] },

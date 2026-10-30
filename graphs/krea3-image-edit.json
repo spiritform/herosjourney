@@ -1,0 +1,28 @@
+{
+  "8": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } },
+  "10": { "class_type": "LoadImage", "inputs": { "image": "", "upload": "image" } },
+  "1": {
+    "class_type": "Krea3ImageNode",
+    "inputs": {
+      "model": "Krea 3",
+      "model.images.item_1": ["8", 0],
+      "model.images.item_2": ["10", 0],
+      "model.prompt": "",
+      "model.aspect_ratio": "auto",
+      "model.resolution": "2K",
+      "model.thinking_mode": "fast",
+      "model.precise_edit": false,
+      "model.seed": 42
+    }
+  },
+  "7": {
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "images": ["1", 0],
+      "filename_prefix": "hj-01-krea3",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB"
+    }
+  }
+}

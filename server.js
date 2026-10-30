@@ -1517,6 +1517,10 @@ const H3_R2V_SYS = (job, hasSheet, slate) =>
  * AND THE SECOND PICTURE IS NAMED ONLY WHEN THERE IS ONE, the way every
  * two-reference row on this rung does it: the encoder takes image 1 as the
  * thing being edited and image 2 as whatever the instruction points at. */
+/* THE TWO CELLS KREA 3's MODES SHARE, because a mode's `defaults` replaces
+ * the whole table and the only thing EDIT actually changes is one boolean. */
+const KREA_DEF = { ar: "1:1", res: "2K" };
+
 const MOSS_EDIT_LINE = (hasRef) =>
   "Keep the character, their face, their hair, their pose, the framing, the "
   + "background and the composition exactly as they are"
@@ -2474,6 +2478,67 @@ const RUNGS = {
        * branch and the template warns that lowering the cfg is what makes
        * jewellery appear out of nowhere. The negative stays the model's own
        * recommended line, in the graph, where it belongs. */
+      /* KREA 3, WHICH IS THE ONLY ROW ON THIS RUNG BESIDES NANO THAT DOES
+       * BOTH TABS AND MEANS IT - Babe, 2026-10-29, having first pointed at
+       * Krea-2's Image Style Reference: "maybe this instead actually".
+       * IT IS NOT, AND THE REASON IS THE FACE. Krea-2 Style Reference takes
+       * `image1`, `image2` and `image3` and every one of them is a STYLE
+       * reference - the subject comes from the text. There is no identity
+       * input at all, so on the rung whose whole job is that the face in the
+       * photograph survives, it would hand back a beautiful stranger: this
+       * rail's oldest failure, a second picture with no stated role being
+       * averaged into the answer.
+       * KREA 3 TAKES REAL IMAGES - up to eight, "numbered in connection
+       * order", addressed in the prompt as `@Image1`, `@Image2`, which is
+       * Seedance's convention and therefore one this server already speaks:
+       * STYLE_SYS and EDIT_SYS have taken token names since the open rows
+       * were shortened, so neither needed a word written for this.
+       * AND `precise_edit` IS THIS RUNG'S TWO TABS IN A BOOLEAN - "keep
+       * everything outside the edited area unchanged". False where the job
+       * is a restyle so large only the face survives, true where it is one
+       * named change. A mode's `defaults` replaces the whole table, so the
+       * two cells they share are a const rather than written out twice. */
+      "KREA-3": {
+        graph: "krea3-image-edit.json",
+        label: "Become someone",
+        sys: (v) => STYLE_SYS(!!v.ref, "@Image1", "@Image2"),
+        inputs: {
+          source: { node: "1", input: "model.images.item_1" },
+          ref: { node: "1", input: "model.images.item_2" },
+          prompt: { node: "1", input: "model.prompt" },
+          ar: { node: "1", input: "model.aspect_ratio",
+                cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+          res: { node: "1", input: "model.resolution" },
+          precise: { node: "1", input: "model.precise_edit",
+                     cast: (v) => v === true || v === "true" },
+          seed: { node: "1", input: "model.seed", cast: Number },
+        },
+        required: ["source", "prompt"],
+        /* the second loader goes when nobody filled it, and the encoder's
+         * own slot goes with it - the prune reads the graph, so the sentence
+         * and the wiring cannot disagree about how many pictures there are.
+         * (*) `model.images.item_2` IS THE ONE GUESS HERE: the node declares
+         * only `item_1` and says the rest appear in connection order, so the
+         * numbering is read off the convention rather than off a list. A
+         * STYLE run that comes back ignoring the reference is this line. */
+        dropWhenEmpty: { ref: ["10"] },
+        defaults: { ...KREA_DEF, precise: false },
+        /* ITS OWN VOCABULARY: an `auto` that reads the shape off the pictures,
+         * 1K or 2K and no 4K, and a 4:5 and 5:4 this cell does not offer. */
+        options: { ar: ["AUTO", "1:1", "2:3", "3:4", "3:2", "4:3", "9:16", "16:9", "21:9"],
+                   res: ["1K", "2K"] },
+        /* NO STEPS: there is no sampler here to count. `thinking_mode` is the
+         * knob that would go in its place - fast, high, ultra - and it stays
+         * on the `fast` the node recommends until somebody has a reason. */
+        params: ["ar", "res", "seed"],
+        modes: {
+          EDIT: {
+            label: "Edit the picture",
+            sys: (v) => EDIT_SYS(!!v.ref, "@Image1", "@Image2"),
+            defaults: { ...KREA_DEF, precise: true },
+          },
+        },
+      },
       "MOSS-IMAGE": {
         graph: "moss-image-edit.json",
         label: "Become someone",
