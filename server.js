@@ -2515,8 +2515,8 @@ const RUNGS = {
         label: "Become someone",
         sys: (v) => STYLE_SYS(!!v.ref, "@Image1", "@Image2"),
         inputs: {
-          source: { node: "1", input: "model.images.item_1" },
-          ref: { node: "1", input: "model.images.item_2" },
+          source: { node: "1", input: "model.images.image_0" },
+          ref: { node: "1", input: "model.images.image_1" },
           prompt: { node: "1", input: "model.prompt" },
           ar: { node: "1", input: "model.aspect_ratio",
                 cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
@@ -2526,13 +2526,21 @@ const RUNGS = {
           seed: { node: "1", input: "model.seed", cast: Number },
         },
         required: ["source", "prompt"],
-        /* the second loader goes when nobody filled it, and the encoder's
-         * own slot goes with it - the prune reads the graph, so the sentence
-         * and the wiring cannot disagree about how many pictures there are.
-         * (*) `model.images.item_2` IS THE ONE GUESS HERE: the node declares
-         * only `item_1` and says the rest appear in connection order, so the
-         * numbering is read off the convention rather than off a list. A
-         * STYLE run that comes back ignoring the reference is this line. */
+        /* the second loader goes when nobody filled it, and the node's own
+         * slot goes with it - the prune reads the graph, so the sentence and
+         * the wiring cannot disagree about how many pictures there are.
+         * AND THE SLOT NAMES ARE THE TEMPLATE'S, NOT `get_node`'S - Babe,
+         * 2026-10-29, on the first press: FAILED TO VALIDATE IMAGES. The
+         * catalogue reports this node's auto-grow slot as
+         * `model.images.item_1`; the workflow it ships names them
+         * `model.images.image_0` and `model.images.image_1`, 0-based, like
+         * every other auto-grow list on this rail. BOTH addresses were wrong,
+         * so the node received no image it recognised and refused the job at
+         * submit - a PAID refusal rather than a free one, which is what makes
+         * this worth the comment: `get_node` is free and authoritative about
+         * options and tooltips, and it was wrong about the one thing a dry
+         * run cannot check. The template's own workflow JSON is the
+         * authority, and it is free too. */
         dropWhenEmpty: { ref: ["10"] },
         defaults: { ...KREA_DEF, precise: false },
         /* ITS OWN VOCABULARY: an `auto` that reads the shape off the pictures,
