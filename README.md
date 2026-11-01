@@ -4,7 +4,7 @@ Built for the [**Open Source Higgsfield Competition**](https://comfy.org/open-so
 [spiritform](https://github.com/spiritform). It runs locally with an API key on
 [Comfy Cloud](https://platform.comfy.org).
 
-![Workflow 01 on a cold start: the preset bust in the source slot, the style slot empty, nano-banana-2.1 on the model row](docs/01-become-someone.png)
+![Workflow 01: the preset bust in the source slot, the prompt empty, FLUX 3 Klein on the model row](docs/01-become-someone.png)
 
 **[Watch the demo video](https://www.youtube.com/watch?v=cau_e-NcMqo)**
 
