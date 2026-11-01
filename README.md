@@ -63,6 +63,13 @@ happens stay yours.**
 It runs on Gemini through Comfy, so **a send spends credits**, which makes it
 the one thing here that costs something on a keystroke rather than on RUN.
 
+## The library
+
+**Press the film strip in the top right.** Everything you have made is there,
+newest first, grouped by the sitting it was made in — it is read off
+`output/`, so it outlives the journey and survives a reload, a new session and
+a new machine.
+
 ## What's next
 
 **Every workflow ships with open weights on the picker.** Each one opens on the
