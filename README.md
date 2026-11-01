@@ -6,7 +6,7 @@ Built for the [**Open Source Higgsfield Competition**](https://comfy.org/open-so
 
 ![Workflow 01: the preset bust in the source slot, the prompt empty, FLUX 3 Klein on the model row](docs/01-become-someone.png)
 
-**[Watch the demo video](https://www.youtube.com/watch?v=cau_e-NcMqo)**
+**[Watch the demo video](https://www.youtube.com/watch?v=cau_e-NcMqo)** (based on a previous version of the UI/UX)
 
 <!-- screenshots go here -->
 
@@ -62,6 +62,13 @@ happens stay yours.**
 
 It runs on Gemini through Comfy, so **a send spends credits**, which makes it
 the one thing here that costs something on a keystroke rather than on RUN.
+
+## The webcam
+
+**Press WEBCAM in any slot that takes one.** On 01 it photographs you, after a
+count of three. On 06 it records — with a count, a transport and a trim —
+because what that workflow wants is a performance: the clip you shoot is the
+movement the reshoot builds its new shot around.
 
 ## The library
 
