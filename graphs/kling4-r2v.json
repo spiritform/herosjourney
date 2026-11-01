@@ -1,0 +1,69 @@
+{
+  "1": {
+    "class_type": "Kling4ReferenceToVideoNode",
+    "inputs": {
+      "model": "kling-4.0",
+      "model.prompt": "",
+      "model.resolution": "720p",
+      "model.aspect_ratio": "adaptive",
+      "model.duration": 5,
+      "model.seed": 42,
+      "model.reference_images.image_1": [
+        "10",
+        0
+      ],
+      "model.reference_images.image_2": [
+        "11",
+        0
+      ],
+      "model.reference_images.image_3": [
+        "13",
+        0
+      ],
+      "model.reference_videos.video_1": [
+        "12",
+        0
+      ]
+    }
+  },
+  "9": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "1",
+        0
+      ],
+      "filename_prefix": "hj-06-kling4",
+      "format": "mp4",
+      "format.codec": "auto",
+      "codec": "auto"
+    }
+  },
+  "10": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  },
+  "11": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  },
+  "12": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": ""
+    }
+  },
+  "13": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
+  }
+}

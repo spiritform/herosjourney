@@ -885,6 +885,69 @@ const TRAIT_NOTE = (traits, moving) => {
           + "reference alone.");
 };
 
+/* AND WHAT COMES OUT IS NOT ALWAYS A PHOTOGRAPH. These three tails all end
+ * "produce one photograph", which is right for this rung's default and is a
+ * second director the moment image 2 is a LOOK donor: the clause above it has
+ * just said the medium comes from a painting, and the sentence after it asks
+ * for a photograph of that. This rail has a name for arguing with yourself in
+ * one prompt, and the answer is never to say the quieter thing louder - it is
+ * not to say it. `PLACE_SYS` solved the same contradiction on 03 by deferring
+ * ("photographic, unless the words below call for another medium"); here the
+ * medium has already been named by a picture, so the noun simply stops
+ * claiming one. */
+const MADE = (v) => (v.ref && !(v.blank || {}).prompt ? "picture" : "photograph");
+
+/* WHAT THE SECOND PICTURE IS FOR, ONCE, 2026-10-31. The same sentence was
+ * written out three times - in GUIDE_SYS, CAM_SYS and CUSTOM_SYS - which is
+ * one fact drawn three ways and three places to forget when it changes. It
+ * changed today.
+ * AND IT IS A CHARACTER OR A LOOK, AND THE WORDS SAY WHICH - see STYLE_SYS
+ * for the run that named it: a painted portrait handed to "costume, hair and
+ * props come from it" is a person to become rather than a handling to
+ * borrow, and with the artist's own line beside it that is two answers to
+ * one question. No words and the picture is all there is, so it stays what
+ * it has always been. */
+const REF_CLAUSE = (v, two = "Image 2") =>
+  !v.ref
+    ? ""
+    : (v.blank || {}).prompt
+      ? `${two} is the style: costume, headwear, masks, props, hair, grooming, `
+        + "lighting and colour grade come from it, and never its face. "
+      : `${two} is the look: its medium, palette, brushwork, lighting and `
+        + "colour grade come from it and nothing else - never its subject, "
+        + "their face, their hair, their clothes, their pose or its "
+        + "background. The words below say what they become. ";
+
+/* AND THE JOB IS APPLYING A STYLE, NOT MAKING A CHARACTER - Babe,
+ * 2026-10-31: "i think i want to edit what STYLE mode does tho... to sort
+ * of make it more general something like 'apply a style reference image to
+ * a source image'", and when asked which way: "generic".
+ *
+ * ALL FOUR OF THIS RUNG'S SENTENCES OPENED "YOU ARE A CHARACTER
+ * PHOTOGRAPHER" AND CLOSED ON "THE CHARACTER DESCRIBED BELOW" - and the
+ * three in between said "the person in image 1". So the scaffolding
+ * asserted three things the artist had not: that the source is a person,
+ * that the reference is a character, and that what comes out is a new one.
+ * Ask for a hand-painted version of a still life and every clause above the
+ * line is still casting somebody.
+ *
+ * AND `CUSTOM_SYS` HAD ALREADY SOLVED THE HARD HALF. The import path has
+ * said "it may be a photograph of a person, a drawing, a character, a figure
+ * or an object - do not assume which" since it was written, and then kept
+ * the identity conditionally: a face exactly if there is a face, the shape
+ * and markings that identify it if there is not. THE LIKENESS NEVER NEEDED
+ * THE WORD CHARACTER - it needed the conditional, which is what keeps this
+ * rung's whole reason for existing while the job stops presuming a person.
+ *
+ * SO THE OPENER IS ONE CONSTANT AND IT STATES BABE'S SENTENCE. Written out
+ * four times, it was four places to forget - and it changed today, which is
+ * the test this file keeps applying to a literal that appears twice. The
+ * headline over it is still BECOME SOMEONE, and nothing about that moved:
+ * applying a style reference to a photograph of yourself IS how you become
+ * someone, and the generalisation widens what that headline covers rather
+ * than arguing with it. */
+const STYLE_JOB = "You apply the style of one picture to another. ";
+
 /* THE PRESET IS A GUIDE, NOT A SUBJECT - Babe, 2026-10-26, looking at a bald
  * diver: "this feels more like a restyle of the preset, and so i think we'll
  * want the preset image to only be used as a guide for the front view
@@ -905,21 +968,25 @@ const TRAIT_NOTE = (traits, moving) => {
  *
  * IT IS ONE SENTENCE DIFFERENT PER REFERENCE, because image 2 is optional
  * here exactly as it is for the ordinary job. */
-const GUIDE_SYS = (hasRef) =>
-  "You are a character photographer. "
+const GUIDE_SYS = (v) =>
+  STYLE_JOB
   + "Image 1 is NOT a person and NOT the subject: it is a grey featureless "
   + "mannequin bust, included only as a framing guide. Take from it the crop, "
   + "the camera angle, the eye level, the camera distance and how much of the "
   + "frame the head fills - nothing else. Never keep its face, its blank "
   + "features, its bald head, its grey material, its surface or its lighting, "
   + "and never return a mannequin, a statue, a bust or a figure. "
-  + (hasRef
-      ? "Image 2 is the style: costume, headwear, masks, props, hair, grooming, "
-        + "lighting and colour grade come from it, and never its face. "
-      : "")
-  + "Produce one photograph of a real human character as described below, "
-  + "invented from the description: their own face, hair, skin and build, "
-  + "framed the way image 1 is framed. Always return an image.";
+  + REF_CLAUSE(v)
+  /* AND THE TAIL ASKS FOR WHAT WAS DESCRIBED, not for a human character,
+   * 2026-10-31. The bust is a framing guide and the description is the
+   * whole subject here, so naming the kind of thing it has to be was the
+   * one clause that could refuse the brief outright. If they describe a
+   * person it invents a person; if they describe a carved figure, a bird or
+   * a mask, it is no longer being told otherwise - and the refusal list
+   * above still keeps a mannequin from coming back. */
+  + `Produce one ${MADE(v)} of whatever the description below asks for, `
+  + "invented from it - its own surfaces, materials and detail - and framed "
+  + "the way image 1 is framed. Always return an image.";
 
 /* AND AN IMPORT IS WHATEVER SOMEBODY BROUGHT - Babe, 2026-10-26: "import is
  * more custom, so the prompt would have to just reference it as any image
@@ -934,8 +1001,8 @@ const GUIDE_SYS = (hasRef) =>
  * SO IT NAMES THE SUBJECT WITHOUT NAMING WHAT IT IS, and says what to carry
  * across in terms that hold either way: whatever makes this subject
  * recognisable, and the face exactly IF there is one. */
-const CUSTOM_SYS = (hasRef) =>
-  "You are a character photographer. "
+const CUSTOM_SYS = (v) =>
+  STYLE_JOB
   + "Image 1 is the subject. It may be a photograph of a person, a drawing, a "
   + "character, a figure or an object - do not assume which. Whatever makes "
   + "that subject recognisable must survive: if it is a person or a face, keep "
@@ -943,11 +1010,22 @@ const CUSTOM_SYS = (hasRef) =>
   + "glasses; if it is not, keep the shape, markings and proportions that "
   + "identify it. Keep the crop, the camera angle and the camera distance of "
   + "image 1. "
-  + (hasRef
-      ? "Image 2 is the style: costume, headwear, masks, props, hair, grooming, "
-        + "lighting and colour grade come from it, and never its face. "
-      : "")
-  + "Produce one photograph of that subject as the character described below. "
+  /* AND THE POSE, WHICH EVERY SIBLING KEPT AND THIS ONE DID NOT - Babe,
+   * 2026-10-31, having typed it by hand into the box: "is the system prompt
+   * add keep the pose and camera angle or should i have the agent add it".
+   * MEASURED, AND IT WAS HALF THERE. The camera angle is kept by name three
+   * clauses up; the only time POSE appeared was about image 2, refusing the
+   * REFERENCE's. `CAM_SYS` keeps "the exact same pose and facial expression"
+   * in Babe's own words, and all three branches of `STYLE_SYS` keep it too -
+   * so the import path was the one of four that did not, and a restyled
+   * frame is an import.
+   * IT IS A MECHANIC AND NOT A DIRECTION, which is what settles where it
+   * belongs: the source on this rung is the framing GUIDE, so what survives
+   * it is the server's to state and not something the artist should have to
+   * remember typing. */
+  + "Keep the exact same pose and facial expression. "
+  + REF_CLAUSE(v)
+  + `Produce one ${MADE(v)} of that subject, restyled as described below. `
   + "Always return an image.";
 
 /* AND A WEBCAM FRAME IS YOU, WHICH IS A THIRD JOB AGAIN - Babe, 2026-10-26:
@@ -968,8 +1046,8 @@ const CUSTOM_SYS = (hasRef) =>
  *
  * IT SAYS THE FACE IS YOURS TWICE, because that is the half a model will drop
  * first when it is asked to restage a photograph. */
-const CAM_SYS = (hasRef) =>
-  "You are a character photographer. "
+const CAM_SYS = (v) =>
+  STYLE_JOB
   + "Image 1 is the subject: a real person, photographed on a webcam. Their "
   + "face must survive exactly - bone structure, eyes, nose, mouth, skin, age "
   + "and any glasses - and it must still be recognisably the same person. "
@@ -987,13 +1065,101 @@ const CAM_SYS = (hasRef) =>
   + "Do NOT keep anything else about the snapshot: not the room or wall behind "
   + "them, not its flat even light, and not the webcam's softness, noise or "
   + "colour. "
-  + (hasRef
-      ? "Image 2 is the style: costume, headwear, masks, props, hair, grooming, "
-        + "lighting and colour grade come from it, and never its face. "
-      : "")
-  + "The result is a deliberate photograph of that person as the character "
-  + "described below - lit for the character, in the character's own "
-  + "surroundings. Always return an image.";
+  + REF_CLAUSE(v)
+  /* THIS BRANCH MAY SAY "THAT PERSON" AND THE OTHERS MAY NOT: the webcam
+   * photographed whoever was sitting in front of it, so the provenance is
+   * what makes the claim safe. What went is "as the CHARACTER described
+   * below" - the description may be a character and may be a treatment, and
+   * only the words know. */
+  + `The result is a deliberate ${MADE(v)} of that person as the description `
+  + "below asks - lit for what it describes, in its own surroundings. "
+  + "Always return an image.";
+
+/* AND NOTHING IN THE SLOT AT ALL IS TEXT TO IMAGE - Babe, 2026-10-31: "what
+ * happens if you dont use inputs. the models that display are t2i or t2v".
+ *
+ * EVERY OTHER SENTENCE ON THIS RUNG OPENS ON IMAGE 1. The guide keeps a
+ * mannequin's crop, the webcam keeps your face, the import keeps whatever
+ * makes a subject recognisable - and all three name a picture that is not in
+ * the payload once the source goes, which is the exact bug the `!v.ref` arm
+ * was fixed for the same week: a prompt addressing a reference nobody sent.
+ * Nano's is worse, because with no `sys` composed its GRAPH answers, and
+ * that one opens "You are given two images".
+ *
+ * SO THE SCAFFOLDING STOPS HAVING A SUBJECT TO KEEP. There is no face to
+ * survive, no crop to inherit and no pose to hold: the character IS the
+ * sentence, and the only thing left to say is what this rung has always been
+ * about - a portrait, framed the way 01 frames one, of somebody who does not
+ * exist yet.
+ *
+ * AND THE FRAMING IS SAID OUT LOUD HERE, because the source was the thing
+ * saying it. "A headshot has to be asked for twice" is this rung's oldest
+ * lesson - name the crop AND the exclusion - and with no guide in the payload
+ * nothing else is going to ask.
+ *
+ * THE REFERENCE STILL WORKS AND STILL SPLITS THE SAME WAY. `REF_CLAUSE` is
+ * the one sentence here that was never about image 1, so a style donor on a
+ * t2i run means what it always meant and the words still decide whether it is
+ * a character or a look. */
+/* AND THE ONE PICTURE A T2I RUN CAN STILL HAVE IS THE REFERENCE, WHICH
+ * `fillWhenEmpty` HAS JUST MADE IMAGE 1. So it is read off `source` here
+ * rather than off `ref`: by the time this composes, the promotion has
+ * happened and the donor key is gone, which is what keeps the sentence and
+ * the wiring describing the same job. `blank.source` is what says the
+ * picture in that slot is a reference rather than a subject - it records
+ * what ARRIVED empty, and the promotion runs after it. */
+/* AND IT SAYS ALMOST NOTHING, WHICH IS BABE'S CALL - 2026-10-31: "it
+ * makes sense for there to not be much system prompting in text to image
+ * also in case people want to just explore character or styled images",
+ * then "i would say its up more to the agent to dial it into something
+ * specific that works with the model".
+ *
+ * THE FIRST DRAFT WAS A PORTRAIT STUDIO WITH NO WAY OUT. It opened "you
+ * are a character photographer", said the character was to be invented
+ * with their own face, hair, skin and build, and closed by asking for the
+ * collarbone crop, the head filling the frame and an 85mm lens. Every one
+ * of those is this rung's DEFAULT rather than its mechanics - and on a
+ * panel with nothing in it the artist's line is the whole brief, so a
+ * scaffolding that names a subject, a crop and a lens is three directors
+ * talking over it. Ask for a flat graphic, a wide landscape, a product on
+ * a seamless ground, and the sentence above it is still asking for a
+ * headshot of a person.
+ *
+ * AND THE FRAMING WAS ONLY EVER SAID TWICE BECAUSE A PICTURE WAS SAYING
+ * IT FIRST. "A headshot has to be asked for twice" is this rung's oldest
+ * lesson and it is a lesson about a GUIDE: name the crop and the
+ * exclusion, because the source photograph is already holding both. With
+ * no guide in the payload there is no first asking to reinforce - there is
+ * only an instruction, and an instruction nobody asked for.
+ *
+ * SO THE CRAFT MOVES ONE LAYER UP, TO THE PLACE THAT CAN BE SPECIFIC
+ * SAFELY. The server knows the MECHANICS and always applies them; the
+ * agent knows the JOB and the MODEL, reads what was actually asked for,
+ * and proposes a line in a box the artist edits before RUN. A crop in the
+ * scaffolding is unarguable; a crop in the proposal is a suggestion you
+ * can delete. `voiceFor` is already last in `AGENT_SYS` for exactly this
+ * reason - see `AGENT_JOB.style`, which now knows when there is no
+ * photograph.
+ *
+ * WHAT IS LEFT IS THE FOUR THINGS ONLY THIS LAYER KNOWS: that there is no
+ * subject to keep (because nano's own graph prompt opens "You are given
+ * two images" and answers when no `sys` is composed), what the one
+ * picture is for if there is one, what medium the noun may claim, and
+ * that Gemini has to be told to return a picture at all. */
+/* AND THE ONE PICTURE A T2I RUN CAN STILL HAVE IS THE REFERENCE, WHICH
+ * `fillWhenEmpty` HAS JUST MADE IMAGE 1, so it is read off `source`. */
+const T2I_SYS = (v, one = "image 1") => {
+  const lifted = { ...v, ref: v.source };
+  return "There is no photograph of a subject to work from and nothing to "
+    + "keep: the description below is the whole brief, and it decides what "
+    + "is in the picture and how it is framed. "
+    + (v.source
+        ? `The only image you are given is ${one}, and it is NOT the subject `
+          + "and NOT a person to reproduce. "
+        : "")
+    + REF_CLAUSE(lifted, one.charAt(0).toUpperCase() + one.slice(1))
+    + `Produce one ${MADE(lifted)}. Always return an image.`;
+};
 
 /* THE AGENT THAT HELPS WRITE A STYLE - Babe, 2026-10-26: "can we wire up the
  * llm to help with a style prompt". The panel, the transcript and the waiting
@@ -1043,12 +1209,64 @@ const voiceFor = (model) =>
   (VOICES.voices || {})[(VOICES.models || {})[model] || VOICES.default] || "";
 
 const AGENT_JOB = {
-  style:
-    "You help someone write one short line describing a CHARACTER STYLE. "
-    + "Their own photograph is the subject; the line you write says what to turn "
-    + "them INTO - wardrobe, hair, headgear, props, materials, era, the light and "
-    + "the world it belongs to. Never describe their face, age, build or likeness: "
-    + "those come from their photograph and are not yours to change. ",
+  /* AND WITH NOTHING IN THE PANEL THE APPEARANCE IS THE AGENT'S TO WRITE,
+   * 2026-10-31 - Babe, on cutting the text-to-image scaffolding back: "i
+   * would say its up more to the agent to dial it into something specific
+   * that works with the model".
+   * BOTH HALVES OF THIS JOB WERE FALSE ON AN EMPTY PANEL. "Their own
+   * photograph is the subject" names a picture that is not in the payload,
+   * and "never describe their face, age, build or likeness: those come from
+   * their photograph" forbids the only thing a text-to-image run can do -
+   * which is the same sentence, and the same mistake, that `H3_I2V_SYS`
+   * made one rung over when the first frame went away.
+   * SO IT SPLITS ON THE PICTURE RATHER THAN ON THE TAB. `look` is the left
+   * slot and it is `dropWhenEmpty`, so its absence IS the empty panel - the
+   * same thing `AGENT_SEES` is already gated on two lines down, which is
+   * why nothing had to be sent from the page to say so.
+   * AND THIS IS WHERE BEING SPECIFIC IS SAFE. The scaffolding applies to
+   * every run and cannot be argued with; this is a proposal in a box the
+   * artist edits before RUN, and `voiceFor` is appended after it, so the
+   * line is dialled in for the row that is actually pressed. What was a
+   * crop and a lens in the server's sentence is a craft decision here -
+   * and the one thing it is told NOT to assume is that a character is what
+   * was asked for at all: "in case people want to just explore character or
+   * styled images". */
+  style: ({ look }) =>
+    look
+      /* AND THE JOB IS A STYLE TO APPLY, NOT A CHARACTER TO CAST, 2026-10-31
+         - the agent's half of the same generalisation as `STYLE_JOB`. It
+         opened "a CHARACTER STYLE" and said the line says what to turn THEM
+         into, which is one of the things this tab does rather than the whole
+         of it. The picture in front of it may be a person and may not, and
+         the face rule survives either way because it is about what is
+         already IN the picture rather than about what kind of thing it is. */
+      ? "You help someone write one short line describing a STYLE to apply to "
+        + "a picture they already have. That picture is the subject and it "
+        + "stays the subject: the line you write says how it is remade - "
+        + "the medium, the wardrobe, hair, headgear, props and materials, the "
+        + "era, the light and the world it belongs to. Never describe the "
+        + "subject itself - a face, an age, a build, a likeness, the shape of "
+        + "an object: all of it is in their picture already and is not yours "
+        + "to change. "
+      : "You help someone write one short line for an image made from words "
+        + "alone. There is no photograph: nothing is being kept and nothing is "
+        + "being changed, so everything in the picture is yours to propose - "
+        + "and that now includes the subject themselves, their face, hair and "
+        + "build, which on this rung normally arrive in a photograph and are "
+        + "never written about. "
+        + "WRITE WHAT THEY ASKED FOR AND NOT WHAT THIS RUNG USUALLY MAKES. A "
+        + "character is the common case and not the only one: a look, a "
+        + "texture, a piece of a world or an object are all legitimate here, "
+        + "so take the subject from their own words and never turn something "
+        + "else into a portrait of a person. "
+        + "DECIDE THE FRAMING, because nothing else will. With no photograph "
+        + "there is no crop, no camera distance and no eye level arriving from "
+        + "anywhere, and a line that leaves them open gets whatever the model "
+        + "defaults to. If they named a framing, keep it in their words; if "
+        + "they did not, choose the one their subject wants - a character is "
+        + "usually a portrait cropped near the collarbone with the head "
+        + "filling the frame, and a place, an object or a graphic is usually "
+        + "not - and say it plainly in the prompt. ",
   /* AND EDIT IS THE OTHER HALF OF THE SAME RUNG - Babe, 2026-10-27, with a
    * finished scientist back in 01's SOURCE and the EDIT tab pressed: "and so
    * say like a load the image back in a use the edit mode is the agent
@@ -1092,7 +1310,7 @@ const AGENT_JOB = {
    * from, so there is no second list of panel names to drift from the
    * drawing. What it writes is a beat each, in that order: the panels are
    * decided and what happens in them is not. */
-  board: (panels) =>
+  board: ({ panels }) =>
     "You help someone plan a SHOT BOARD: one moment of a scene, covered from "
     + "six camera positions at once and laid out as a grid. "
     + "The character, their wardrobe and the place are all settled and arrive "
@@ -1122,7 +1340,7 @@ const AGENT_JOB = {
    * six anonymous moments on the one rung that knows exactly which framing
    * each of them is. A reader asking the wrong key after a rung grew tabs of
    * its own, which is a shape this file has paid for before. */
-  shots: (panels) =>
+  shots: ({ panels }) =>
     "You help someone write the MOVEMENT for a clip whose shots are already "
     + "decided. The frames it passes through are fixed - each panel of their "
     + "board is anchored at its own moment in the clip, in order"
@@ -1376,9 +1594,13 @@ const AGENT_SEES = {
 const AGENT_SYS = (v) => {
   const about = v.about;
   const shape = AGENT_SHAPE[about] || AGENT_SHAPE[""];
-  return (typeof AGENT_JOB[about] === "function"
-    ? AGENT_JOB[about](v.panels)
-    : (AGENT_JOB[about] || AGENT_JOB.style))
+  /* AND A JOB THAT IS A FUNCTION TAKES THE VALUES TOO, 2026-10-31. It was
+     handed `v.panels`, which held while the board was the only job that
+     needed to know anything - and `style` now needs to know whether there
+     is a photograph at all. One position is the trap this function was
+     rewritten to avoid, two lines down and again in `AGENT_SHAPE`. */
+  const job = AGENT_JOB[about] || AGENT_JOB.style;
+  return (typeof job === "function" ? job(v) : job)
   + (v.look ? (AGENT_SEES[about] || "") : "")
   + "Answer with one JSON object and nothing else - no prose around it, no code "
   + "fence, no markdown - with exactly two keys: "
@@ -1521,25 +1743,68 @@ const H3_R2V_SYS = (job, hasSheet, slate) =>
  * the whole table and the only thing EDIT actually changes is one boolean. */
 const KREA_DEF = { ar: "1:1", res: "2K" };
 
+/* AND THE KEEP-LIST MUST NOT NAME THE THING BEING CHANGED - Babe,
+ * 2026-10-31, after an edit that came back as a different person in a
+ * studio: "i tried edit but its pretty random", "so i think that is not
+ * looking at the source / webcam shot".
+ * IT WAS LOOKING AT IT AND THE SENTENCE TOLD IT NOT TO. The composed line
+ * read "Keep the character, their face, their hair, their pose, the
+ * framing, THE BACKGROUND and the composition exactly as they are. Change
+ * only this: make it a studio lit room, brighter" - the two-directors trap
+ * with both directors inside one sentence, disagreeing about the same
+ * noun. Handed that, the model resolved it by dropping the reference and
+ * building a picture that satisfies the second half.
+ * THE TEMPLATE'S PHRASE IS A SHAPE, NOT A LIST. "Change only the X to Y,
+ * keep the rest unchanged" means the keep-list is the COMPLEMENT of the
+ * edit - and a fixed one forbids the two jobs an instruction editor is
+ * most often asked for, a relight and a new room.
+ * SO IT KEEPS THE PERSON AND LETS THE ARTIST DECIDE THE REST. The face is
+ * what every later workflow reads off this rung, which is the one thing
+ * that must survive whatever is being changed; the background, the light
+ * and the composition are the artist's, and they are named by the line
+ * underneath rather than forbidden above it.
+ * (*) The wiring was never the suspect once it was measured: the dry run
+ * drops 40 and 41 cleanly, `vae` is connected on both encoders and
+ * `image_strength` is 1. The graph was right and the sentence was not. */
 const MOSS_EDIT_LINE = (hasRef) =>
-  "Keep the character, their face, their hair, their pose, the framing, the "
-  + "background and the composition exactly as they are"
+  "Keep the person exactly as they are - the same face, the same hair, the "
+  + "same build - and change nothing the instruction does not name"
   + (hasRef
       ? ", and take from the second picture only the thing the instruction "
         + "names - never its face, its framing, its light or its background. "
       : ". ")
   + "Change only this:";
 
+/* AND THE OPENING COUNTS THE PICTURES. It said "the picture" and "it is the
+ * clip's own frame" on every job, and two of the three hand this node several
+ * - so the sentence introduced one picture and the next clause talked about
+ * six. A scaffolding that cannot count what it was given is one more voice
+ * disagreeing with the graph. */
 const FLUX3_SYS = (job, slate) =>
-  "Animate the picture you have been given. "
-  + "It is the clip's own frame: the character, the place, the light and the "
-  + "grade are all in it and every one of them carries. Do not describe their "
+  (job === "seq" || job === "transition"
+    ? "Animate the pictures you have been given. "
+      + "They are the clip's own frames: the character, the place, the light "
+      + "and the grade are all in them and every one of them carries. "
+    : "Animate the picture you have been given. "
+      + "It is the clip's own frame: the character, the place, the light and "
+      + "the grade are all in it and every one of them carries. ")
+  + "Do not describe their "
   + "appearance in words - it is already in front of you - and say what MOVES "
   + "and what it sounds like instead. "
   + (job === "seq"
       ? "The pictures are the shots: they are passed through in order, spread "
         + "evenly across the clip, and the clip travels or cuts between them as "
         + "the plan below says. "
+      /* TWO KEYFRAMES ARE THE TWO ENDS, in this node's own words: "one image
+       * opens it, two become its first and last frame". So the sentence says
+       * which is which and leaves the middle to the direction - the same
+       * shape Seedance's and Kling's transitions already use. */
+      : job === "transition"
+      ? "There are TWO pictures and they are the two ends of the shot: the "
+        + "first is the frame it opens on and the second is the frame it ends "
+        + "on. Hold the character, the wardrobe, the light and the grade "
+        + "exactly as those two frames have them and fill the time between "
+        + "them as the direction below says. "
       : "ONE CONTINUOUS TAKE from that opening frame - one camera, one move, "
         + "and no cut unless the direction below asks for one. ")
   + "Give the clip its sound - voice, room, effects, whatever the direction "
@@ -1547,7 +1812,7 @@ const FLUX3_SYS = (job, slate) =>
   + "Every frame of the clip is ONE continuous picture filling the whole "
   + "image: never a grid, never panels, never a split screen, never an inset "
   + "or a border, whatever the pictures you were given look like."
-  + (slate === "board" && job !== "seq"
+  + (slate === "board" && job !== "seq" && job !== "transition"
       ? " The picture you have is a contact sheet of one moment seen from "
         + "several camera positions - take the character, the place, the light "
         + "and the grade from it and render the moment itself, never the sheet."
@@ -1581,6 +1846,12 @@ const FLUX_EDIT_SYS = () =>
  * a mode that changes one cell's list has to restate the other - which is a
  * list written three times unless it is a const. */
 const H3_SECS = ["5", "8", "10", "15"];
+
+/* (*) KLING TAKES 3 TO 30 SECONDS, so its list is its own rather than a
+ * second reference to H3's: those four values are what the 17-frame block
+ * grid rounds cleanly onto, which is a fact about a different model that
+ * happens to overlap. Every word of this one is mine. */
+const KLING_SECS = ["5", "10", "15", "20"];
 
 /* AND THE CELLS THE THREE MACHINES SHARE, for the same reason: `params` is
  * replaced whole by a mode, so the two that do not take REF would otherwise
@@ -1640,6 +1911,58 @@ const H3_I2V_SYS = (job) =>
       ? "ONE CONTINUOUS TAKE. The clip does not cut. "
       : "The direction below is a plan of shots and the cuts it names are the "
         + "cuts the clip makes - no others. ")
+  + "Give the clip its sound - voice, room, effects, whatever the direction "
+  + "calls for. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+/* AND WITH NOTHING IN THE SLOT IT IS TEXT TO VIDEO - Babe, 2026-10-31,
+ * with the Pika card on screen: "there is a pika h3 flex text to video we
+ * can add".
+ * IT IS THE SAME MACHINE AND NOT A NEW ONE, which the template's own schema
+ * says outright: `video_pika_h3_flex_t2v` is the `Image to Video (Pika H3
+ * Flex)` subgraph with `first_frame` and `last_frame` left unconnected, on
+ * the `fl2va` checkpoint and the `pika_h3_flex_fl2va_v1` adapter - which is
+ * exactly what SINGLE SHOT has run since it was wired. `MiniMaxH3ImageToVideo`
+ * declares both frames optional, so dropping the loader is the whole of it.
+ * No second graph, no second row, and MiniMax's own row gets it for the same
+ * reason on the same node.
+ * AND THE OPENING SENTENCE HAS TO GO WITH THE PICTURE. `H3_I2V_SYS` begins
+ * "The clip opens on the picture provided" and then spends four clauses
+ * saying the character, wardrobe, place, light and grade are already in it -
+ * every one of them about an image that is no longer in the payload, and the
+ * last of them, "do not describe their appearance in words", forbidding the
+ * only thing a t2v run can do. */
+const H3_T2V_SYS = (job) =>
+  "There is no opening picture: build the whole shot from the direction "
+  + "below - the character, the wardrobe, the place, the light and the grade "
+  + "are all yours to invent, and they hold from the first frame to the last. "
+  + (job === "shot"
+      ? "ONE CONTINUOUS TAKE. The clip does not cut. "
+      : "The direction below is a plan of shots and the cuts it names are the "
+        + "cuts the clip makes - no others. ")
+  + "Give the clip its sound - voice, room, effects, whatever the direction "
+  + "calls for. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+/* AND TWO FRAMES ARE THE SHOT'S TWO ENDS - Babe, 2026-10-30: "for transition
+ * we want to wire up a couple of first and last frame workflows", with the
+ * Pika fl2va template on screen. `MiniMaxH3ImageToVideo` declares BOTH
+ * `first_frame` and `last_frame` optional and we had only ever wired the
+ * first, so the machine SINGLE SHOT already runs IS this machine: one more
+ * loader and the other end of the shot.
+ * AND WHAT IS OPEN IS THE MIDDLE. Both ends are decided by pictures, so a
+ * word spent describing either is a word asking for it to be changed - the
+ * direction is what HAPPENS on the way, which is the same division every
+ * scaffolding on this rail draws between a reference and an instruction. */
+const H3_FLF_SYS = () =>
+  "The clip opens on the first picture and ends on the second. Both frames "
+  + "are given: the character, the wardrobe, the place, the light and the "
+  + "grade are already in them and every one of them holds. Do not describe "
+  + "their appearance in words - what the direction gives you is what HAPPENS "
+  + "between them, and the clip has to arrive at the second frame exactly. "
+  + "ONE CONTINUOUS TAKE. The clip does not cut. "
   + "Give the clip its sound - voice, room, effects, whatever the direction "
   + "calls for. "
   + "Every frame is one continuous picture filling the whole image: never a "
@@ -1860,7 +2183,184 @@ const SWAP_SYS = (fromShot) =>
  * ending are the line on the panel, not the scaffolding. */
 
 /* SEEDANCE 2.5, which addresses references as @Video1 / @Image1. */
-const MOTION_SYS = (mode, hasPlace) => {
+/* A RESHOOT DOES NOT NEED A CHARACTER - Babe, 2026-10-31, with a clip in the
+ * slot, Pika pressed and `NEEDS CHARACTER` under the bar: "im trying reshoot
+ * with a clip and pika", "shouldnt need all references for that workflow i
+ * dont think".
+ * THEY ARE RIGHT AND THE NODE AGREES: `ref_images` is `min_slots: 0` - "no
+ * slot is required, so the whole list may be omitted" - so a clip and a
+ * direction is a real job. It is the rung's own tab copy, too: RESHOOT
+ * "builds a NEW shot around the movement in your clip", and nothing in that
+ * sentence says whose shot.
+ * SO THE CHARACTER IS AN ANSWER AND NOT A REQUIREMENT, which is what
+ * `dropWhenEmpty` has always been for - the place beside it has worked that
+ * way since the mode was built. What a reshoot genuinely cannot do without is
+ * the clip, because the movement is the whole of what it keeps.
+ * AND SWAP KEEPS IT, by restating `required` in its own entry: replacing the
+ * performer with nobody is not a job, and a mode that would refuse anyway
+ * should refuse where you can see it rather than at Comfy.
+ * AND THE SENTENCE BRANCHES, OR IT NAMES A PICTURE THAT WAS NEVER SENT -
+ * this rail's oldest failure, and the reason `drops` is computed before
+ * `sys`. With no character the paragraph stops addressing one at all and the
+ * job becomes what it actually is: keep this movement, build everything else
+ * from the direction. */
+/* ---------------------------------------------------- KLING 4.0, 2026-10-31
+ * Babe, with the four cards on screen: "kling 4 is new btw. we should prob
+ * add that as well".
+ *
+ * FOUR TEMPLATES, FOUR NODE CLASSES, AND THEY LAND ON BOTH CLIP RUNGS.
+ * `Kling4ImageToVideoNode` takes up to TEN keyframes - a first, up to eight
+ * evenly spaced middles and a last - which is 05's three tabs in one node:
+ * SINGLE SHOT is the first alone, TRANSITION is first and last, SEQUENCE is
+ * the board's six panels in order. `Kling4TextToVideoNode` is that rung with
+ * nothing in the slot. `Kling4ReferenceToVideoNode` takes images AND videos,
+ * which is 06's RESHOOT and SWAP, and `Kling4EditVideoNode` is 06's EDIT and
+ * keeps the source length.
+ *
+ * AND EVERY ONE OF THEM READS @Image1 / @Video1, which each node's own
+ * tooltip states - the same convention Seedance uses and this server has
+ * spoken since 06 was built. So the sentences below are written in a register
+ * this rail already has, and the ADDRESSES were read off the templates' own
+ * workflow JSON rather than off the catalogue: get_node reports an auto-grow
+ * list by its first slot and was wrong about Krea's, which cost a paid
+ * refusal.
+ *
+ * THE RESOLUTION LIST IS 720p / 1080p AND NOTHING ELSE - no 480p, which the
+ * rows beside it offer - and the image node has NO aspect ratio at all,
+ * because it takes its shape from the first keyframe. Both are `options` on
+ * the row, which is what that field is for. */
+
+/* A FIRST FRAME AND ONE TAKE. The picture is already lit and dressed, so the
+ * words are for what MOVES - the same division every scaffolding here draws
+ * between a reference and an instruction. */
+const KLING_SHOT_SYS = () =>
+  "@Image1 is the first frame of the clip and the shot opens on it: the "
+  + "character, the wardrobe, the place, the light and the grade are already "
+  + "in it and every one of them holds. Do not describe their appearance in "
+  + "words; move the camera and the subject only as the direction says. "
+  + "ONE CONTINUOUS TAKE - the clip does not cut. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+/* AND WITH NOTHING IN THE SLOT IT IS THE OTHER NODE. Nothing is given, so the
+ * only thing left to say is that all of it is the direction's. */
+const KLING_T2V_SYS = () =>
+  "There is no opening picture: build the whole shot from the direction "
+  + "below - the character, the wardrobe, the place, the light and the grade "
+  + "are all yours to invent, and they hold from the first frame to the last. "
+  + "ONE CONTINUOUS TAKE - the clip does not cut. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+/* TWO ENDS, AND WHAT IS OPEN IS THE MIDDLE - H3_FLF_SYS's own argument, said
+ * in this node's tokens. */
+const KLING_FLF_SYS = () =>
+  "@Image1 is the first frame and @Image2 is the last: the clip opens on one "
+  + "and ends on the other, and both are already lit, dressed and graded. "
+  + "Do not describe either in words - the direction below is what HAPPENS "
+  + "between them. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+/* THE KEYFRAMES ARE THE SHOTS, WHICH IS WHAT THE NODE IS FOR. It spaces the
+ * middles evenly by itself, so unlike H3 there is no frame to compute - and
+ * unlike every other SEQUENCE row the panels arrive as SEPARATE PICTURES
+ * rather than as a page, so the clause forbidding a rendered grid is about
+ * the OUTPUT alone and the model is never shown one. */
+const KLING_SEQ_SYS = (n) =>
+  "The " + (n || 6) + " images are the clip's keyframes in order, evenly "
+  + "spaced from its first frame to its last: @Image1 opens it and the last "
+  + "one ends it. They are one moment covered from several positions - the "
+  + "same character, the same place, the same light - so hold all of that "
+  + "across the whole clip and cut between them as the direction says. Do not "
+  + "describe their appearance in words. "
+  + "Every frame is one continuous picture filling the whole image: never a "
+  + "grid, never panels, never a split screen, never an inset or a border.";
+
+/* 06's TWO JOBS ON ONE NODE, and the division is the one this rung has drawn
+ * since it was built: a reshoot regenerates the frame around the movement, a
+ * swap leaves the footage standing and changes who is in it.
+ *
+ * AND THE NEGATIVE IS THE HALF THAT HAS TO BE SAID. Both guides Babe brought
+ * say it and this rail has paid for it twice: a reference video alone
+ * reinvents the face and the wardrobe on every run, so the sentence says what
+ * to take from the clip and, by name, what not to.
+ *
+ * AND WHICH PICTURE IS @Image1 DEPENDS ON WHAT ARRIVED, which is the same
+ * numbering trap 01 pays `fillWhenEmpty` for: the graph wires the character to
+ * image_1 and the place to image_2, so a reshoot with a place and no character
+ * would leave one picture in the SECOND slot and a sentence calling it
+ * @Image2. The place is promoted into the first address when the character is
+ * missing, and `blank.ref1` is what says the picture standing there is a place
+ * rather than somebody to become. */
+/* THE PICTURES ARE NUMBERED BY WHAT ARRIVED, NOT BY WHICH CELL THEY CAME
+ * FROM. `fillWhenEmpty` compacts them upward, so the character, the place and
+ * the prop keep their order and lose their gaps - and `blank` is taken before
+ * that happens, which is what lets this read the ORIGINAL identity of each
+ * one. Three cells is where the `lifted` / `placeAt` pair stopped scaling:
+ * two pictures have two arrangements and three have eight. */
+const KLING_R2V_SYS = (v) => {
+  const blank = v.blank || {};
+  const order = [];
+  if (!blank.ref1) order.push("char");
+  if (!blank.ref2) order.push("place");
+  if (!blank.audio) order.push("prop");
+  const at = (k) => "@Image" + (order.indexOf(k) + 1);
+  const hasChar = order.indexOf("char") !== -1;
+  const hasPlace = order.indexOf("place") !== -1;
+  const hasProp = order.indexOf("prop") !== -1;
+  if (String(v.mode).toUpperCase() === "SWAP")
+    return "Replace the performer in @Video1 with the character in @Image1, "
+      + "holding their face, build and wardrobe exactly. There is ONE of them "
+      + "in the shot. Keep everything else in @Video1 as it is: the same room, "
+      + "the same framing, the same camera path, the same light and grade, the "
+      + "same timing, and the same things in their hands. Change the person "
+      + "and nothing else.";
+  return "Build a new shot that keeps the movement, the camera path, the "
+    + "pacing and the gestures of @Video1 exactly. "
+    + "Do NOT copy the performer, their clothing, the room or the lighting "
+    + "from @Video1 - those come from the direction below"
+    + (hasChar || hasPlace ? " and from the reference images. " : ". ")
+    + "The video gives the gesture and never the thing being held: if the "
+    + "direction names what is in their hands, that is what is rendered. "
+    + (hasChar
+        ? at("char") + " is the character: take their face, build and wardrobe "
+          + "from it, and there is ONE of them in the shot. "
+        : "")
+    + (hasPlace
+        ? at("place") + " is the place: take its location, its grade and the "
+          + "direction and quality of its light as the look of the whole clip. "
+        : "")
+    /* AND THE PROP IS THE OTHER HALF OF THE HANDS CLAUSE. The sentence above
+     * already refuses the objects in the performer's hands and says the
+     * direction supplies what is held; until this cell there was no way to
+     * supply a PICTURE of it, only a description. It is named, like every
+     * other reference here, because an unnamed extra picture is one the
+     * model averages into the others - which is what MISC was and why it
+     * went. */
+    + (hasProp
+        ? at("prop") + " is the object they are holding or using: take the "
+          + "thing itself from it and nothing else - not its background, not "
+          + "its lighting, not its scale. "
+        : "")
+    + "Every frame is one continuous picture filling the whole image: never a "
+    + "grid, never panels, never a split screen, never an inset or a border.";
+};
+
+/* AND AN EDIT KEEPS THE SOURCE PIXELS, which the node says in its own words -
+ * "the result has the same length as the input video" - so there is no
+ * duration to set and nothing to invent but the one thing named. */
+const KLING_EDIT_SYS = () =>
+  "Edit @Video1. Change only what the direction below names and keep "
+  + "everything else in it exactly as it is: the same performer, their face "
+  + "and wardrobe, the same framing, the same room, the same camera work, the "
+  + "same light and grade, the same shot count and the same timing. "
+  + "An object in shot stays that object unless the direction says otherwise. "
+  + "No speech or dialogue unless the direction below asks for it.";
+
+const MOTION_SYS = (v) => {
+  const mode = v.mode, hasPlace = !!v.ref2, hasAudio = !!v.audio,
+        hasChar = !!v.ref1;
   /* SWAP AND RECAST ARE NOT THE SAME JOB, and the difference is what happens
      to the footage. Babe, 2026-10-25, on SCAIL-2's character-replacement
      split screen: "we could have a swap mode too for stuff like this".
@@ -1888,16 +2388,22 @@ const MOTION_SYS = (mode, hasPlace) => {
     return "Continue @Video1 forward from its last frame, holding the same "
       + "character, wardrobe, room, light, lens and pace, so the new footage "
       + "cuts to the end of it invisibly.";
-  return "@Image1 defines the character - ONE person, and if it is several "
-    + "panels they are all that same person: their face, hair, build and "
-    + "wardrobe. "
+  return (hasChar
+      ? "@Image1 defines the character - ONE person, and if it is several "
+        + "panels they are all that same person: their face, hair, build and "
+        + "wardrobe. "
+      : "")
     + (hasPlace
         ? "@Image2 defines the setting and the look: the place, its grade, "
           + "and the direction and quality of its light. "
         : "")
     + "@Video1 provides the motion, the camera path, the framing and the "
-    + "pacing. Transfer the exact movement and timing from @Video1 onto the "
-    + "character in @Image1, preserving their identity and clothing. "
+    + "pacing. "
+    + (hasChar
+        ? "Transfer the exact movement and timing from @Video1 onto the "
+          + "character in @Image1, preserving their identity and clothing. "
+        : "Keep that movement and timing exactly and build everything else "
+          + "in the shot from the direction below. ")
     /* AND WHAT IS IN THEIR HANDS IS THE FOURTH THING TO REFUSE. Babe,
        2026-10-27, holding a computer mouse up to their mouth: "trying to
        figure out how to make my mouse look like a breathing mouthpiece. it
@@ -1910,24 +2416,95 @@ const MOTION_SYS = (mode, hasPlace) => {
     + "the " + (hasPlace ? "location" : "studio") + " from @Video1. @Video1 "
     + "supplies the gesture, never the thing being held: if the direction "
     + "names what is in their hands, render that and not what the video shows "
-    + "there.";
+    + "there."
+    /* AND THE FOURTH REFERENCE IS NAMED BY ITS ROLE, BECAUSE NOTHING NAMES
+       ITS SUBJECT. Babe asked for a MISC cell - "another character, prop,
+       etc" - and a reference with no stated job is one the model averages
+       into the others, which is what cost 01 a face. 01's EDIT answered the
+       same problem the same way: its second picture is "the thing the
+       instruction refers to, a jacket or a hat", with its face, framing,
+       light and background refused by name. SO THE SENTENCE NAMES WHAT TO
+       TAKE FROM IT - whatever the direction asks for - AND REFUSES THE
+       REST, and the picture can be of anything without this having to know
+       which. */
+    + (hasAudio
+        ? " @Audio1 is a sound reference: use it for what is HEARD - the "
+          + "voice and its delivery, the music, the room tone - and take "
+          + "nothing visual from it. If the direction says what is heard or "
+          + "when a line is spoken, that is what this is for; if it does "
+          + "not, let @Audio1 set the sound of the shot and change nothing "
+          + "else about it."
+        : "");
 };
 
 /* MINIMAX H3, which addresses references as "Image 1" / "Video 1" in
  * connection order, and whose guide asks for the roles twice. */
-const H3_SYS = (hasPlace) =>
-  "Image 1 defines the character: their face, hair, build and wardrobe. "
+const H3_SYS = (v) => {
+  const hasPlace = !!v.ref2, hasChar = !!v.ref1;
+  return (hasChar
+    ? "Image 1 defines the character: their face, hair, build and wardrobe. "
+    : "")
   + (hasPlace
       ? "Image 2 defines the location and the light: the place, its grade, "
         + "and the direction and quality of its lighting. "
       : "")
   + "Video 1 provides the motion, the camera behaviour, the pacing and the "
-  + "timing. Use Image 1 for identity and clothing, "
-  + (hasPlace ? "Image 2 for location, " : "")
-  + "and Video 1 for motion, camera and pacing. Transfer the movement and "
-  + "timing from Video 1 to the character in Image 1 while preserving their "
-  + "identity and clothing. Do not copy the person, the clothing or the "
-  + (hasPlace ? "location" : "studio") + " from Video 1.";
+  + "timing. "
+  + (hasChar
+      ? "Use Image 1 for identity and clothing, "
+        + (hasPlace ? "Image 2 for location, " : "")
+        + "and Video 1 for motion, camera and pacing. Transfer the movement "
+        + "and timing from Video 1 to the character in Image 1 while "
+        + "preserving their identity and clothing. "
+      : (hasPlace ? "Use Image 2 for location and Video 1 for motion, camera "
+                    + "and pacing. "
+                  : "Use Video 1 for motion, camera and pacing. ")
+        + "Keep that movement and timing exactly and build everything else "
+        + "in the shot from the direction below. ")
+  + "Do not copy the person, the clothing or the "
+  + (hasPlace ? "location" : "studio") + " from Video 1."; };
+
+/* AND WITH NO SOUND REFERENCE IT IS A NEGATIVE, NOT AN ASK - Babe,
+ * 2026-10-31, after an edit that removed a pair of glasses perfectly and
+ * came back talking: "yeah, its adding random audio", then "so yeah i would
+ * remove the audio prompting from the system prompt".
+ * THE ASK WAS "give the clip its own sound to match what you have made",
+ * which on an audio-native model with a face in frame is close to a request
+ * for dialogue - and the clip's own sound never reaches it, because
+ * `GetVideoComponents` has only its frames wired and EDIT drops the audio
+ * reference besides. So it was told to make sound, given none to go on, and
+ * shown a moving mouth.
+ * REMOVING THE SENTENCE IS NOT ENOUGH ON ITS OWN. H3 writes picture and
+ * sound in the same forward pass, so with nothing said it still makes
+ * something and still picks - which is this file's oldest lesson, say both
+ * halves or the model picks one, and it has cost this rail a clip and a
+ * prop already. The ask goes and a negative stands in its place: ambience
+ * and effects are the model's, a VOICE is the artist's. */
+const NO_VOICE = "No speech or dialogue unless the direction below asks for it.";
+
+/* AND THE SOUND IS A REFERENCE OR IT IS INVENTED, NEVER BOTH - Babe,
+ * 2026-10-31: "for pika h3 can we make the 4th reference work?". The tail of
+ * both sentences below has always read "give the clip its own sound", which
+ * is right with nothing attached and is a SECOND DIRECTOR the moment an
+ * <Audio 1> is: one clause asking the model to invent what the other has just
+ * handed it. The two-directors trap arriving on the one input that had never
+ * had a sentence.
+ * AND A REFERENCE WITH NO STATED JOB IS ONE THE MODEL IS FREE TO AVERAGE INTO
+ * THE OTHERS, which is this rail's oldest lesson and the reason MISC was cut
+ * from a fourth PICTURE to a sound: the one run that cell ever got came back
+ * with the liquid recoloured and not the flask. So the clause says what the
+ * sound IS FOR and nothing about what it should contain - which is the
+ * artist's, like the cuts.
+ * THE TAG IS THE NODE'S OWN: "<Picture i> / <Video k> / <Audio j> reference
+ * conditioning for MiniMax H3. Use the same tags when prompting." And it only
+ * reaches the model at all because `audio_vae` is wired - without it, the
+ * node says, reference audio conditions the text encoder and nothing else. */
+const AUDIO_CLAUSE = (hasAudio) => hasAudio
+  ? "<Audio 1> is the sound of this shot: take the voice, music or "
+    + "atmosphere it carries as the clip's own audio rather than inventing "
+    + "one, and fit what happens on screen to it."
+  : NO_VOICE;
+
 
 /* THE SAME THREE ROLES, IN THE OPEN NODE'S TAGS. H3_SYS above is written for
  * the partner node, which reads its references as "Image 1" and "Video 1" in
@@ -1940,27 +2517,168 @@ const H3_SYS = (hasPlace) =>
  * said, in as many words, do not copy the performer, the clothing or the
  * location from the video. Both guides Babe brought say the same thing from
  * opposite sides. Say both halves or the model picks one. */
-const H3_R2V_MOVE_SYS = (hasPlace) =>
-  "<Picture 1> defines the character: their face, hair, build and wardrobe. "
+const H3_R2V_MOVE_SYS = (v) => {
+  const hasPlace = !!v.ref2, hasAudio = !!v.audio, hasChar = !!v.ref1;
+  return (hasChar
+    ? "<Picture 1> defines the character: their face, hair, build and "
+      + "wardrobe. "
+    : "")
   + (hasPlace
       ? "<Picture 2> defines the location and the light: the place, its "
         + "grade, and the direction and quality of its lighting. "
       : "")
   + "<Video 1> provides the motion, the camera behaviour, the pacing and the "
-  + "timing. Use <Picture 1> for identity and clothing, "
-  + (hasPlace ? "<Picture 2> for location, " : "")
-  + "and <Video 1> for motion, camera and pacing. Transfer the movement and "
-  + "timing from <Video 1> to the character in <Picture 1> while preserving "
-  + "their identity and clothing. Do not copy the person, the clothing, the "
+  + "timing. "
+  + (hasChar
+      ? "Use <Picture 1> for identity and clothing, "
+        + (hasPlace ? "<Picture 2> for location, " : "")
+        + "and <Video 1> for motion, camera and pacing. Transfer the movement "
+        + "and timing from <Video 1> to the character in <Picture 1> while "
+        + "preserving their identity and clothing. "
+      : (hasPlace ? "Use <Picture 2> for location and <Video 1> for motion, "
+                    + "camera and pacing. "
+                  : "Use <Video 1> for motion, camera and pacing. ")
+        + "Keep that movement and timing exactly and build everything else "
+        + "in the shot from the direction below. ")
+  + "Do not copy the person, the clothing, the "
   + "objects in their hands or the "
   + (hasPlace ? "location" : "studio") + " from <Video 1>. <Video 1> supplies "
   + "the gesture, never the thing being held: if the direction names what is "
   + "in their hands, render that and not what the video shows there. "
-  + "Give the clip its own sound to match what you have made.";
+  + AUDIO_CLAUSE(hasAudio);
+};
+
+/* AND THE SAME WEIGHTS DO A SWAP, WHICH IS A SENTENCE AND NOT A TASK TYPE.
+ * Babe, 2026-10-30, with another entry's app on screen: "i think pika h3
+ * handles swap too, someone used it in their project" - akatz's OpenCast
+ * Studio, which ships Pika H3 Flex doing "the swap or motion transfer", one
+ * model behind both.
+ * I HAD PINNED THIS ROW TO RESHOOT FOR THE WRONG REASON, which is yesterday's
+ * lesson arriving one rung later: `reference` is the only TASK these weights
+ * perform, so I read that as the only JOB. It is not. On Seedance the two
+ * modes already share one task type - the mode is the job and the task type
+ * is the machine, which is what `modes` has always been for - and here there
+ * is no task type at all, so what makes a swap a swap is this paragraph.
+ * ASK WHAT A MODEL DOES, NOT WHAT ITS TASK LIST IS CALLED.
+ *
+ * NO PLACE BRANCH, because SWAP drops it. The clip's own room standing IS the
+ * difference from a reshoot - the base spec's SWAP has dropped node 3 for
+ * exactly this reason since the mode was built, and the open rows drop 139.
+ * So there is no <Picture 2> to name and nothing to say about it.
+ * AND THE HANDS CLAUSE TRAVELS, because it cost a run to learn and it is
+ * true of both jobs: the video says how a hand moves, the direction says what
+ * it holds. A rule written for one sentence does not reach the other one. */
+const H3_SWAP_SYS = (hasAudio) =>
+  "<Picture 1> defines the character: ONE person, and if it is several panels "
+  + "they are all that same person - their face, hair, build and wardrobe. "
+  + "<Video 1> is the shot they step into. Replace the performer in "
+  + "<Video 1> with the character in <Picture 1>, holding the face, build and "
+  + "wardrobe of <Picture 1> exactly. Keep everything else in <Video 1> as it "
+  + "is: the same room, the same framing, the same camera path, the same "
+  + "light and grade, the same timing. Change the person and nothing else. "
+  + "Do not copy the performer or their clothing from <Video 1>, and do not "
+  + "take the ground, the flat key or the lack of grade from <Picture 1> - "
+  + "those are the sheet's, not the shot's. <Video 1> supplies the gesture, "
+  + "never the thing being held: if the direction names what is in their "
+  + "hands, render that and not what the video shows there. "
+  + AUDIO_CLAUSE(hasAudio);
+
+/* LTX 2.3 IC-LORA UNION CONTROL - the open row 06 was missing, recovered
+ * 2026-10-31. Babe, with the template on screen: "we should try to add this
+ * LTX workflow to 06... i guess as an EDIT workflow?", then the correction
+ * that settled where it goes: "i think the model can determine the slots
+ * tho. we just need to to be categorized in a mode. so if it is reshoot,
+ * which is for motion transfer style workflows, then that is where it
+ * should go".
+ * IT IS NOT AN EDIT BY THIS RAIL'S OWN DEFINITION - edit keeps every source
+ * pixel and changes one named thing, and this regenerates all of them from a
+ * depth map. What it keeps is the STRUCTURE, which is RESHOOT's job said
+ * exactly: a new shot built around the clip's movement.
+ * AND IT IS A BETTER RESHOOT THAN THE TWO BESIDE IT. Pika and H3 take the
+ * clip as a loose reference and reinvent the framing; MoGe depth pins this
+ * one to the source frame by frame, so the performance, the framing and the
+ * motion survive and only the look changes.
+ *
+ * THE PROMPT IS `129:211.on_false` AND THAT IS NOT A DETAIL. The subgraph
+ * feeds a `TextGenerateLTX2Prompt` upsampler into a `ComfySwitchNode` whose
+ * `switch` ships FALSE, so the branch that runs is `on_false` - the demo's
+ * own jungle-ruin paragraph. Writing the artist's line to `129:209.prompt`
+ * succeeds and returns the template's demo art. THIS FILE PAID FOR THAT ONCE
+ * ALREADY on `image_qwen_image_2_1_turbo_t2i`; it is the same node class and
+ * the same trap, and the address is the only thing that tells them apart.
+ *
+ * AND THE LENGTH IS THE TRIM, NOT A DURATION FIELD. `129:694 GetImageSize`
+ * reads the DEPTH frames and feeds the latent's `length`, so how many
+ * seconds of the control video you slice IS how long the clip is - which is
+ * the honest shape for a control workflow and the reason there is no
+ * separate duration anywhere in the graph.
+ *
+ * AND IT WRITES ITS OWN SOUND: the subgraph carries an audio latent, an
+ * audio VAE and a `CreateVideo` with the audio wired in.
+ *
+ * AND THE BAKED NEGATIVE WAS THE DEMO'S OWN SHOT NOTES, replaced 2026-10-31
+ * while Babe was mid-run. 1,374 characters at `129:112` naming a cap that
+ * reads "PNTR", a "JUST DO IT" t-shirt, a microphone, a door and shelves -
+ * none of it anything to do with the clip anybody here is shooting.
+ * AND IT FORBADE THE JOB. `motion blur` on a rung whose whole input is
+ * movement, and `cartoonish rendering`, `stylized filters`, `unrealistic
+ * materials` and `3D CGI look` on a rung whose whole output is a restyle:
+ * Babe asked for an animated oil painting against a negative telling the
+ * model not to make one.
+ * IT IS THE `ComfySwitchNode` TRAP'S SIBLING - a template carrying the
+ * demo's CONTENT somewhere that looks like configuration, and recovering
+ * the graph verbatim is right for the structure and wrong for that widget.
+ * What is left is the genuine failure modes and this rail's own refusals: no
+ * grid, no panels, no split screen, no inset. */
+const LTX23_CONTROL_SYS = () =>
+  "The first image is frame one of the clip and it sets the look: its "
+  + "medium, palette, lighting, grade and everything in frame come from it. "
+  + "The control video supplies the geometry and the movement only - the "
+  + "camera path, the framing, the pacing and the position of everything in "
+  + "the shot are taken from it frame by frame, and nothing of how it LOOKS "
+  + "is kept: not its performer, their clothing, their face, the room they "
+  + "are in, its light or its colour. Hold the look of the first image for "
+  + "the whole clip while every frame follows the control. Describe the shot "
+  + "below as one continuous take; it is never a grid, panels or a split "
+  + "screen. " + NO_VOICE;
 
 /* HIGGSFIELD GENJUTSU - built and wired, not on the row today. Same two
  * references, no mode axis, and billed per output second at 205.5
  * credits/second, which is about 1,240 credits on a six-second clip. */
+/* AND THE SAME WEIGHTS DO AN EDIT, WHICH IS A SENTENCE AGAIN - Babe,
+ * 2026-10-31: "i feel like you can prob do edits with pika h3".
+ * THE EVIDENCE IS THEIR OWN SWAP RUN. Pika held the studio, the floor, the
+ * light, the framing and the blocking of the driving clip and changed only
+ * who was in it - which IS the edit contract applied to a person. A machine
+ * that can hold a room that precisely while replacing its occupant can hold
+ * one while changing a named thing in it.
+ * AND SEEDANCE ALREADY PROVES THE SHAPE: its SWAP and its EDIT are the SAME
+ * `task_type`, differing only by this paragraph. The mode is the job and the
+ * task type is the machine - so a model with no task type at all is decided
+ * entirely here, which is what put this row on SWAP in the first place.
+ * I PINNED IT OFF BOTH ONCE, on the reading that `reference` is the only
+ * task these weights perform. That is true and is not the same claim, and it
+ * is the second time the correction has come from Babe rather than from the
+ * catalogue.
+ *
+ * IT DROPS BOTH PICTURES, which is EDIT's shape on Seedance too: what is
+ * being changed is IN the clip, so a character beside it is a second answer
+ * to a question the footage has already answered. The quad says so by
+ * itself - `takes` reads the drop and the cells go.
+ * (*) UNRUN. What to look at is whether the UNNAMED parts of the frame come
+ * back untouched, because that is the whole of what separates this from the
+ * reshoot one tab over. */
+const H3_EDIT_SYS = () =>
+  "<Video 1> is the shot and it is already finished. Change only what the "
+  + "direction below names, and keep everything else in <Video 1> exactly as "
+  + "it is: the same person, the same face, the same clothing, the same room, "
+  + "the same framing, the same camera path, the same light and grade, and "
+  + "the same timing. Every frame is the frame it already was apart from the "
+  + "one thing being changed - do not restage the shot, do not re-light it, "
+  + "do not re-frame it and do not re-cast it. If the direction names "
+  + "something that is in their hands, change that and nothing about the hand "
+  + "holding it. " + NO_VOICE;
+
 const GENJUTSU_SYS = (hasPlace) =>
   "Recast the performer in the source video as the character in the "
   + (hasPlace ? "first reference image" : "reference image")
@@ -2027,13 +2745,59 @@ const GENJUTSU_SYS = (hasPlace) =>
  * the one thing that actually has to survive, and ENDS ON A COLON so the
  * line the server appends reads as what is being made rather than as an
  * afterthought. */
-const STYLE_SYS = (hasRef, one = "image 1", two = "image 2") =>
-  hasRef
-    ? `Restyle the person in ${one} as the character in ${two} - its costume, ` +
-      `hair, props, lighting and style. Keep ${one}'s face and the exact same ` +
-      `pose and facial expression.`
-    : `Restyle the person in ${one} as a new character. Keep their face and the ` +
-      `exact same pose and facial expression:`;
+/* AND A REFERENCE IS A CHARACTER OR A LOOK, AND THE WORDS SAY WHICH, 2026-10-31.
+ * Babe, with their own photograph in SOURCE and a painted portrait of a woman in
+ * REFERENCE: "trying to get the old man to look like the painting style of the
+ * woman but it just rendered the woman."
+ * IT DID WHAT IT WAS TOLD. The composed line read "restyle the person in
+ * <ref_image_0> as THE CHARACTER in <ref_image_1>", which asks for the woman in
+ * so many words - and the agent's line underneath described her portrait again,
+ * so the model had three votes for her and one clause for his face. This rail
+ * has a name for that: one answer per question, and a reference with no stated
+ * job is one the model is free to average into the others.
+ * THE SENTENCE WAS WRITTEN FOR RANDOM AND RANDOM IS THE OTHER JOB. That roll
+ * makes a whole figure - "a deep-sea diver in a brass helmet, claymation" - and
+ * taking its costume, hair and props IS the point: wrapping something strange
+ * onto your own silhouette. A painted portrait handed to the same sentence is a
+ * person to become rather than a handling to borrow.
+ * SO THE ARTIST'S LINE IS WHAT TELLS THEM APART, and this is not a guess about
+ * intent: with words there were already TWO answers to what-to-become in one
+ * job, which is incoherent whichever one was meant. Words say what to become, so
+ * the picture beside them is a LOOK - its medium, palette, brushwork, lighting
+ * and treatment, and never its subject. No words and the picture is all there
+ * is, so it is the character, exactly as it has been.
+ * (*) THE COST IS THAT THE COSTUME NO LONGER TRAVELS ONCE YOU TYPE, which is
+ * Babe's to weigh: type "a deep sea diver" over a claymation roll and you get a
+ * diver IN claymation rather than the roll's own diving suit. */
+/* AND IT TAKES THE VALUES RATHER THAN FOUR POSITIONS, which is `AGENT_SYS`'s
+ * own rule: it had grown to a fourth argument with two `undefined`
+ * placeholders in front of it, and at that point the only thing holding the
+ * call together is argument order. */
+/* AND IT IS A SUBJECT, NOT A PERSON, 2026-10-31 - the same generalisation
+ * as the three nano branches, in the register these rows read. It said
+ * "the person in image 1" three times over and "as a new character" in the
+ * branch with no reference at all, which is the scaffolding deciding what
+ * the artist is making.
+ * AND THE IDENTITY IS KEPT CONDITIONALLY, which is `CUSTOM_SYS`'s own
+ * construction at a tenth of the length: a face exactly where there is a
+ * face. The pose and the framing are kept unconditionally, because those
+ * are facts about any picture - and keeping them is what makes this a
+ * restyle rather than a new frame. */
+const STYLE_SYS = (v, one = "image 1", two = "image 2") =>
+  v.ref
+    ? !(v.blank || {}).prompt
+      ? `Restyle the subject in ${one} in the style of ${two} - its medium, ` +
+        `palette, brushwork, lighting and treatment, and nothing else from it: ` +
+        `never its subject, their face, their hair, their clothes, their pose ` +
+        `or its background. Keep ${one}'s subject, pose and framing exactly - ` +
+        `its face and expression too if it has one - and what the words below ` +
+        `describe is what it becomes.`
+      : `Restyle the subject in ${one} in the style of ${two} - its costume, ` +
+        `hair, props, lighting and treatment. Keep ${one}'s subject, pose and ` +
+        `framing exactly, and its face and expression too if it has one.`
+    : `Restyle the subject in ${one} as the words below describe. Keep its ` +
+      `pose and framing exactly, and its face and expression too if it has ` +
+      `one:`;
 
 const RUNGS = {
   /* THE PLACE. Same graphs as 01 and 02 with one reference: the sheet goes in
@@ -2207,14 +2971,34 @@ const RUNGS = {
   /* Not a rung on the rail: the Random cell in rung 01's style-reference
    * tray. A text-to-image pass so "deal me one" is a real character rather
    * than a stock card that quietly sends nothing. */
+  /* AND IT ROLLS ON Z-IMAGE-TURBO AS OF 2026-10-31 - Babe: "we may even
+   * want that for the randoms instead of qwen", then "i kind of think our
+   * random workflow can use z-turbo for cheaper faster results".
+   * THIS IS THE ONE GENERATION ON THE APP THAT IS FREE and it runs inside
+   * a slot with somebody waiting in front of it, so the thing to spend on
+   * here is the clock rather than the look: 8 steps on a 6B model against
+   * 8 steps on a 20B. Both are open weights and GPU time only, so cheaper
+   * means faster and nothing else.
+   * AND THE WHOLE GRAPH HAS NO UPSAMPLER IN IT, which matters more here
+   * than anywhere: the roll's sentence IS the randomness - a cast word, a
+   * role, a medium, a place - and a model that rewrites it into its own
+   * caption first is a model rolling its own dice. `qwen-21-turbo-t2i`
+   * carries the `ComfySwitchNode` this repo has been bitten by; this one
+   * is a loader, an encode and a sampler.
+   * ITS RATIO NODE IS OURS, not the template's. The executed graph sizes
+   * an `EmptySD3LatentImage` from two literals, and `rollValues` has sent
+   * a ResolutionSelector LABEL since the roll was built - so the node goes
+   * in rather than the client learning a second vocabulary. The old row is
+   * one line away in `variants` and `qwen-21-turbo-t2i.json` is untouched. */
   random: {
-    graph: "qwen-21-turbo-t2i.json",
-    model: "QWEN-IMAGE-21-TURBO",
+    graph: "z-image-turbo-t2i.json",
+    model: "Z-IMAGE-TURBO",
     label: "Random character",
     inputs: {
-      prompt: { node: "452", input: "prompt" },
-      ar: { node: "13", input: "aspect_ratio" },
-      seed: { node: "488", input: "noise_seed", cast: Number },
+      prompt: { node: "57:27", input: "text" },
+      ar: { node: "19", input: "aspect_ratio" },
+      seed: { node: "57:3", input: "seed", cast: Number },
+      steps: { node: "57:3", input: "steps", cast: Number },
     },
     required: ["prompt"],
     defaults: { ar: "2:3 (Portrait Photo)" },
@@ -2244,8 +3028,16 @@ const RUNGS = {
       res: { node: "500", input: "model.resolution" },
       seed: { node: "500", input: "seed", cast: Number },
     },
-    required: ["source", "prompt"],
-    dropWhenEmpty: { ref: ["475"] },
+    /* AND THE SOURCE IS NOT REQUIRED, 2026-10-31 - Babe: "what happens if
+     * you dont use inputs. the models that display are t2i or t2v".
+     * GEMINI GENERATES FROM TEXT. The reference images are optional on this
+     * node, so dropping 470 leaves a plain text-to-image job rather than a
+     * broken one - no new graph, and nothing about the row changes but what
+     * it insists on being given. EDIT restates it below, because an edit
+     * with no picture is nothing to edit. */
+    required: ["prompt"],
+    dropWhenEmpty: { ref: ["475"], source: ["470"] },
+    fillWhenEmpty: { source: "ref" },
     defaults: { ar: "1:1", res: "2K" },
     /* NOTHING UNLESS THE SOURCE IS THE PRESET. `null` leaves the graph's own
      * system prompt exactly where it is, which is the right instruction for
@@ -2267,17 +3059,41 @@ const RUNGS = {
      * brought, no reference, make the character described below" is exactly
      * what that one already says. A journey written before provenance was
      * recorded is the only way to reach this now. */
-    sys: (v) => (v.guide ? GUIDE_SYS(!!v.ref)
-               : v.cam ? CAM_SYS(!!v.ref)
-               : v.custom ? CUSTOM_SYS(!!v.ref)
-               : !v.ref ? CUSTOM_SYS(false)
-               : null),
+    /* AND THE FALLBACK COMPOSES RATHER THAN RETURNING null, 2026-10-31. A
+     * null here means the graph's own `system_prompt` answers, and nano's
+     * says "Image 2 is the style: another character" - the CHARACTER reading,
+     * baked in, which the words branch cannot reach. It was right while the
+     * server and the graph agreed and it stopped being right today.
+     * IT WAS ALREADY HALF DONE: the `!v.ref` arm composed `CUSTOM_SYS` for
+     * exactly this reason - the graph names an image 2 that is not there -
+     * so the two arms were one question asked twice. `CUSTOM_SYS` with no
+     * reference composes no reference clause by itself.
+     * NOTHING RECORDED IS STILL NOTHING SENT about the SOURCE: this arm is
+     * only reachable from a journey written before `src` existed, since
+     * `putFile` marks every file that arrives by hand. What changes is that
+     * such a journey now gets the generic import sentence instead of the
+     * graph's, which is the same sentence it would get today. */
+    /* AND THE FIRST QUESTION IS WHETHER THERE IS A PICTURE AT ALL, because
+     * all three of the branches below open on image 1 - and nano's GRAPH
+     * opens on "You are given two images" whenever none of them composes. */
+    sys: (v) => (v.blank.source ? T2I_SYS(v)
+               : v.guide ? GUIDE_SYS(v)
+               : v.cam ? CAM_SYS(v)
+               : CUSTOM_SYS(v)),
     /* THE STYLE SENTENCE LIVES HERE NOW. It was the page's prompt line until
      * 2026-10-25, when that line became a sub-header with a red word in it -
      * so the words moved to the floor under an empty prompt, which is where
      * 02, 03 and 04 already keep theirs. A STYLE run with a picture and no
      * words still goes out saying this; it just stops being said twice. */
-    blankTo: { prompt: "Become the character in the reference." },
+    /* AND THE FLOOR NAMES A REFERENCE, so it stands down when there is
+     * neither a picture nor a word - that is not a job, and filling
+     * `prompt` here would have carried it past `required` and submitted
+     * it. With a reference and no words it still means what it always did:
+     * become the character in that picture. */
+    blankTo: {
+      prompt: (v) => (v.blank.source && !v.ref
+        ? "" : "Become the character in the reference."),
+    },
     /* which cells in the model row mean anything here. Nano has no step
      * count, so showing STEPS beside it would be a lie. Absent = all. */
     params: ["ar", "seed", "res"],
@@ -2287,8 +3103,22 @@ const RUNGS = {
      * mode changes the two things that genuinely differ: what the instruction
      * says, and what the refusal is called when there is no sentence yet. */
     modes: {
+      /* AND EDIT IS ONE INPUT - Babe, 2026-10-30: "then style / edit
+       * should change the slots. for example slot becomes a two input.
+       * edit is single." STYLE is the two-image combine this rung was
+       * always for; an edit changes one named thing in one photograph,
+       * and with a box table that can point at it the second reference
+       * is a picture with no question to answer. The drop is what the
+       * panel reads: `takes` loses `ref`, the cell goes, and the left
+       * draws one square - the same thing SWAP and EDIT do on 06. */
       EDIT: {
+        drop: ["475"],
         label: "Edit the picture",
+        /* AND AN EDIT NEEDS SOMETHING TO EDIT. The row dropped `source`
+         * from `required` so that STYLE can run on words alone; this mode
+         * puts it back, which is also what takes every row off the picker
+         * here while the panel is empty. */
+        required: ["source", "prompt"],
         sys: (v) => EDIT_SYS(!!v.ref),
         /* AND THE FLOOR DOES NOT REACH THIS MODE. Inheriting it would make
          * an edit with no sentence quietly run the become-someone line
@@ -2306,7 +3136,7 @@ const RUNGS = {
          * GUIDE, NOT THE REFERENCE: framing, camera angle, pose and
          * expression all come from image 1, so a headshot stays a headshot
          * whatever shape the reference happens to be. */
-        sys: (v) => STYLE_SYS(!!v.ref),
+        sys: (v) => (v.blank.source ? T2I_SYS(v) : STYLE_SYS(v)),
         inputs: {
           source: { node: "470", input: "image" },
           ref: { node: "475", input: "image" },
@@ -2319,8 +3149,18 @@ const RUNGS = {
           steps: { node: "459:458", input: "steps", cast: Number },
           seed: { node: "459:458", input: "seed", cast: Number },
         },
-        required: ["source", "prompt"],
-        dropWhenEmpty: { ref: ["475"] },
+        /* AND THIS IS THE OPEN ROW THAT DOES IT, which was read off the
+         * graph rather than hoped at: `qwen-21-turbo-t2i.json` - the one
+         * 01's RANDOM has rolled on since the roll was built - is a
+         * `TextEncodeQwenImage21` with NO images at all and an
+         * `EmptyLatentImage` beside it. Drop both loaders here and that is
+         * structurally what is left, so the proven t2i shape costs no graph.
+         * THE TURBO ROW CANNOT, and for the reason it has no AR cell: its
+         * KSampler takes its latent FROM the encoder, which derives it from
+         * the source. No source, no latent. */
+        required: ["prompt"],
+        dropWhenEmpty: { ref: ["475"], source: ["470"] },
+        fillWhenEmpty: { source: "ref" },
         defaults: { steps: 25, width: 1024, height: 1024 },
         params: ["ar", "seed", "steps"],
         /* the same two modes here. `sys` is a string on this row and goes in
@@ -2328,7 +3168,10 @@ const RUNGS = {
          * the rows and the reason the scaffolding lives beside the graph. */
         modes: {
           EDIT: {
+            drop: ["475"],
             label: "Edit the picture",
+            /* an edit needs something to edit - see the base row */
+            required: ["source", "prompt"],
             sys: (v) => EDIT_LINE(!!v.ref),
           },
         },
@@ -2336,7 +3179,7 @@ const RUNGS = {
       "QWEN-IMAGE-21-TURBO": {
         graph: "qwen-image-21-turbo.json",
         label: "Become someone",
-        sys: (v) => STYLE_SYS(!!v.ref),
+        sys: (v) => STYLE_SYS(v),
         /* the turbo graph samples the latent the encoder derives from the
          * source, so it has no width/height to set and its output follows
          * the shape of the photo you put in. */
@@ -2358,6 +3201,7 @@ const RUNGS = {
          * the rows and the reason the scaffolding lives beside the graph. */
         modes: {
           EDIT: {
+            drop: ["475"],
             label: "Edit the picture",
             sys: (v) => EDIT_LINE(!!v.ref),
           },
@@ -2438,7 +3282,7 @@ const RUNGS = {
         /* addressed by the encoder's own token names, the way qwen's is
          * addressed as image_1 and image_2 - `modes.EDIT` below overrides
          * this with the edit line and passes the same two names. */
-        sys: (v) => STYLE_SYS(!!v.ref, "<ref_image_0>", "<ref_image_1>"),
+        sys: (v) => STYLE_SYS(v, "<ref_image_0>", "<ref_image_1>"),
         inputs: {
           source: { node: "11", input: "image" },
           ref: { node: "12", input: "image" },
@@ -2446,7 +3290,15 @@ const RUNGS = {
           steps: { node: "7", input: "steps", cast: Number },
           seed: { node: "7", input: "seed", cast: Number },
         },
-        required: ["source", "prompt"],
+        /* AND THE SOURCE CANNOT BE REQUIRED HERE ANY MORE, because the
+         * swap below covers the one state that would have refused: with a
+         * source the base runs and the requirement is already met, and
+         * without one the swap replaces the spec and states its own. A
+         * requirement that can never fire is one the picker reads as a
+         * reason to hide the row - which is the whole of what `required`
+         * is for now. EDIT restates it, because an edit of nothing is not
+         * a job. Same shape as Kling on 05. */
+        required: ["prompt"],
         /* the second loader goes when nobody filled it, and the reference
          * slot on the conditioning node goes with it - so the sentence stops
          * naming <ref_image_1> in the same breath, because `sys` reads the
@@ -2454,10 +3306,63 @@ const RUNGS = {
         dropWhenEmpty: { ref: ["12"] },
         defaults: { steps: 16 },
         params: ["seed", "steps"],
+        /* AND WITH NOTHING IN THE PANEL IT IS TEXT TO IMAGE, 2026-10-31.
+         * Babe, with the vendor's own t2i template open: "flux 3 image
+         * klein t2i".
+         * THE GRAPH FOR IT IS ALREADY IN THIS REPO AND 03 AND 04 RUN IT.
+         * Klein was written off for t2i this morning on a true reading of
+         * `ReferenceMultiLatent` - `images.image0` must be filled - and the
+         * rest of that node's own hint is the answer: THE LIST MAY BE
+         * OMITTED ENTIRELY. Drop both loaders and the references go with
+         * them, the conditioning passes straight through, and the sampler
+         * takes its latent from the `EmptyFlux2LatentImage` that
+         * `flux3-klein-2ref-latent.json` already carries for 03 and 04.
+         * Simulated node by node: 11 left, nothing dangling.
+         * SO IT IS A SWAP RATHER THAN A DROP, for the reason Kling's t2v
+         * was: the row's own graph has no latent of its own to size, so a
+         * dropped loader cannot become one - and an AR cell cannot appear
+         * because a loader left. A swap states what differs and inherits
+         * the rest.
+         * AND IT CHANGES NO PROVEN PATH, because `required` refused this
+         * state outright: a Klein run with no source could not be made.
+         * A REFERENCE WITH NO SOURCE IS STILL THE PROMOTION every other
+         * t2i row here makes - `fillWhenEmpty` moves it into image 1's own
+         * address so the model counts it first, and `T2I_SYS` then says in
+         * so many words that the one picture is not the subject. */
+        swapWhenEmpty: {
+          source: {
+            graph: "flux3-klein-2ref-latent.json",
+            sys: (v) => T2I_SYS(v, "<ref_image_0>"),
+            inputs: {
+              source: { node: "11", input: "image" },
+              ref: { node: "12", input: "image" },
+              prompt: { node: "100", input: "value" },
+              /* THE LATENT IS OURS NOW, so the row gains the cell it has
+               * never had on this rung - and 16 is the rounding this
+               * family wants, which is what the two other Klein rows that
+               * sample their own latent already do. */
+              width: { node: "20", input: "width", cast: (v) => Math.round(v / 16) * 16 },
+              height: { node: "20", input: "height", cast: (v) => Math.round(v / 16) * 16 },
+              steps: { node: "7", input: "steps", cast: Number },
+              seed: { node: "7", input: "seed", cast: Number },
+            },
+            required: ["prompt"],
+            fillWhenEmpty: { source: "ref" },
+            dropWhenEmpty: { source: ["11"], ref: ["12"] },
+            defaults: { steps: 16, ar: "1:1" },
+            params: ["ar", "seed", "steps"],
+          },
+        },
         modes: {
           EDIT: {
+            drop: ["12"],
             label: "Edit the picture",
             sys: (v) => EDIT_LINE(!!v.ref, "<ref_image_0>", "<ref_image_1>"),
+            required: ["source", "prompt"],
+            /* AND AN EDIT OF NOTHING IS NOT A JOB. The swap runs after the
+             * modes merge, so a tab that must have a picture has to say so
+             * - the same `{}` Kling's two first-frame tabs use. */
+            swapWhenEmpty: {},
           },
         },
       },
@@ -2526,7 +3431,19 @@ const RUNGS = {
       "KREA-3": {
         graph: "krea3-image-edit.json",
         label: "Become someone",
-        sys: (v) => STYLE_SYS(!!v.ref, "@Image1", "@Image2"),
+        /* AND KREA 3 DOES BOTH TEMPLATES ON ONE GRAPH - Babe, 2026-10-31,
+         * with both cards on screen: "would like to add krea 3 btw... text
+         * to image and text image edit".
+         * IT IS ALREADY WIRED FOR THE SECOND AND THE FIRST IS FREE.
+         * `api_krea3_t2i` and `api_krea3_image_edit` are the SAME NODE with
+         * the same inputs, which was read off the template's own schema
+         * rather than assumed - the only difference between the two is that
+         * the t2i one has no LoadImages in it. Which is what
+         * `dropWhenEmpty` does. No second graph, no second row, and the
+         * prune takes the dangling sockets out with the loaders. */
+        sys: (v) => (v.blank.source
+          ? T2I_SYS(v, "@Image1")
+          : STYLE_SYS(v, "@Image1", "@Image2")),
         inputs: {
           /* AND A FILE GOES TO A LOADER, NEVER TO THE NODE THAT READS IT -
            * Babe, 2026-10-29, the press after the slot names were corrected:
@@ -2547,7 +3464,7 @@ const RUNGS = {
                      cast: (v) => v === true || v === "true" },
           seed: { node: "1", input: "model.seed", cast: Number },
         },
-        required: ["source", "prompt"],
+        required: ["prompt"],
         /* AND THE PRESET REACHES THIS ROW AS AN OUTLINE - see `sendLocal`.
          * Krea holds structure hard, which is what makes its EDIT tab faithful
          * and what made a bear come back as a bear BUST: shoulders cut like a
@@ -2569,7 +3486,8 @@ const RUNGS = {
          * options and tooltips, and it was wrong about the one thing a dry
          * run cannot check. The template's own workflow JSON is the
          * authority, and it is free too. */
-        dropWhenEmpty: { ref: ["10"] },
+        dropWhenEmpty: { ref: ["10"], source: ["8"] },
+        fillWhenEmpty: { source: "ref" },
         defaults: { ...KREA_DEF, precise: false },
         /* ITS OWN VOCABULARY: an `auto` that reads the shape off the pictures,
          * 1K or 2K and no 4K, and a 4:5 and 5:4 this cell does not offer. */
@@ -2581,7 +3499,10 @@ const RUNGS = {
         params: ["ar", "res", "seed"],
         modes: {
           EDIT: {
+            drop: ["10"],
             label: "Edit the picture",
+            /* an edit needs something to edit - see the base row */
+            required: ["source", "prompt"],
             sys: (v) => EDIT_SYS(!!v.ref, "@Image1", "@Image2"),
             defaults: { ...KREA_DEF, precise: true },
           },
@@ -2620,6 +3541,12 @@ const RUNGS = {
         params: ["steps", "seed"],
         modes: {
           EDIT: {
+            /* AND THE SCALER GOES WITH THE LOADER. Every other row on this
+             * rung drops ONE node for its second reference; MOSS has two -
+             * the loader and its own ImageScaleToTotalPixels - which is why
+             * dropWhenEmpty names both. Dropping 40 alone left 41 pointing
+             * at a node that is not there and the encoder still naming it. */
+            drop: ["40", "41"],
             label: "Edit the picture",
             sys: (v) => MOSS_EDIT_LINE(!!v.ref),
           },
@@ -2630,6 +3557,77 @@ const RUNGS = {
          * If the first MOSS roll is texture rather than a picture, swap node
          * 30 to moss_image_sft_bf16.safetensors before suspecting anything
          * else. */
+      },
+      /* THE TWO ROWS THAT ONLY DO THIS - Babe, 2026-10-31: "can we add moss
+       * text to image", then "we should prob add z-turbo t2i, which still
+       * seems to be popular".
+       * EVERY OTHER T2I ROW ON THIS RUNG IS AN EDIT MODEL RUN EMPTY. Nano,
+       * qwen-edit, Krea and Klein all take a picture and happen to run
+       * without one; these two have no image input at all, which is why
+       * they need the picker's other half - a row that cannot be handed
+       * what you are holding is not offered, the same sentence `takes`
+       * already says one level in about a FACE.
+       * BOTH ARE OPEN WEIGHTS AND BOTH GRAPHS COST ONE run_template EACH,
+       * which is the trade this file named for a subgraph template and
+       * took for LTX 2.3 the same morning. Flattening one free is the
+       * converter that ended 21 widget-slots short, and a wrong widget on
+       * a checkpoint fails after you have paid. */
+      "Z-IMAGE-TURBO": {
+        graph: "z-image-turbo-t2i.json",
+        /* AND IT IS PINNED TO THE IMAGE TAB, 2026-11-01 - Babe, with the
+         * picker on EDIT holding this and MOSS-IMAGE-T2I and nothing else:
+         * "i think we lose flux edit?".
+         * THE FILTER WAS WORKING AND THE SURVIVORS WERE WRONG. Every row
+         * that can edit requires `source`, so with an empty panel they are
+         * all hidden - and the two rows left standing were the two that
+         * require nothing but a sentence, which is exactly the property
+         * that makes them unable to edit anything. The rule that says IF
+         * THE FILTER WOULD HIDE EVERY ROW IT HIDES NONE was written for
+         * this state and could not fire, because these two were not
+         * hidden.
+         * A ROW THAT CANNOT DO THE JOB OF THE TAB IS NOT ON THE TAB, which
+         * is what `only` has meant since SCAIL-2. This graph has no image
+         * input at all, so on EDIT it could only ignore the picture and
+         * generate - which is the other tab's job wearing this one's name. */
+        only: ["STYLE"],
+        label: "Become someone",
+        /* 6B, 8 steps, cfg 1 with the negative zeroed out - the fastest
+         * thing on the rail and the one this rung's RANDOM now rolls on. */
+        sys: (v) => T2I_SYS(v),
+        inputs: {
+          prompt: { node: "57:27", input: "text" },
+          ar: { node: "19", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+          steps: { node: "57:3", input: "steps", cast: Number },
+          seed: { node: "57:3", input: "seed", cast: Number },
+        },
+        required: ["prompt"],
+        defaults: { steps: 8, ar: "1:1" },
+        /* distilled to 8; the list goes up rather than down because below
+         * it the model has nothing left to take away. */
+        options: { steps: ["8", "12", "16"] },
+        params: ["ar", "seed", "steps"],
+      },
+      /* (*) AND THE NAME IS MINE. It is the same checkpoint the EDIT row
+       * above runs - `moss_image_sft` - without the edit LoRA, so the two
+       * are one model doing two jobs and the suffix is the only thing
+       * telling them apart. `MINIMAX-H3-OPEN` is the precedent for a
+       * suffix naming the variant; Babe's to rename. */
+      "MOSS-IMAGE-T2I": {
+        graph: "moss-image-t2i.json",
+        /* AND THE SAME PIN, for the same reason - see Z-IMAGE-TURBO. */
+        only: ["STYLE"],
+        label: "Become someone",
+        sys: (v) => T2I_SYS(v),
+        inputs: {
+          prompt: { node: "18:4", input: "text" },
+          ar: { node: "19", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+          steps: { node: "18:7", input: "steps", cast: Number },
+          seed: { node: "18:7", input: "seed", cast: Number },
+        },
+        required: ["prompt"],
+        defaults: { steps: 25, ar: "1:1" },
+        options: { steps: ["16", "25", "32", "40"] },
+        params: ["ar", "seed", "steps"],
       },
       "MAGE-FLOW-EDIT": {
         graph: "mage-flow-edit-turbo.json",
@@ -2650,6 +3648,7 @@ const RUNGS = {
         params: ["seed"],
         modes: {
           EDIT: {
+            drop: ["12"],
             label: "Edit the picture",
             sys: (v) => EDIT_LINE(!!v.ref),
           },
@@ -2826,25 +3825,77 @@ const RUNGS = {
     model: "SEEDANCE-2.5",
     label: "Your own shot",
     traits: "motion",
-    sys: (v) => MOTION_SYS(v.mode, !!v.ref2),
+    sys: MOTION_SYS,
     inputs: {
       clip: { node: "1", input: "file" },
       ref1: { node: "2", input: "image" },
       ref2: { node: "3", input: "image" },
+      /* A FOURTH REFERENCE, AND THE ONLY ONE THE RAIL DOES NOT NAME - Babe,
+       * 2026-10-30: "should the 4th one be something that can be referenced
+       * in a prompt. like a MISC (another character, prop, etc)", then "it
+       * can just be MISC".
+       * THE NODE HAS ROOM FOR THIRTY and the graph wired two, which is why
+       * the quad showed three cells: the wiring, not the model.
+       * AND AN UNNAMED REFERENCE IS SAFE THE WAY 01's SECOND ONE IS - by
+       * naming the ROLE rather than the object. That slot has been "the
+       * thing the instruction refers to, a jacket or a hat" since EDIT was
+       * built, with its face, framing, light and background refused by
+       * name.
+       * AND IT IS SOUND RATHER THAN A PICTURE, 2026-10-30. MISC went in as
+       * a fourth IMAGE and the one run it got came back with the red liquid
+       * and not the flask - the model weighed it lightly, which is what an
+       * unnamed extra picture beside three named ones gets. Babe, with the
+       * node open: "should misc be audio actually?", then "we should prob
+       * unlock audio as a reference because then we can explore other
+       * models / workflows".
+       * AND IT IS THE SAME JOB ACROSS THREE ROWS, which a fourth picture
+       * never was: `model.reference_audios.audio_1` is real on Seedance and
+       * `ref_audios.ref_audio_0` is real on H3 and Pika, so one cell works
+       * on a partner row and two open ones. It is also a job no other cell
+       * can do - 05's agent has written `AUDIO:` lines since the timeline
+       * format landed with nothing to point them at.
+       * (*) ON H3 IT NEEDS `audio_vae` WIRED or the reference only reaches
+       * the text encoder, which the node says itself. Seedance is an API
+       * node and has no such catch. */
+      audio: { node: "6", input: "audio" },
       prompt: { node: "4", input: "model.prompt" },
       task: { node: "4", input: "model.task_type" },
+      /* AND THE SHAPE, WHICH THIS NODE HAS ALWAYS TAKEN AND NO CELL COULD
+       * REACH - Babe, 2026-10-31: "lets go through all the models and make
+       * sure that AR is there". `model.ratio` has sat at `adaptive` in the
+       * graph since the rung was built, which is the right DEFAULT and is
+       * not the same thing as a control: 05's own Seedance row got this
+       * cell on 2026-10-27 and this one was simply never looked at.
+       * AUTO IS THE WORD AND `adaptive` IS THE WIRE, the way it is one rung
+       * over - the cell carries what a person reads and the cast carries
+       * what the node answers to.
+       * AND IT IS RESHOOT'S ALONE. Every other tab here runs `edit` or
+       * `extend`, and the node's own definition of edit is that the output
+       * KEEPS THE SOURCE CLIP'S LENGTH AND ASPECT RATIO - so a ratio sent
+       * there is a control that does nothing, which is the one thing this
+       * row must not draw. The three modes restate `params` without it. */
+      ar: { node: "4", input: "model.ratio",
+            cast: (v) => String(v).toUpperCase() === "AUTO" ? "adaptive" : v },
       size: { node: "4", input: "model.resolution" },
       duration: { node: "4", input: "model.duration", cast: Number },
       sound: { node: "4", input: "model.generate_audio", cast: (v) => v !== "DROP" && v !== false },
       seed: { node: "4", input: "seed", cast: Number },
     },
-    required: ["clip", "ref1", "prompt"],
+    /* AND THE CHARACTER IS AN ANSWER, NOT A REQUIREMENT - see MOTION_SYS.
+     * A reshoot with a clip and a direction is a real job and the node says
+     * so (`ref_images` is min_slots 0). SWAP restates `required` below,
+     * because replacing the performer with nobody is not one. */
+    required: ["clip", "prompt"],
     /* the place is a second answer, not a required one: without it the recast
      * still holds and the driving clip's own room is what you get. */
-    dropWhenEmpty: { ref2: ["3"] },
-    defaults: { task: "reference", size: "720p", sound: "KEEP", duration: 6 },
-    params: ["size", "seed", "sound"],
-    options: { size: ["480p", "720p", "1080p"] },
+    dropWhenEmpty: { ref1: ["2"], ref2: ["3"], audio: ["6"] },
+    defaults: { task: "reference", size: "720p", sound: "KEEP", duration: 6, ar: "AUTO" },
+    params: ["ar", "size", "seed", "sound"],
+    /* ITS VOCABULARY IS ITS OWN: no 2:3 and no 3:2, and an `adaptive`
+     * nothing else on this rung has. Same seven as 05's Seedance, because
+     * it is the same node. */
+    options: { ar: ["AUTO", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
+               size: ["480p", "720p", "1080p"] },
     /* A MODE ENTRY OVERRIDES WHAT IT NAMES AND INHERITS THE REST, which is
      * why RECAST is not in here: it is the base. */
     modes: {
@@ -2853,7 +3904,14 @@ const RUNGS = {
        * clip's own, which is the difference from RECAST. */
       SWAP: {
         defaults: { task: "edit", size: "720p", sound: "KEEP" },
-        drop: ["3"],
+        drop: ["3", "6"],
+        /* an edit keeps the source clip's own aspect, so AR is a cell that
+         * could only lie here - see the base's `ar`. */
+        params: ["size", "seed", "sound"],
+        /* AND SWAP STILL NEEDS ONE: the whole job is who steps into the
+         * shot, so a swap with nothing to swap in has to refuse where you
+         * can see it rather than at Comfy. */
+        required: ["clip", "ref1", "prompt"],
       },
       /* EDIT changes one element of the clip in place and keeps every source
        * pixel around it, so a reference has nothing to be - NEITHER of them,
@@ -2874,19 +3932,148 @@ const RUNGS = {
        * new piece has to match. Nobody has run it with one. */
       EDIT: {
         defaults: { task: "edit", size: "720p", sound: "KEEP" },
-        drop: ["2", "3"],
+        drop: ["2", "3", "6"],
         required: ["clip", "prompt"],
+        params: ["size", "seed", "sound"],
       },
       /* EXTEND returns ONLY the newly generated segment, not the source clip
        * with more on the end - so DUR is the length of the new piece, and the
        * references are what it has to match. */
+      /* AND IT TAKES THE CLIP AND NOTHING ELSE - Babe, 2026-10-30, looking
+       * at the panel: "extend as two inputs... is that right?". It is not,
+       * for two reasons that point the same way.
+       * THE SENTENCE ALREADY TAKES EVERYTHING FROM THE VIDEO: "holding the
+       * same character, wardrobe, room, light, lens and pace". A character
+       * reference beside that is a second answer to a question the clip has
+       * already answered, which is the averaging trap this rail keeps
+       * paying for.
+       * AND AN EMPTY ONE WAS A JOB THAT FAILS AT COMFY. `ref1` is not
+       * `required` here and node 2 was not dropped, so an EXTEND with
+       * nobody in CHARACTER submitted a LoadImage with an empty filename -
+       * a refusal nobody could see the cause of.
+       * IT IS ALSO EDIT'S SHAPE, which drops both: the same connected-video
+       * task, and that node refuses a job with an image beside it at
+       * SUBMIT. Dropping is the safe direction either way - unproven, and
+       * if extend does want a reference the cost of having dropped it is a
+       * cell rather than a paid refusal. */
       EXTEND: {
         defaults: { task: "extend", size: "720p", sound: "KEEP", duration: 5 },
-        drop: ["3"],
+        drop: ["2", "3", "6"],
         required: ["clip", "prompt"],
+        params: ["size", "seed", "sound"],
       },
     },
     variants: {
+      /* KLING 4.0 ON THE RUNG THAT LOOPS, 2026-10-31. Two of its four
+       * templates land here: `Kling4ReferenceToVideoNode` takes reference
+       * IMAGES and reference VIDEOS together, which is this rung's quad
+       * exactly - a clip for the motion, a character, a place - and
+       * `Kling4EditVideoNode` keeps the source pixels and the source length,
+       * which is EDIT's whole contract.
+       * RESHOOT AND SWAP ARE ONE MACHINE AND TWO SENTENCES, the arrangement
+       * this rung has used since it was built: the mode is the job and the
+       * node is the machine. SWAP drops the place, because the clip's own
+       * room standing is the difference between the two jobs.
+       * AND IT CANNOT EXTEND, so `only` says so rather than letting a tab
+       * promise a job the graph has no way to do - except that EXTEND came
+       * off this rung on 2026-10-31, so the list is the three that are left
+       * and is written out anyway: a row that gains a fourth tab later
+       * should have to say so. */
+      "KLING-4.0": {
+        graph: "kling4-r2v.json",
+        label: "Your own shot",
+        only: ["RESHOOT", "SWAP", "EDIT"],
+        sys: KLING_R2V_SYS,
+        inputs: {
+          clip: { node: "12", input: "file" },
+          ref1: { node: "10", input: "image" },
+          ref2: { node: "11", input: "image" },
+          /* THE FOURTH CELL IS A PROP HERE, NOT A SOUND - Babe, 2026-11-01:
+           * "can we turn the 4th slot into something so its not just blank,
+           * make it usable", "we can update the slots based on the model",
+           * "that is part of our pattern making, the slots are based on the
+           * mode or model". This node takes TEN reference images and no
+           * audio at all, so the quad's fourth quadrant was drawn dark on
+           * the one row with eight picture slots going spare.
+           * AND IT IS A NAMED JOB, WHICH IS THE WHOLE RULE: the fourth cell
+           * was MISC once - an unnamed extra picture - and it came back with
+           * the liquid recoloured and the flask untouched, weighed lightly
+           * beside three named references. A PROP is the half of the hands
+           * clause this rail has paid for twice: the scaffolding already
+           * refuses the objects in the performer's hands and hands that job
+           * to the direction, and until now there was no way to supply a
+           * PICTURE of the thing.
+           * THE KEY IS `audio` BECAUSE A KEY IS AN ADDRESS. It is what the
+           * quad's fourth face sends under, the way 06's first mode is still
+           * keyed RECAST and 01's IMAGE tab is still keyed STYLE; what the
+           * cell IS is the row's to say, which is `names` and `accept` below.
+           * The day a third row wants a different fourth job, the honest move
+           * is to let the SLOT take its fourth key from the row.
+           * (*) UNRUN. */
+          audio: { node: "13", input: "image" },
+          prompt: { node: "1", input: "model.prompt" },
+          ar: { node: "1", input: "model.aspect_ratio",
+                cast: (v) => String(v).toUpperCase() === "AUTO" ? "adaptive" : v },
+          size: { node: "1", input: "model.resolution" },
+          duration: { node: "1", input: "model.duration", cast: Number },
+          seed: { node: "1", input: "model.seed", cast: Number },
+        },
+        required: ["clip", "prompt"],
+        /* what this row calls its cells, and what each one takes */
+        names: { audio: "Prop" },
+        accept: { audio: "image/*" },
+        /* a reference nobody filled takes its loader with it, and the
+         * sentence stops naming it in the same breath - `drops` is computed
+         * before `sys`, which is the whole reason that order exists. */
+        dropWhenEmpty: { ref1: ["10"], ref2: ["11"], audio: ["13"] },
+        /* AND THE PLACE MOVES UP WHEN THERE IS NO CHARACTER. The graph wires
+         * the character to image_1 and the place to image_2, so a reshoot
+         * with only a place would leave one picture in the SECOND slot while
+         * the model counts in connection order - 01's numbering trap, one
+         * rung over. `KLING_R2V_SYS` reads `blank.ref1` to tell a promoted
+         * place from somebody to become. */
+        fillWhenEmpty: { ref1: "ref2", ref2: "audio" },
+        params: ["ar", "size", "duration", "seed"],
+        options: { ar: ["AUTO", "16:9", "9:16", "1:1", "21:9"],
+                   size: ["720p", "1080p"], duration: KLING_SECS },
+        defaults: { ar: "AUTO", size: "720p", duration: 5 },
+        modes: {
+          /* the clip stands and the person changes, so the place is not a
+           * question this mode asks. */
+          /* AND A SWAP TAKES NO PROP, because its own sentence promises
+           * "the same things in their hands": the clip stands and the person
+           * changes, so a picture of an object is a second director. */
+          SWAP: { drop: ["11", "13"], required: ["clip", "ref1", "prompt"] },
+          /* AND AN EDIT IS A DIFFERENT NODE, which keeps the source length -
+           * so there is no duration to set, exactly as on FLUX-VIDEO-EDIT.
+           * (*) IT ALSO TAKES A REFERENCE IMAGE, which Seedance's edit
+           * refuses at submit, and that is deliberately not wired yet: it
+           * would make the quad show a CHARACTER cell on this row and not on
+           * the one beside it, which is a behaviour to decide rather than to
+           * ship as a side effect. One entry in `inputs` the day it is
+           * wanted. */
+          EDIT: {
+            graph: "kling4-edit.json",
+            sys: () => KLING_EDIT_SYS(),
+            drop: [],
+            dropWhenEmpty: {},
+            fillWhenEmpty: {},
+            inputs: {
+              clip: { node: "12", input: "file" },
+              prompt: { node: "1", input: "model.prompt" },
+              ar: { node: "1", input: "model.aspect_ratio",
+                    cast: (v) => String(v).toUpperCase() === "AUTO" ? "adaptive" : v },
+              size: { node: "1", input: "model.resolution" },
+              seed: { node: "1", input: "model.seed", cast: Number },
+            },
+            required: ["clip", "prompt"],
+            params: ["ar", "size", "seed"],
+            options: { ar: ["AUTO", "16:9", "9:16", "1:1", "21:9"],
+                       size: ["720p", "1080p"] },
+            defaults: { ar: "AUTO", size: "720p" },
+          },
+        },
+      },
   /* MINIMAX H3, which Babe asked for with RunDiffusion's prompt guide in
    * hand. It is the node that guide was written for: up to 9 reference
    * images, 3 reference videos and 3 reference audios, addressed in the
@@ -2899,7 +4086,7 @@ const RUNGS = {
     graph: "minimax-h3-ref.json",
     model: "MINIMAX-H3",
     label: "Your own shot",
-    sys: (v) => H3_SYS(!!v.ref2),
+    sys: H3_SYS,
     inputs: {
       clip: { node: "1", input: "file" },
       ref1: { node: "2", input: "image" },
@@ -2909,8 +4096,20 @@ const RUNGS = {
       duration: { node: "4", input: "model.duration", cast: Number },
       seed: { node: "4", input: "seed", cast: Number },
     },
-    required: ["clip", "ref1", "prompt"],
-    dropWhenEmpty: { ref2: ["3"] },
+    /* AND THE CHARACTER IS AN ANSWER, NOT A REQUIREMENT - see MOTION_SYS.
+     * A reshoot with a clip and a direction is a real job and the node says
+     * so (`ref_images` is min_slots 0). SWAP restates it, because replacing
+     * the performer with nobody is not one. */
+    required: ["clip", "prompt"],
+    dropWhenEmpty: { ref1: ["2"], ref2: ["3"] },
+    modes: {
+      SWAP: {
+        /* AND SWAP STILL NEEDS ONE: the whole job is who steps into the
+         * shot, so a swap with nothing to swap in refuses where you can see
+         * it rather than at Comfy. */
+        required: ["clip", "ref1", "prompt"],
+      },
+    },
     /* 768P and 2K are what "MiniMax H3" takes; 480P belongs to H3 Max. */
     defaults: { size: "768P", duration: 6 },
     params: ["size", "seed"],
@@ -2934,11 +4133,15 @@ const RUNGS = {
    * a row whose whole job is to work, and H3 writes its own sound anyway.
    * One wire away the day a take's own voice is wanted.
    *
-   * IT IS RESHOOT AND NOTHING ELSE, the same way SCAIL-2 is SWAP and nothing
-   * else. `reference` is the only task this graph performs: it cannot keep
-   * the source pixels, so it cannot be SWAP or EDIT, and it has no notion of
-   * carrying past the last frame. The tabs must not promise what the graph
-   * has no way to do.
+   * IT IS RESHOOT AND SWAP, AND THE REASON IT WAS RESHOOT ALONE WAS WRONG.
+   * `reference` is the only TASK this graph performs, and I read that as the
+   * only job - but SWAP is not a task type here, it is a sentence, which is
+   * the distinction Seedance's own two modes have made since they were built.
+   * What it genuinely cannot do is EDIT or EXTEND: both keep the source
+   * pixels and this regenerates, and nothing here carries past the last
+   * frame. So the pin is a list of the two it can answer rather than a single
+   * string that could only say one or none - and the tabs still cannot
+   * promise what the graph has no way to do.
    *
    * NOT ON THE ROW TODAY, for the reason GENJUTSU is not: three rows per rung
    * is the rule, and the third seat is SCAIL-2's because it is the MIT one.
@@ -2949,18 +4152,49 @@ const RUNGS = {
     graph: "minimax-h3-r2v-clip.json",
     model: "MINIMAX-H3-OPEN",
     label: "Your own shot",
-    sys: (v) => H3_R2V_MOVE_SYS(!!v.ref2),
-    only: "RESHOOT",
+    /* TWO JOBS, ONE MACHINE, AND THE SENTENCE IS THE DIFFERENCE. See
+     * H3_SWAP_SYS: there is no task type on these weights, so a reshoot and a
+     * swap are the same forward pass told two different things. RESHOOT
+     * regenerates the shot around the movement; SWAP leaves the footage
+     * standing and changes who is in it. */
+    sys: (v) => (v.mode === "SWAP" ? H3_SWAP_SYS(!!v.audio)
+                                     : H3_R2V_MOVE_SYS(v)),
+    only: ["RESHOOT", "SWAP"],
+    /* AND SWAP DROPS THE PLACE, which is what makes it a swap: the room is
+     * the clip's own. The same drop the base spec's SWAP has made since the
+     * mode was built, at this graph's own address. */
+    modes: {
+      SWAP: {
+        drop: ["139"],
+        /* AND SWAP STILL NEEDS ONE: the whole job is who steps into the
+         * shot, so a swap with nothing to swap in refuses where you can see
+         * it rather than at Comfy. */
+        required: ["clip", "ref1", "prompt"],
+      },
+    },
     inputs: {
       clip: { node: "150", input: "file" },
       ref1: { node: "137", input: "image" },
       ref2: { node: "139", input: "image" },
+      /* AND THE SOUND, FOR THE REASON THE SENTENCE FORCED. This row shares
+       * `H3_R2V_MOVE_SYS` with Pika, and the moment that sentence learned to
+       * name <Audio 1> it would have named one here too - `seen` carries
+       * every value, and a key with no address is not dropped, so the clause
+       * would have fired for a graph with nowhere to put the file. A
+       * SENTENCE NAMING A FILE THAT WAS NEVER SENT is this rail's oldest
+       * failure, so the choice was to wire it or to teach the clause about
+       * addresses. Wiring it is the smaller change and it makes the two
+       * sibling rows identical again. Same node, same slot, same loader. */
+      audio: { node: "152", input: "audio" },
       prompt: { node: "138", input: "value" },
       duration: { node: "132", input: "value", cast: Number },
       seed: { node: "129", input: "noise_seed", cast: Number },
     },
-    required: ["clip", "ref1", "prompt"],
-    dropWhenEmpty: { ref2: ["139"] },
+    /* AND THE CHARACTER IS AN ANSWER, NOT A REQUIREMENT - see MOTION_SYS.
+     * A reshoot with a clip and a direction is a real job; SWAP restates it
+     * above, because replacing the performer with nobody is not one. */
+    required: ["clip", "prompt"],
+    dropWhenEmpty: { ref1: ["137"], ref2: ["139"], audio: ["152"] },
     defaults: { duration: 6 },
     params: ["seed"],
   },
@@ -2983,20 +4217,155 @@ const RUNGS = {
     graph: "pika-h3-flex-r2v-clip.json",
     model: "PIKA-H3-FLEX",
     label: "Your own shot",
-    sys: (v) => H3_R2V_MOVE_SYS(!!v.ref2),
-    only: "RESHOOT",
+    /* TWO JOBS, ONE MACHINE, AND THE SENTENCE IS THE DIFFERENCE. See
+     * H3_SWAP_SYS: there is no task type on these weights, so a reshoot and a
+     * swap are the same forward pass told two different things. RESHOOT
+     * regenerates the shot around the movement; SWAP leaves the footage
+     * standing and changes who is in it. */
+    sys: (v) => (v.mode === "EDIT" ? H3_EDIT_SYS()
+               : v.mode === "SWAP" ? H3_SWAP_SYS(!!v.audio)
+                                   : H3_R2V_MOVE_SYS(v)),
+    only: ["RESHOOT", "SWAP", "EDIT"],
+    /* AND SWAP DROPS THE PLACE, which is what makes it a swap: the room is
+     * the clip's own. The same drop the base spec's SWAP has made since the
+     * mode was built, at this graph's own address. */
+    modes: {
+      /* AND EDIT DROPS BOTH PICTURES - see H3_EDIT_SYS. What is being changed
+       * is in the clip, so a reference beside it is a second answer to a
+       * question the footage has already answered, and `takes` takes the
+       * cells away for us.
+       * (*) MINIMAX-H3-OPEN IS THE SAME WEIGHTS AND COULD HAVE THIS TOO. It
+       * is off the picker, so it would be a mode nobody can reach - one
+       * entry the day that row comes back. */
+      /* AND THE SOUND GOES WITH THEM, because this sentence does not name an
+       * <Audio 1> - it ends by asking the clip for its own sound. A
+       * reference nothing names is one the model averages in, which is the
+       * oldest trap on this rail, and Seedance's EDIT drops its audio for
+       * the same reason. One `AUDIO_CLAUSE` the day a sound edit is wanted. */
+      EDIT: { drop: ["137", "139", "152"], required: ["clip", "prompt"] },
+      SWAP: {
+        drop: ["139"],
+        /* AND SWAP STILL NEEDS ONE: the whole job is who steps into the
+         * shot, so a swap with nothing to swap in refuses where you can see
+         * it rather than at Comfy. */
+        required: ["clip", "ref1", "prompt"],
+      },
+    },
     inputs: {
       clip: { node: "150", input: "file" },
       ref1: { node: "137", input: "image" },
       ref2: { node: "139", input: "image" },
+      /* THE FOURTH CELL REACHES A ROW AT LAST - Babe, 2026-10-31: "for pika
+       * h3 can we make the 4th reference work?". It has drawn since the quad
+       * was built and only Seedance could be handed it, so on this row it
+       * was a cell offering a file that was not going to be sent - which is
+       * the failure `takes` exists to stop, sitting in the panel `takes`
+       * draws.
+       * THE GRAPH WAS THE GAP AND NOT THE MODEL. `audio_vae` has been wired
+       * on node 136 since this graph was built, which is the half the node
+       * warns about - "without it reference audio only conditions the text
+       * encoder". What was missing was a loader and an address.
+       * `ref_audios.ref_audio_0` is the slot, typed AUDIO, read off the node
+       * rather than guessed - and it goes into the graph as ITS OWN
+       * TOP-LEVEL KEY, never as an array under `ref_audios`, which is what
+       * an auto-grow list means and what `ref_images.ref_image_0` beside it
+       * already does.
+       * AND THE SENTENCE MOVED WITH IT, because a reference with no stated
+       * job is one the model is free to average into the others. See
+       * AUDIO_CLAUSE.
+       * (*) MINIMAX-H3-OPEN IS THE SAME NODE AND THE SAME GAP, and is
+       * deliberately left alone: it is off the slide table, so no cell can
+       * reach it and an input nothing can send is dead code wearing a
+       * comment. One entry the day that row comes back. */
+      audio: { node: "152", input: "audio" },
       prompt: { node: "138", input: "value" },
       duration: { node: "132", input: "value", cast: Number },
+      /* AND THE SHAPE, WHICH THIS GRAPH COULD ALWAYS TAKE - Babe, on an EDIT
+       * that came back 1344x768 from a 1280x704 source: "we should prob add
+       * the AR cell". Node 115 is the same `ResolutionSelector` 05's Pika
+       * row has exposed since it was wired, pinned here to 16:9 at 0.98MP
+       * with nothing able to reach it. Same two casts, because it is the
+       * same node speaking the same labelled vocabulary. */
+      ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+      size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
       seed: { node: "129", input: "noise_seed", cast: Number },
     },
-    required: ["clip", "ref1", "prompt"],
-    dropWhenEmpty: { ref2: ["139"] },
+    /* AND THE CHARACTER IS AN ANSWER, NOT A REQUIREMENT - see MOTION_SYS.
+     * A reshoot with a clip and a direction is a real job; SWAP restates it
+     * above, because replacing the performer with nobody is not one. */
+    required: ["clip", "prompt"],
+    /* AND A LOADER WITH NO FILE IN IT IS A JOB THAT FAILS AT COMFY, so the
+     * sound drops when nobody brought one - and `drops` is computed BEFORE
+     * `sys`, so the clause naming <Audio 1> goes with the node it names
+     * rather than describing one that has been deleted. */
+    dropWhenEmpty: { ref1: ["137"], ref2: ["139"], audio: ["152"] },
     defaults: { duration: 6 },
-    params: ["seed"],
+    params: ["ar", "size", "seed"],
+  },
+  /* LTX 2.3 CONTROL, the open RESHOOT row that holds its source - see
+   * LTX23_CONTROL_SYS for why it is RESHOOT and not EDIT. Recovered from
+   * `video_ltx2_3_ic_lora` by running the template once and reading the
+   * executed API graph back: 45 nodes, 9 top-level plus two subgraphs of 29
+   * and 12, with interior ids prefixed `<topId>:`. THAT IS THE CHEAP PATH
+   * AND IT IS THE ONE THIS FILE ALREADY NAMED - flattening a subgraph
+   * template by hand ended 21 widget-slots short last time, and a wrong
+   * widget on a 22B checkpoint fails after you have paid. One run bought an
+   * exact graph. */
+  "LTX-2.3 CONTROL": {
+    graph: "ltx23-control.json",
+    model: "LTX-2.3 CONTROL",
+    label: "Your own shot",
+    sys: LTX23_CONTROL_SYS,
+    /* motion transfer is RESHOOT's category, which is Babe's own test for
+     * where a row goes - and `only` is what stops the other three tabs
+     * promising a job these weights have no way to do. */
+    only: ["RESHOOT"],
+    inputs: {
+      clip: { node: "199", input: "file" },
+      /* THE FIRST FRAME, NOT A CHARACTER. It is literally frame one of the
+       * clip and it carries the whole look, which is why this row's own
+       * `names` calls the cell FIRST FRAME: the model determines the slots.
+       * It reaches two nodes - the latent it is painted into and the prompt
+       * upsampler we bypass - and only the loader needs the filename.
+       * AND IT HAS TO BE THAT CLIP'S OWN FIRST FRAME - Babe, 2026-11-01,
+       * after proving the row: "in order for ltx control to work right you
+       * need a first frame that matches the clip first frame". NOT a frame
+       * from the middle and not a picture of the same character somewhere
+       * else: this still is painted into the latent AT frame 0 while MoGe
+       * reads the depth of frame 0 beside it, so the two are answering ONE
+       * question - what is in front of the camera at t=0 - and a still that
+       * disagrees is this rail's oldest trap arriving inside one row.
+       * SO THE ONLY CORRECT WAY IN IS THE LIBRARY HOP: FRAME this clip,
+       * restyle that frame on 01, bring it back here. A picture dropped
+       * straight into the cell is legal, cheap and nearly always wrong, and
+       * NOTHING ON THE PAGE SAYS SO - the cell is a `+` like any other.
+       * (*) The fix with a mechanism behind it is `fillWhenEmpty` from the
+       * clip's own frame 0 (`bigFrame` already pulls one at 1280), which
+       * makes the match structural and leaves the RESTYLE as the thing that
+       * adds the look rather than the thing that makes the run valid. */
+      ref1: { node: "200", input: "image" },
+      /* AND THE PROMPT IS THE SWITCH'S `on_false`. See the scaffolding: the
+       * upsampler at 129:209 is the branch that does NOT run, so writing
+       * there succeeds and returns the demo's jungle ruin. */
+      prompt: { node: "129:211", input: "on_false" },
+      /* THE TRIM IS THE LENGTH, because the latent's frame count is read off
+       * the depth frames. Seconds of control video in, seconds of clip out. */
+      duration: { node: "692", input: "duration", cast: Number },
+      steps: { node: "129:704", input: "steps", cast: Number },
+      seed: { node: "129:704", input: "seed", cast: Number },
+    },
+    /* AND THE FIRST FRAME IS REQUIRED HERE, which is this row disagreeing
+     * with the rung and being right to: a reshoot elsewhere can run on a
+     * clip and a direction, and here the image IS the look - without it
+     * there is nothing for the depth to be dressed in, and 129:198 would be
+     * a `LoadImage` with no file, which is a job that fails at Comfy. */
+    required: ["clip", "ref1", "prompt"],
+    /* a row says what its cells are called, and this one's first reference
+     * is a frame rather than a person. */
+    names: { ref1: "First frame" },
+    defaults: { duration: 5, steps: 8 },
+    params: ["duration", "steps", "seed"],
+    options: { duration: ["3", "5", "8", "10"], steps: ["6", "8", "12", "20"] },
   },
   /* HIGGSFIELD GENJUTSU - wired and dry-run clean, deliberately NOT on the
    * row. Three rows per rung is the rule this rail keeps, and the third seat
@@ -3353,6 +4722,15 @@ const RUNGS = {
      * before it is a rendering one. The page rasterises whichever mode was
      * picked and uploads it, exactly as it does for 02's preset. */
     modes: {
+      /* AND SEQUENCE IS ONE PICTURE, which is the board - Babe, 2026-10-30:
+       * "sequence is just an image like a board, its still image to video
+       * but its prompting it differently like an edit". The sheet rode along
+       * here because the base spec takes one and nothing said otherwise, so
+       * the panel drew two cells on this row and one on every other - and
+       * the six panels already carry the character six times, which makes a
+       * sheet on top a second answer to a question the board has answered.
+       * THE MODE CHANGES THE PROMPTING, NOT THE INPUT COUNT. */
+      seq: { drop: ["3"] },
       transition: {
         graph: "seedance25-flf.json",
         sys:
@@ -3360,8 +4738,13 @@ const RUNGS = {
           + "ends on. Hold the character, the wardrobe and the lighting exactly as "
           + "those frames have them and do not describe their appearance in words; "
           + "fill the time between them as the direction says.",
+        /* AND THE FIRST FRAME IS THE SLATE, NOT A SECOND NAME FOR IT. This
+         * was keyed `start`, which is what 04's left slot is called, so the
+         * mode asked for a picture this rung has never had a name for -
+         * the same shape that made the LTX row answer `needs start` at a
+         * slot with a board in it. One key, one cell. */
         inputs: {
-          start: { node: "41", input: "image" },
+          board: { node: "41", input: "image" },
           last: { node: "40", input: "image" },
           prompt: { node: "38", input: "model.prompt" },
           duration: { node: "38", input: "model.duration", cast: Number },
@@ -3374,10 +4757,120 @@ const RUNGS = {
          * that fails at Comfy with Comfy's words rather than here with ours.
          * It refuses for its real reason now, and will stop refusing the day
          * the panel has somewhere to put a second picture. */
-        required: ["start", "last", "prompt"],
+        required: ["board", "last", "prompt"],
       },
     },
     variants: {
+      /* KLING 4.0, AND IT IS ONE NODE FOR ALL THREE OF THIS RUNG'S TABS -
+       * Babe, 2026-10-31: "kling 4 is new btw. we should prob add that as
+       * well".
+       * `Kling4ImageToVideoNode` takes up to ten keyframes and spaces the
+       * middles evenly by itself: a first, up to eight middles, a last. So
+       * SINGLE SHOT is the first alone, TRANSITION is the first and the last,
+       * and SEQUENCE is the board's six panels in order - three jobs, one
+       * graph, and the modes drop the loaders they do not use.
+       * NO AR CELL ON THE IMAGE NODE, which is the node's own doing: it takes
+       * the aspect ratio of the first keyframe, so a ratio asked for here
+       * would be a control that does nothing. The TEXT node has one, because
+       * there is no keyframe to take it from - which is the clearest case yet
+       * for `swapWhenEmpty` carrying `params` as well as a graph.
+       * 720p OR 1080p AND NOTHING ELSE. Every other row on this rung offers
+       * 480p; this one does not have it, which is exactly what `options` is
+       * for. */
+      "KLING-4.0": {
+        graph: "kling4-i2v.json",
+        label: "Put them in motion",
+        sys: () => KLING_SHOT_SYS(),
+        firstFrame: true,
+        /* the middles and the last frame are SEQUENCE's and TRANSITION's */
+        drop: ["11", "21", "22", "23", "24"],
+        inputs: {
+          board: { node: "10", input: "image" },
+          prompt: { node: "1", input: "model.prompt" },
+          size: { node: "1", input: "model.resolution" },
+          duration: { node: "1", input: "model.duration", cast: Number },
+          seed: { node: "1", input: "model.seed", cast: Number },
+        },
+        required: ["prompt"],
+        /* with nothing in the slot this rung is text-to-video, and on this
+         * row that is a different NODE rather than the same one with a
+         * loader gone - so the whole spec is swapped. */
+        dropWhenEmpty: { board: ["10"] },
+        swapWhenEmpty: {
+          board: {
+            graph: "kling4-t2v.json",
+            sys: () => KLING_T2V_SYS(),
+            firstFrame: false,
+            drop: [],
+            dropWhenEmpty: {},
+            inputs: {
+              prompt: { node: "1", input: "model.prompt" },
+              ar: { node: "1", input: "model.aspect_ratio" },
+              size: { node: "1", input: "model.resolution" },
+              duration: { node: "1", input: "model.duration", cast: Number },
+              seed: { node: "1", input: "model.seed", cast: Number },
+            },
+            required: ["prompt"],
+            params: ["ar", "size", "duration", "seed"],
+            /* the text node has no `adaptive` - there is nothing to adapt to */
+            options: { ar: ["16:9", "9:16", "1:1", "21:9"],
+                       size: ["720p", "1080p"], duration: KLING_SECS },
+            defaults: { ar: "16:9", size: "720p", duration: 5 },
+          },
+        },
+        params: ["size", "duration", "seed"],
+        options: { size: ["720p", "1080p"], duration: KLING_SECS },
+        defaults: { size: "720p", duration: 5 },
+        modes: {
+          /* SIX PANELS, SIX KEYFRAMES, IN ORDER. The page already cuts the
+           * board and uploads the panels for the rows that can anchor them;
+           * this one takes them as its own keyframes, so nothing new is cut
+           * and the model is never shown the page.
+           * AND `firstFrame` IS FALSE HERE, explicitly: this mode is not
+           * handed the board, it is handed its panels, so the rule that
+           * keeps a first-frame row off a tab handing over a grid does not
+           * apply to it. */
+          seq: {
+            sys: (v) => KLING_SEQ_SYS(v.panels),
+            firstFrame: false,
+            drop: [],
+            dropWhenEmpty: {},
+            swapWhenEmpty: {},
+            inputs: {
+              panel1: { node: "10", input: "image" },
+              panel2: { node: "21", input: "image" },
+              panel3: { node: "22", input: "image" },
+              panel4: { node: "23", input: "image" },
+              panel5: { node: "24", input: "image" },
+              panel6: { node: "11", input: "image" },
+              prompt: { node: "1", input: "model.prompt" },
+              size: { node: "1", input: "model.resolution" },
+              duration: { node: "1", input: "model.duration", cast: Number },
+              seed: { node: "1", input: "model.seed", cast: Number },
+            },
+            required: ["panel1", "panel2", "panel3", "panel4", "panel5",
+                       "panel6", "prompt"],
+          },
+          /* TWO ENDS AND THE MIDDLE IS OPEN - the same job TRANSITION does on
+           * the H3 rows, on a node that was built for it. */
+          transition: {
+            sys: () => KLING_FLF_SYS(),
+            firstFrame: true,
+            drop: ["21", "22", "23", "24"],
+            dropWhenEmpty: {},
+            swapWhenEmpty: {},
+            inputs: {
+              board: { node: "10", input: "image" },
+              last: { node: "11", input: "image" },
+              prompt: { node: "1", input: "model.prompt" },
+              size: { node: "1", input: "model.resolution" },
+              duration: { node: "1", input: "model.duration", cast: Number },
+              seed: { node: "1", input: "model.seed", cast: Number },
+            },
+            required: ["board", "last", "prompt"],
+          },
+        },
+      },
       /* AND THIS ROW COULD ONLY EVER REFUSE. Its input was keyed `start`,
        * which is what 04's left slot was called before the six - this rung's
        * is `board`, so the one picture the graph needs never arrived and the
@@ -3406,6 +4899,18 @@ const RUNGS = {
        * exactly what 04's board means, so the times the node also offers
        * would be a second way to say the same thing. */
       "FLUX-3-MAX": {
+        /* AND ONLY SEEDANCE HAS A FIRST-AND-LAST FRAME, so the rows
+         * that do not are pinned off that tab rather than silently
+         * falling through to their own base spec - a tab promising
+         * a job the graph has no way to do, which is the shape 06
+         * already found on MINIMAX-H3 and EDIT.
+         * AND THIS ROW GREW ONE, 2026-11-01 - Babe: "believe i can do first
+         * and last frame too (transition)". The note above named this row by
+         * name as the next one to take the tab, and the node's own words are
+         * the whole answer: "one image opens it, TWO become its first and
+         * last frame". Nothing new is wired - the keyframe loaders are
+         * already there and the mode is the first two of them. */
+        only: ["shot", "seq", "transition"],
         graph: "flux3-max-i2v.json",
         model: "FLUX-3-MAX",
         label: "Put them in motion",
@@ -3435,6 +4940,26 @@ const RUNGS = {
         params: ["ar", "size", "duration", "seed"],
         drop: ["18", "19", "20", "21", "22"],
         modes: {
+          /* TWO KEYFRAMES ARE THE TWO ENDS, which is what this node does
+           * with exactly two pictures - so the mode is the first two
+           * loaders and the other four go. The keys are the rung's own:
+           * `board` is the slate whatever the tab, and `last` is the frame
+           * it ends on, the same pair Seedance and Kling already use. */
+          transition: {
+            firstFrame: true,
+            drop: ["19", "20", "21", "22"],
+            inputs: {
+              board: { node: "17", input: "image" },
+              last: { node: "18", input: "image" },
+              prompt: { node: "16", input: "prompt" },
+              ar: { node: "16", input: "aspect_ratio",
+                    cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+              size: { node: "16", input: "resolution" },
+              duration: { node: "16", input: "duration", cast: String },
+              seed: { node: "16", input: "seed", cast: Number },
+            },
+            required: ["board", "last", "prompt"],
+          },
           /* THE SIX PANELS ARE THE KEYFRAMES, in order, and nothing is
            * dropped - which is the whole of the difference between this
            * rung's two machines on this row. */
@@ -3459,7 +4984,115 @@ const RUNGS = {
           },
         },
       },
+      /* FLUX 3, THE TIER BELOW MAX - Babe, 2026-11-01: "yeah would like flux
+       * 3". Same three jobs on the same shape of node, so the row is the Max
+       * entry with four differences the catalog names: no `reasoning_level`,
+       * a `safety_tolerance` instead, resolutions up to 2160p, and an `auto`
+       * duration. THE PICKER IS WHY IT IS A SECOND ROW RATHER THAN A CELL:
+       * a model is a row on this rail and a tier is a model - Krea and Nano
+       * are not a quality slider either.
+       * AND IT TEXT-TO-VIDEOS THE WAY KLING DOES, which is a different CLASS
+       * rather than the same node with its loaders gone - so `swapWhenEmpty`
+       * is the mechanism, exactly as it is there.
+       * (*) 05 NOW HOLDS SEVEN ROWS, which is the longest picker on the rail
+       * and already flagged as too long at six. The menu holds the
+       * ALTERNATIVES, so six is what it draws and the cap is untouched - but
+       * the cut, when it comes, is Babe's. */
+      "FLUX-3": {
+        only: ["shot", "seq", "transition"],
+        graph: "flux3-i2v.json",
+        model: "FLUX-3",
+        label: "Put them in motion",
+        sys: (v) => FLUX3_SYS(v.mode, v.slate),
+        firstFrame: true,
+        inputs: {
+          board: { node: "17", input: "image" },
+          prompt: { node: "16", input: "prompt" },
+          ar: { node: "16", input: "aspect_ratio",
+                cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+          size: { node: "16", input: "resolution" },
+          duration: { node: "16", input: "duration", cast: String },
+          seed: { node: "16", input: "seed", cast: Number },
+        },
+        required: ["board", "prompt"],
+        defaults: { duration: "5", ar: "AUTO", size: "720p" },
+        options: { ar: ["AUTO", "21:9", "2:1", "16:9", "4:3", "1:1", "3:4", "9:16"],
+                   /* 1440p and 2160p are this tier's and not Max's, which is
+                    * the one cell where the cheaper row offers MORE. */
+                   size: ["720p", "1080p", "1440p", "2160p"],
+                   duration: ["5", "8", "10", "15", "20"] },
+        params: ["ar", "size", "duration", "seed"],
+        drop: ["18", "19", "20", "21", "22"],
+        /* with nothing in the slate this is text-to-video, which is its own
+         * node - a dropped loader cannot become another class. */
+        swapWhenEmpty: {
+          board: {
+            graph: "flux3-t2v.json",
+            firstFrame: false,
+            drop: [],
+            dropWhenEmpty: {},
+            inputs: {
+              prompt: { node: "16", input: "prompt" },
+              ar: { node: "16", input: "aspect_ratio",
+                    cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+              size: { node: "16", input: "resolution" },
+              duration: { node: "16", input: "duration", cast: String },
+              seed: { node: "16", input: "seed", cast: Number },
+            },
+            required: ["prompt"],
+          },
+        },
+        modes: {
+          /* the two ends, the same pair of keys the rest of this rung uses */
+          transition: {
+            firstFrame: true,
+            drop: ["19", "20", "21", "22"],
+            swapWhenEmpty: {},
+            inputs: {
+              board: { node: "17", input: "image" },
+              last: { node: "18", input: "image" },
+              prompt: { node: "16", input: "prompt" },
+              ar: { node: "16", input: "aspect_ratio",
+                    cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+              size: { node: "16", input: "resolution" },
+              duration: { node: "16", input: "duration", cast: String },
+              seed: { node: "16", input: "seed", cast: Number },
+            },
+            required: ["board", "last", "prompt"],
+          },
+          /* the six panels are the keyframes, in order */
+          seq: {
+            firstFrame: false,
+            drop: [],
+            swapWhenEmpty: {},
+            inputs: {
+              panel1: { node: "17", input: "image" },
+              panel2: { node: "18", input: "image" },
+              panel3: { node: "19", input: "image" },
+              panel4: { node: "20", input: "image" },
+              panel5: { node: "21", input: "image" },
+              panel6: { node: "22", input: "image" },
+              prompt: { node: "16", input: "prompt" },
+              ar: { node: "16", input: "aspect_ratio",
+                    cast: (v) => String(v).toUpperCase() === "AUTO" ? "auto" : v },
+              size: { node: "16", input: "resolution" },
+              duration: { node: "16", input: "duration", cast: String },
+              seed: { node: "16", input: "seed", cast: Number },
+            },
+            required: ["panel1", "panel6", "prompt"],
+          },
+        },
+      },
       "LTX-2.5 I2V": {
+        /* AND ONLY SEEDANCE HAS A FIRST-AND-LAST FRAME, so the rows
+         * that do not are pinned off that tab rather than silently
+         * falling through to their own base spec - a tab promising
+         * a job the graph has no way to do, which is the shape 06
+         * already found on MINIMAX-H3 and EDIT. Add "transition"
+         * here the day a row grows one: Pika and H3 both carry
+         * `first_frame` and `last_frame` on the fl2va checkpoint,
+         * and FLUX 3 Image to Video takes two keyframes. */
+        only: ["shot", "seq"],
         graph: "ltx25-i2v.json",
         label: "Put them in motion",
         /* AND THE PICTURE IT IS GIVEN BECOMES FRAME ONE - Babe, 2026-10-29:
@@ -3514,6 +5147,15 @@ const RUNGS = {
        * that takes it. 124 frames is ~5s and the trained range starts there,
        * so SECONDS 4 is under it. */
       "MINIMAX-H3": {
+        /* AND ONLY SEEDANCE HAS A FIRST-AND-LAST FRAME, so the rows
+         * that do not are pinned off that tab rather than silently
+         * falling through to their own base spec - a tab promising
+         * a job the graph has no way to do, which is the shape 06
+         * already found on MINIMAX-H3 and EDIT. Add "transition"
+         * here the day a row grows one: Pika and H3 both carry
+         * `first_frame` and `last_frame` on the fl2va checkpoint,
+         * and FLUX 3 Image to Video takes two keyframes. */
+        only: ["shot", "seq", "transition"],
         graph: "minimax-h3-r2v.json",
         model: "MINIMAX-H3",
         label: "Put them in motion",
@@ -3601,7 +5243,11 @@ const RUNGS = {
            * likeness is already in it. */
           shot: {
             graph: "minimax-h3-i2v.json",
-            sys: (v) => H3_I2V_SYS(v.mode),
+            /* and with nothing in the slot this is text to video - the
+               loader goes, the node takes no first frame, and the sentence
+               stops describing one. */
+            sys: (v) => (v.blank.board
+              ? H3_T2V_SYS(v.mode) : H3_I2V_SYS(v.mode)),
             /* the same thing LTX does, which is what this tab IS */
             firstFrame: true,
             /* AND THE TURBO ON THIS MACHINE IS EIGHT STEPS, NOT FOUR. Node
@@ -3617,6 +5263,12 @@ const RUNGS = {
             /* AND NO REF CELL: `ref_image_size` is the reference node's and
              * this machine encodes the picture as a first frame, so there is
              * no reference pipeline to size. */
+            /* AND THE LAST-FRAME LOADER GOES, because this graph grew one
+             * for the transition tab and a `LoadImage` with no file in it is
+             * a job that fails at Comfy. It was already going, by the row's
+             * `sheet` drop happening to name the same node - accidental
+             * correctness, which is the kind that breaks later. */
+            drop: ["139"],
             params: H3_CELLS,
             inputs: {
               board: { node: "137", input: "image" },
@@ -3627,7 +5279,40 @@ const RUNGS = {
           steps: { node: "146", input: "value", cast: (v) => Number(v) <= 8 },
           seed: { node: "129", input: "noise_seed", cast: Number },
             },
-            required: ["board", "prompt"],
+            required: ["prompt"],
+            dropWhenEmpty: { board: ["137"] },
+          },
+          /* AND THE SAME MACHINE TAKES THE OTHER END OF THE SHOT. One more
+           * `LoadImage` on the node's own optional `last_frame`, which is
+           * `firstFrame` still: the slate opens the clip either way. */
+          transition: {
+            graph: "minimax-h3-i2v.json",
+            sys: () => H3_FLF_SYS(),
+            firstFrame: true,
+            options: { duration: H3_SECS, steps: ["8", "20"] },
+            params: H3_CELLS,
+            inputs: {
+              board: { node: "137", input: "image" },
+              last: { node: "139", input: "image" },
+              prompt: { node: "138", input: "value" },
+              ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+              size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
+              duration: { node: "132", input: "value", cast: Number },
+              steps: { node: "146", input: "value", cast: (v) => Number(v) <= 8 },
+              seed: { node: "129", input: "noise_seed", cast: Number },
+            },
+            /* AND A DROP IS A NODE ADDRESS, SO A MODE THAT CHANGES THE
+             * GRAPH CHANGES WHAT IT MEANS. The row's `dropWhenEmpty` maps
+             * `sheet` to node 139, which is the sheet loader in the r2v
+             * graph - and 139 is the LAST FRAME in this one, so the
+             * transition inherited a rule that deleted the second half of
+             * its own job. Caught by a dry run reading `MISSING node 139`
+             * under `last`. Nothing here is optional, so it inherits none
+             * of it. */
+            dropWhenEmpty: {},
+            /* THE SECOND FRAME IS THE JOB, so it refuses without one rather
+             * than quietly running the single-shot job under another name. */
+            required: ["board", "last", "prompt"],
           },
           /* AND THE BOARD BECOMES THE TIMELINE. Six panels, six anchors,
            * chained `MiniMaxH3AddGuide`s - so the grid never reaches the
@@ -3694,6 +5379,15 @@ const RUNGS = {
        * Their T2V adapter is wired nowhere and should stay that way - never
        * route a shot with a person through text-to-video. */
       "PIKA-H3-FLEX": {
+        /* AND ONLY SEEDANCE HAS A FIRST-AND-LAST FRAME, so the rows
+         * that do not are pinned off that tab rather than silently
+         * falling through to their own base spec - a tab promising
+         * a job the graph has no way to do, which is the shape 06
+         * already found on MINIMAX-H3 and EDIT. Add "transition"
+         * here the day a row grows one: Pika and H3 both carry
+         * `first_frame` and `last_frame` on the fl2va checkpoint,
+         * and FLUX 3 Image to Video takes two keyframes. */
+        only: ["shot", "seq", "transition"],
         graph: "pika-h3-flex-r2v.json",
         model: "PIKA-H3-FLEX",
         label: "Put them in motion",
@@ -3745,11 +5439,21 @@ const RUNGS = {
            * this one to these. */
           shot: {
             graph: "pika-h3-flex-i2v.json",
-            sys: (v) => H3_I2V_SYS(v.mode),
+            /* and with nothing in the slot this is text to video - the
+               loader goes, the node takes no first frame, and the sentence
+               stops describing one. */
+            sys: (v) => (v.blank.board
+              ? H3_T2V_SYS(v.mode) : H3_I2V_SYS(v.mode)),
             firstFrame: true,
             /* no REF cell: this machine encodes the picture as a first frame,
              * so there is no reference pipeline to size - the row above says
              * the same thing on the same tab */
+            /* AND THE LAST-FRAME LOADER GOES, because this graph grew one
+             * for the transition tab and a `LoadImage` with no file in it is
+             * a job that fails at Comfy. It was already going, by the row's
+             * `sheet` drop happening to name the same node - accidental
+             * correctness, which is the kind that breaks later. */
+            drop: ["139"],
             params: ["ar", "size", "duration", "seed"],
             options: { duration: H3_SECS },
             inputs: {
@@ -3760,7 +5464,36 @@ const RUNGS = {
               duration: { node: "132", input: "value", cast: Number },
               seed: { node: "129", input: "noise_seed", cast: Number },
             },
-            required: ["board", "prompt"],
+            required: ["prompt"],
+            dropWhenEmpty: { board: ["137"] },
+          },
+          /* and the other end of the shot, on the same machine - see the row
+           * above: `last_frame` is this node's own optional second input. */
+          transition: {
+            graph: "pika-h3-flex-i2v.json",
+            sys: () => H3_FLF_SYS(),
+            firstFrame: true,
+            params: ["ar", "size", "duration", "seed"],
+            options: { duration: H3_SECS },
+            inputs: {
+              board: { node: "137", input: "image" },
+              last: { node: "139", input: "image" },
+              prompt: { node: "138", input: "value" },
+              ar: { node: "115", input: "aspect_ratio", cast: (v) => AR_LABEL[v] || v },
+              size: { node: "115", input: "megapixels", cast: (v) => AR_MP[v] || Number(v) || 0.98 },
+              duration: { node: "132", input: "value", cast: Number },
+              seed: { node: "129", input: "noise_seed", cast: Number },
+            },
+            /* AND A DROP IS A NODE ADDRESS, SO A MODE THAT CHANGES THE
+             * GRAPH CHANGES WHAT IT MEANS. The row's `dropWhenEmpty` maps
+             * `sheet` to node 139, which is the sheet loader in the r2v
+             * graph - and 139 is the LAST FRAME in this one, so the
+             * transition inherited a rule that deleted the second half of
+             * its own job. Caught by a dry run reading `MISSING node 139`
+             * under `last`. Nothing here is optional, so it inherits none
+             * of it. */
+            dropWhenEmpty: {},
+            required: ["board", "last", "prompt"],
           },
           /* six panels, six anchors, the same chained `MiniMaxH3AddGuide`s -
            * the grid never reaches the model and its panels do, one at a
@@ -3934,10 +5667,45 @@ async function apiRun(req, res) {
    * model that treats every mode alike says nothing here. */
   /* A ROW THAT DOES ONE JOB SAYS SO. SCAIL-2 replaces a performer and
      cannot recast or extend, so `only` pins the mode rather than letting a
-     tab promise a job the graph has no way to do. */
-  const mode = spec.only || body.mode || null;
+     tab promise a job the graph has no way to do.
+     AND IT IS A LIST, BECAUSE A ROW CAN DO TWO OF THE FOUR AND NOT THE REST.
+     Babe, 2026-10-30: Pika H3 Flex answers RESHOOT and SWAP - one machine,
+     two sentences - and cannot do EDIT or EXTEND, which keep the source
+     pixels. A single string could say one job or no opinion at all, and
+     neither of those is true of that row. A bare string still means what it
+     always did, so nothing that was pinned had to be rewritten.
+     THE PIN STILL WINS OVER THE PAGE: a mode this row cannot do falls to the
+     first one it can, which is what stops a tab promising a job the graph has
+     no way to do. The page's own spelling is kept when it matches, because
+     `modes` is keyed in the rung's casing - 05's are `shot` and `seq` - and
+     an uppercased lookup would miss every one of them. */
+  const pins = spec.only == null ? null
+    : (Array.isArray(spec.only) ? spec.only : [spec.only]);
+  const pinned = pins && body.mode && pins.some(
+    (p) => String(p).toUpperCase() === String(body.mode).toUpperCase());
+  const mode = pins ? (pinned ? body.mode : pins[0]) : (body.mode || null);
   if (mode && spec.modes && spec.modes[mode]) {
     spec = { ...spec, ...spec.modes[mode] };
+  }
+
+  /* AND A ROW CAN BE A DIFFERENT MACHINE WITH NOTHING IN THE SLOT, which is
+   * the one thing `dropWhenEmpty` cannot do - built for Kling 4.0,
+   * 2026-10-31.
+   * ON NANO, QWEN AND KREA, TEXT-TO-IMAGE IS THE SAME NODE WITH THE LOADER
+   * GONE, and on H3 and Pika text-to-video is the same node with the first
+   * frame gone - so dropping was the whole of it and no axis was needed.
+   * KLING IS THE FORCING CASE: `Kling4TextToVideoNode` is a different class
+   * from `Kling4ImageToVideoNode`, with an aspect ratio the image node does
+   * not have because that one takes its shape from the first keyframe. A
+   * dropped loader cannot become another node.
+   * IT IS THE SAME SHALLOW MERGE A MODE GETS, so a swap states what differs
+   * and inherits the rest, and it reads against the REQUEST rather than
+   * against `values`: a file only ever arrives in the body, never from
+   * `defaults`, so this can land before `values` is built and the swapped
+   * spec's own defaults are the ones that apply. */
+  for (const [key, alt] of Object.entries(spec.swapWhenEmpty || {})) {
+    const got = (body.values || {})[key];
+    if (got === undefined || got === "") spec = { ...spec, ...alt };
   }
 
   const values = { ...(spec.defaults || {}), ...(body.values || {}) };
@@ -3945,8 +5713,112 @@ async function apiRun(req, res) {
   /* A DEFAULT LOSES TO AN EMPTY STRING. The page sends every field whether or
    * not it holds anything, so `defaults` cannot stand in for a line the
    * artist cleared — `blankTo` is the floor under one that arrives blank. */
+  /* AND WHAT ARRIVED BLANK IS REMEMBERED, because `sys` runs after this and
+   * cannot otherwise tell a line the artist wrote from the floor under one
+   * they did not - 01's floor is a whole sentence ("Become the character in
+   * the reference."), so `!!v.prompt` is true on every run by the time the
+   * scaffolding is composed. It is the `drops` lesson in the other
+   * direction: that one is hoisted ABOVE `sys` so the sentence and the graph
+   * agree, and this one has to be remembered BELOW it for the same reason.
+   * MEASURED BEFORE IT SHIPPED: the branch that reads this was written
+   * against `v.prompt` first, which would have made every STYLE run take the
+   * words path and quietly ended RANDOM's costume transfer. */
+  /* AND IT IS EVERY KEY THAT ARRIVED EMPTY, not only the ones with a floor
+   * declared. Written against `spec.blankTo` first, which looks right and is
+   * a fact about THIS SPEC rather than about the request: a variant replaces
+   * the base outright, so 01's FLUX row has no `blankTo` at all - and an
+   * empty prompt there produced an empty `blank`, which read as "the artist
+   * wrote something". Measured by dry run, which is why it never shipped. */
+  /* AND IT IS EVERY KEY THIS SPEC HAS AN ADDRESS FOR, not only the ones
+   * that turned up. The page sends every field whether or not it holds
+   * anything, so reading `values` alone was right for every press - and a
+   * key that is simply ABSENT is the same fact about the request, which is
+   * what a dry run sends and what any other caller would. `blank.source`
+   * read undefined there, the t2i branch never fired, and the sentence and
+   * the graph described different jobs: the loaders were gone and the
+   * scaffolding was still restyling a person in image 1. */
+  const blank = {};
+  for (const key of Object.keys(spec.inputs || {})) blank[key] = true;
+  for (const [key, val] of Object.entries(values)) {
+    blank[key] = val === undefined || val === "";
+  }
+  /* AND A FLOOR CAN BE A FUNCTION OF THE VALUES, the way `sys` is, because
+   * a floor has a PREMISE and the premise can be gone. 01's is "Become the
+   * character in the reference." - which names a picture, so on a run with
+   * no pictures at all it is a sentence about nothing, and worse, it fills
+   * `prompt` and therefore PASSES the required check: a job with no
+   * instruction in it, submitted. An empty string is no floor, which leaves
+   * `required` to refuse exactly as it would have.
+   * IT READS `blank` AND NOT `values`, so it sees what arrived rather than
+   * what has since been floored or promoted. */
   for (const [key, v] of Object.entries(spec.blankTo || {})) {
-    if (values[key] === undefined || values[key] === "") values[key] = v;
+    if (values[key] === undefined || values[key] === "") {
+      values[key] = typeof v === "function" ? v({ ...values, blank }) : v;
+    }
+  }
+
+  /* AND A PICTURE CAN MOVE UP A SLOT WHEN THE ONE ABOVE IT IS EMPTY - built
+   * for 01's text-to-image, 2026-10-31.
+   *
+   * THE PROBLEM IS NUMBERING, NOT WIRING. Drop the source loader and every
+   * one of these rows is left holding its reference in the SECOND slot with
+   * nothing in the first: qwen keeps `images.image_2`, Krea keeps
+   * `model.images.image_1`, nano keeps `model.images.image_2`. Krea's node
+   * says outright that its images are "numbered in connection order", so one
+   * connected picture is @Image1 whatever socket it sat in - and the sentence
+   * would have gone on calling it @Image2. A reference addressed by a name
+   * the model does not use is a reference the model is free to average in,
+   * which is this rail's oldest and most expensive failure.
+   *
+   * SO THE VALUE MOVES INTO THE FIRST SLOT'S ADDRESS and the donor key goes,
+   * which fires that key's own `dropWhenEmpty` and takes the now-empty
+   * loader out. The graph that reaches Comfy is a one-image job, which is
+   * exactly what each of these models does with one image.
+   *
+   * IT IS NOT A FOURTH RESOLUTION AXIS, deliberately. A `noSource` spec
+   * merged like a mode would have to restate the whole `inputs` table to
+   * move one address - which is the duplicate-key bug this file already
+   * paid for on this rung. One line of data beside `dropWhenEmpty`, which
+   * it composes with rather than replacing.
+   *
+   * AND `blank` IS COMPUTED ABOVE THIS, so it still says what ARRIVED
+   * empty. That is the whole of how `sys` tells a promoted reference from
+   * a real subject: `values.source` is set and `blank.source` is true. */
+  /* AND IT COMPACTS RATHER THAN SHIFTING ONE PLACE. One pass moves a
+   * picture up by one slot, which was the whole job while a row had two -
+   * with three, a reference in the LAST cell and nothing in the first two
+   * lands in slot 2 and leaves slot 1 empty, which is the numbering trap
+   * this exists to prevent, one cell further along. The passes repeat until
+   * nothing moves, bounded by the number of rules there are. */
+  const fills = Object.entries(spec.fillWhenEmpty || {});
+  for (let pass = 0; pass < fills.length; pass++) {
+    let moved = false;
+    for (const [key, from] of fills) {
+      if (!values[key] && values[from]) {
+        values[key] = values[from];
+        delete values[from];
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+
+  /* AND IT IS CHECKED HERE, BEFORE THE SCAFFOLDING IS GLUED ON, 2026-10-31.
+   * ON A ROW WITH NO `sys` ADDRESS THE SENTENCE GOES INTO `prompt` - which
+   * is every open row on this rail - so by the time this ran, `prompt` was
+   * never empty and `required: ["prompt"]` could not fire. This file already
+   * had it written down as a hole the page was covering; what made it worth
+   * closing is that the hole MOVED: while `source` was required a bare run
+   * refused on the picture, and the moment a row could run on words alone
+   * the only thing left standing between an empty panel and a submitted job
+   * was the one check that could not fire. On Krea that is real money.
+   * `blankTo` STAYS ABOVE IT, because a floor is a legitimate answer - and
+   * it is a function of the values now, so a floor whose premise is gone
+   * returns "" and is refused here exactly as if nobody had typed. */
+  for (const key of spec.required) {
+    if (values[key] === undefined || values[key] === "") {
+      return json(res, 400, { error: `${spec.label} needs ${key}` });
+    }
   }
 
   /* scaffolding first, the artist's line last, so what they typed has the
@@ -3974,7 +5846,10 @@ async function apiRun(req, res) {
     if (!values[key]) drops.push(...nodes);
   }
 
-  const seen = { ...values, mode: spec.only || mode };
+  /* `mode` is already the resolved one - a pin where there is one, the page's
+     where there is not - so reading `spec.only` again here would only ever
+     disagree with it once that field became a list. */
+  const seen = { ...values, mode, blank };
   for (const id of new Set(drops)) {
     for (const [key, def] of Object.entries(spec.inputs)) {
       if (def.node === id) delete seen[key];
@@ -4028,12 +5903,6 @@ async function apiRun(req, res) {
   if (values.guide === "preset" && spec.guideFile && values.source) {
     try { values.source = await sendLocal(spec.guideFile); }
     catch (err) { console.warn(`  .. guide swap skipped: ${err.message}`); }
-  }
-
-  for (const key of spec.required) {
-    if (values[key] === undefined || values[key] === "") {
-      return json(res, 400, { error: `${spec.label} needs ${key}` });
-    }
   }
 
   const graph = await loadGraph(spec.graph);
@@ -4241,7 +6110,7 @@ async function apiJob(res, id) {
  * does in the browser - doing it here is why the grid stops loading twenty
  * videos to show twenty stills.
  * IT IS LOCAL-ONLY AND BOUNDED TO output/, like every other reader here. */
-async function apiThumb(res, url) {
+async function apiThumb(res, url, req) {
   const want = String(url.searchParams.get("path") || "");
   if (!want.startsWith("output/") || want.includes("..")) {
     return json(res, 400, { error: "a thumbnail is only ever of something in output/" });
@@ -4261,9 +6130,62 @@ async function apiThumb(res, url) {
   /* AND A FILE ffmpeg COULD NOT READ FALLS BACK TO THE ORIGINAL rather than
    * to a broken tile: the grid showing a heavy picture is a slow panel, and
    * the grid showing nothing is a lost file. */
-  if (!existsSync(dst)) return await serveStatic(res, "/" + want);
+  if (!existsSync(dst)) return await serveStatic(res, "/" + want, req);
   res.writeHead(200, { "Content-Type": "image/jpeg", "Cache-Control": "max-age=86400" });
   return res.end(readFileSync(dst));
+}
+
+/* A QUICK EDIT IS A TRIM, AND A TRIM IS ffmpeg - Babe, 2026-10-31: "can we
+ * add the trim handles too. and make a save button in case you do want to
+ * make a quick edit".
+ * THE TAKE'S OWN CUT IS A RE-RECORD AND THAT IS RIGHT WHERE IT IS: a take
+ * lives in the browser as a blob, there is no file to point a tool at, and
+ * `cutTake` plays it into a second recorder in real time. A library clip is
+ * the opposite - it is already a file on this disk - so re-recording it
+ * would mean waiting out its own length to get a worse copy.
+ * SO IT IS A STREAM COPY: no re-encode, no quality lost, and it returns
+ * before the clip would have finished playing. `-ss` BEFORE `-i` seeks the
+ * container rather than decoding up to the mark, which is what makes it
+ * instant; with `-c copy` the cut lands on the nearest keyframe, which is
+ * the honest trade for a quick edit and the reason this is not offered as a
+ * frame-accurate one.
+ * AND IT IS FILED WHERE A TAKE IS FILED, under the sitting's `takes/`, so a
+ * quick edit turns up in the library beside everything else and can never be
+ * mistaken for something a workflow made - `madeHere` reads the name shape
+ * and this one says `trim`. */
+async function apiTrim(req, res) {
+  let body = {};
+  try { body = JSON.parse((await readBody(req)).toString("utf8") || "{}"); } catch { }
+  const want = String(body.path || "");
+  if (!want.startsWith("output/") || want.includes("..")) {
+    return json(res, 400, { error: "a trim is only ever of something in output/" });
+  }
+  const src = await findKept(want);
+  if (!src || !existsSync(src)) return json(res, 404, { error: "no such clip" });
+  const a = Math.max(0, Number(body.start) || 0);
+  const b = Number(body.end);
+  if (!isFinite(b) || b <= a + 0.05) return json(res, 400, { error: "that range is empty" });
+
+  const ext = (want.match(/\.[a-z0-9]+$/i) || [".mp4"])[0].toLowerCase();
+  const { day, time } = stamp();
+  const session = (DEMO && (visitorSession(req) || mintVisitor(req, res))) || sessionDir(day);
+  const dir = join(OUT, session, "takes");
+  const name = `${time}-trim-${Date.now() % 100000}${ext}`;
+  const dst = join(dir, name);
+  try { await mkdir(dir, { recursive: true }); }
+  catch (err) { return json(res, 500, { error: `could not write the trim: ${err.message}` }); }
+
+  const args = `-v error -y -ss ${a.toFixed(3)} -to ${b.toFixed(3)} -i "${src}" -c copy "${dst}"`;
+  await new Promise((go) => exec("ffmpeg " + args, () => go()));
+  /* AND A CUT THAT PRODUCED NOTHING SAYS SO rather than handing back a path
+   * to a file that is not there - the one failure a caller cannot see for
+   * itself, because the request succeeded. */
+  if (!existsSync(dst)) {
+    return json(res, 500, { error: "ffmpeg could not cut that clip - is it installed?" });
+  }
+  const rel = `output/${session}/takes/${name}`;
+  console.log(`  <- trimmed ${rel}`);
+  return json(res, 200, { saved: rel, name });
 }
 
 async function apiSession(req, res, url) {
@@ -4359,7 +6281,7 @@ const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
  * by a 401 arriving in Comfy's words two layers from the person reading it.
  * A refusal here is also the only reason the page can say what to do about
  * it: this sentence is written for somebody who has just installed this. */
-const LOCAL_ONLY = new Set(["/api/health", "/api/key", "/api/session", "/api/output", "/api/take", "/api/thumb"]);
+const LOCAL_ONLY = new Set(["/api/health", "/api/key", "/api/session", "/api/output", "/api/take", "/api/trim", "/api/thumb"]);
 
 async function apiKey(req, res) {
   /* AND THE TWO REFUSALS ABOVE ARE ABOUT WRITING A FILE, which is why a demo
@@ -4465,7 +6387,14 @@ async function apiTake(req, res, url) {
   const { day, time } = stamp();
   const session = (DEMO && (visitorSession(req) || mintVisitor(req, res))) || sessionDir(day);
   const dir = join(OUT, session, "takes");
-  const name = `${time}-webcam-${Date.now() % 100000}${ext}`;
+  /* AND THE MIDDLE WORD SAYS WHAT IT IS - Babe, 2026-10-31, on the modal's
+   * still-frame cell: "that can just be saved to assets". A frame pulled out
+   * of a clip filed as `-webcam-` would be a name lying about where it came
+   * from, which is this rail's oldest rule arriving in a filename. It is
+   * still `takes/`, which is not a workflow folder, so `madeHere` refuses it
+   * either way and a frame can never become a room. */
+  const kind = String(url.searchParams.get("kind") || "webcam").replace(/[^a-z0-9]/gi, "").slice(0, 12) || "webcam";
+  const name = `${time}-${kind}-${Date.now() % 100000}${ext}`;
   try {
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, name), bytes);
@@ -4502,7 +6431,37 @@ async function apiOutput(req, res) {
     }
   }
   await walk(only ? join(OUT, only) : OUT, only);
-  files.sort().reverse();
+  /* NEWEST FIRST MEANT NEWEST PATH, NOT NEWEST FILE - Babe, 2026-10-31,
+   * looking at a clip made at 10:59 sitting second: "for some reason the
+   * order is wrong in the session seems like it should be the first
+   * thumbnail".
+   * A PLAIN `sort().reverse()` IS A PATH SORT, so the FOLDER decides before
+   * the time does: inside one sitting `takes/` beats `06/` beats `01/`, and
+   * a webcam take from an hour earlier outranks the clip you just made. It
+   * read as newest-first for as long as every file lived in a numbered
+   * workflow folder and you worked up the rail in order; `takes/` and the
+   * trims beside them are what made it visible.
+   * SO THE KEY IS THE SITTING AND THEN THE CLOCK. The session has to stay
+   * the OUTER key, because the panel draws its dividers by walking the list
+   * and ending a group "where the name changes" - interleave two sittings
+   * and that grouping comes apart. Inside one, the server's own name shape
+   * carries `HHMMSS`, which is the time the file was written.
+   * AND A FILE NOBODY HERE NAMED SORTS LAST IN ITS SITTING rather than
+   * guessing: a hand-placed file has no stamp to read, and `000000` says
+   * that honestly without a stat per file. */
+  const stampOf = (f) => {
+    const name = f.split("/").pop();
+    const m = /^(\d{6})-/.exec(name);
+    return m ? m[1] : "000000";
+  };
+  const sessionOf = (f) => (f.split("/")[1] || "");
+  files.sort((a, b) => {
+    const sa = sessionOf(a), sb = sessionOf(b);
+    if (sa !== sb) return sa < sb ? 1 : -1;
+    const ta = stampOf(a), tb = stampOf(b);
+    if (ta !== tb) return ta < tb ? 1 : -1;
+    return a < b ? 1 : -1;
+  });
   /* WHICH DAY EACH SESSION WAS, because the path stopped carrying it. The
    * folder used to BE the date and now it is a session, which is the right
    * unit to browse by and the wrong one to date a file by - so the marker
@@ -4677,7 +6636,22 @@ async function findKept(rel) {
   return hit;
 }
 
-async function serveStatic(res, pathname) {
+/* A VIDEO THIS SERVER SENDS IS NOT SEEKABLE, AND NOTHING SAID SO - found
+ * 2026-10-31, building the library's frame picker. Babe: "where you can
+ * select a frame from the video". The scrub did nothing, the bar was fine,
+ * the listener fired, and `video.seekable` came back EMPTY on a file whose
+ * duration the browser already knew.
+ * IT WAS THE SERVER. This handler answered every request with the whole file
+ * and a 200 - no `Accept-Ranges`, no `Content-Length`, and a `Range` header
+ * ignored outright - so Chrome treats the response as a stream it cannot
+ * index and refuses to seek. `currentTime = 2` silently stayed 0.
+ * AND IT HAD BEEN COSTING MORE THAN A SCRUB. `frameAt(url, t)` seeks before
+ * it draws, so every frame pulled from a SERVED file was frame zero whatever
+ * time was asked for - which is also why a frame-comparison test earlier the
+ * same day reported one clip as identical at 0s, 2s and 4s. The plates got
+ * away with it: `framesOf` is the caller that would have noticed, and what
+ * it draws comes from blobs and data the browser already holds. */
+async function serveStatic(res, pathname, req) {
   const rel = pathname === "/" ? "mockup.html" : normalize(pathname).replace(/^[\\/]+/, "");
   if (rel.includes("..") || rel.startsWith("graphs") || rel === ".env") {
     res.writeHead(404); return res.end("not found");
@@ -4693,10 +6667,36 @@ async function serveStatic(res, pathname) {
      * change that did not work - which is an hour nobody gets back. The
      * server and the page are on the same machine; there is nothing to save
      * by caching them. */
-    res.writeHead(200, {
+    const head = {
       "Content-Type": MIME[extname(rel)] || "application/octet-stream",
       "Cache-Control": "no-store, must-revalidate",
-    });
+      /* SAID ON EVERY FILE, not only the ones asked for in parts: it is how a
+       * browser learns it MAY ask, and it is what turns `seekable` from an
+       * empty list into the clip's own length. */
+      "Accept-Ranges": "bytes",
+      "Content-Length": bytes.length,
+    };
+    const asked = req && req.headers && req.headers.range;
+    const m = asked && /^bytes=(\d*)-(\d*)$/.exec(String(asked).trim());
+    if (m && (m[1] !== "" || m[2] !== "")) {
+      /* `bytes=-500` is the LAST 500, which is how a player reads an mp4's
+       * index when it sits at the end of the file. Getting that branch wrong
+       * is getting seeking wrong on exactly the files that need it most. */
+      let start = m[1] === "" ? bytes.length - Number(m[2]) : Number(m[1]);
+      let end = m[1] === "" ? bytes.length - 1
+                            : (m[2] === "" ? bytes.length - 1 : Number(m[2]));
+      start = Math.max(0, start);
+      end = Math.min(bytes.length - 1, end);
+      if (!bytes.length || start > end) {
+        res.writeHead(416, { "Content-Range": "bytes */" + bytes.length });
+        return res.end();
+      }
+      head["Content-Range"] = "bytes " + start + "-" + end + "/" + bytes.length;
+      head["Content-Length"] = end - start + 1;
+      res.writeHead(206, head);
+      return res.end(bytes.subarray(start, end + 1));
+    }
+    res.writeHead(200, head);
     res.end(bytes);
   } catch {
     res.writeHead(404); res.end("not found");
@@ -4733,10 +6733,11 @@ async function route(req, res, url) {
     if (url.pathname.startsWith("/api/job/")) return await apiJob(res, url.pathname.slice(9));
     if (url.pathname === "/api/file") return await apiFile(res, url);
     if (url.pathname === "/api/output") return await apiOutput(req, res);
-    if (url.pathname === "/api/thumb") return await apiThumb(res, url);
+    if (url.pathname === "/api/thumb") return await apiThumb(res, url, req);
     if (url.pathname === "/api/session") return await apiSession(req, res, url);
     if (url.pathname === "/api/key" && req.method === "POST") return await apiKey(req, res);
     if (url.pathname === "/api/take" && req.method === "POST") return await apiTake(req, res, url);
+    if (url.pathname === "/api/trim" && req.method === "POST") return await apiTrim(req, res);
     if (url.pathname === "/api/health") {
       /* which model names actually have a graph behind them, per rung, so the
        * menu can disable the rest instead of failing at the press. */
@@ -4744,6 +6745,45 @@ async function route(req, res, url) {
        * row can follow the model instead of carrying the last one's numbers
        * into it — 25 steps on an 8-step distilled checkpoint is not a
        * setting, it is a bug. */
+      /* WHAT A SPEC TAKES IS ITS INPUTS MINUS THE NODES IT DELETES. It was
+       * `Object.keys(inputs)` outright, which is the table BEFORE `drop` has
+       * had its say - so a mode that deletes a loader went on offering a
+       * cell for what that loader was for. Babe, 2026-10-30, looking at 06:
+       * "do the inputs change based on the mode you select". They did not:
+       * every mode reported `(inherits)` because only a mode that RESTATES
+       * `inputs` was reporting anything, and 06's three say it by dropping
+       * nodes instead - SWAP drops 3, EDIT drops 2 and 3.
+       * AND ON EDIT THAT WAS AN INVITATION TO A PAID REFUSAL: the node
+       * validates `task_type: edit` AT SUBMIT and refuses a job with an
+       * image beside it, which is `failed to validate images`. The quad was
+       * offering two pictures that could only fail.
+       * `dropWhenEmpty` IS NOT COUNTED. That one deletes a node when nobody
+       * filled it, which is the input still being taken - it is the slot
+       * being empty, not the model being unable. */
+      const takesOf = (ins, drop) => {
+        const dead = new Set((drop || []).map(String));
+        return Object.keys(ins || {})
+          .filter((key) => !dead.has(String((ins[key] || {}).node)));
+      };
+      /* AND WHAT A ROW MAKES, read off the graph it would run rather than
+       * written down beside it - Babe, 2026-10-31: "maybe in the model
+       * dropdowns we add T2V or T2I - when slots are not used".
+       * THE SAVE NODE IS THE ANSWER AND IT IS ALREADY THERE. Every graph on
+       * this rail ends in `SaveVideo`/`CreateVideo` or in `SaveImage`, so
+       * a table saying which rungs make clips would be a second copy of a
+       * fact the graph states outright - and the one that drifts is always
+       * the copy. The cache is lazy, so the first health call reads them and
+       * every one after it is free; `loadGraph` is how a run gets its graph
+       * anyway. */
+      const makesOf = async (name) => {
+        try {
+          const g = await loadGraph(name);
+          const cls = Object.values(g).map((n) => n.class_type || "");
+          if (cls.some((c) => /Video/.test(c))) return "video";
+          if (cls.some((c) => /SaveImage/.test(c))) return "image";
+        } catch { /* a row with no graph is already unpickable */ }
+        return null;
+      };
       const wired = {};
       for (const [k, v] of Object.entries(RUNGS)) {
         const all = [[v.model, v], ...Object.entries(v.variants || {})];
@@ -4788,7 +6828,13 @@ async function route(req, res, url) {
             if (m.params) seen.params = m.params;
             if (m.options) seen.options = m.options;
             if (m.defaults) seen.defaults = m.defaults;
-            if (m.inputs) seen.takes = Object.keys(m.inputs);
+            /* A MODE OVERRIDES WHAT IT NAMES AND INHERITS THE REST, which
+             * is the same shallow merge `apiRun` does - so a mode that drops
+             * a node without restating `inputs` is read against the row's
+             * own table, and one that restates them is read against its. */
+            if (m.inputs || m.drop) {
+              seen.takes = takesOf(m.inputs || spec.inputs, m.drop || spec.drop);
+            }
             /* AND AN EXPLICIT FALSE IS AN ANSWER. FLUX 3 Max opens on its one
              * picture and its SEQUENCE mode does not - six keyframes are the
              * shots - so the mode has to be able to say NO where the row says
@@ -4797,12 +6843,38 @@ async function route(req, res, url) {
              * had been added for - caught by looking at the payload rather than
              * at the code. */
             if ("firstFrame" in m) seen.first = !!m.firstFrame;
+            if (m.required) seen.required = m.required;
+            if (m.names) seen.names = m.names;
             if (Object.keys(seen).length) modes[id] = seen;
           }
           if (name) wired[k][name] = { params: spec.params || null,
                                        options: spec.options || null,
                                        only: spec.only || null,
-                                       takes: Object.keys(spec.inputs || {}),
+                                       takes: takesOf(spec.inputs, spec.drop),
+                                       /* AND WHAT IT INSISTS ON BEING GIVEN,
+                                        * which is `takes` from the other end
+                                        * and the one fact the page was never
+                                        * told - Babe, 2026-10-31: "what
+                                        * happens if you dont use inputs. the
+                                        * models that display are t2i or
+                                        * t2v".
+                                        * IT IS ALREADY DECLARED. Every row on
+                                        * this server says what it cannot run
+                                        * without, and the refusal has always
+                                        * been honest; what was missing is
+                                        * that the PICKER could not see it, so
+                                        * a rung with an empty panel offered
+                                        * every row and five of them could
+                                        * only refuse. `takes` says what a
+                                        * row CAN be handed; this says what it
+                                        * MUST be - so the rows left standing
+                                        * on an empty panel are exactly the
+                                        * text-to-image ones. */
+                                       required: spec.required || [],
+                                       /* "image" or "video", so the picker can
+                                        * say T2I or T2V on a row that is about
+                                        * to run with nothing in the panel. */
+                                       makes: await makesOf(spec.graph),
                                        defaults: spec.defaults || {},
                                        /* AND WHETHER THE PICTURE IT IS HANDED
                                         * BECOMES FRAME ONE, which decides
@@ -4812,12 +6884,46 @@ async function route(req, res, url) {
                                        /* and whether it reads a box table -
                                         * see the row that does */
                                        boxes: !!spec.boxes,
+                                       /* AND WHAT THIS ROW CALLS THE SLOTS -
+                                        * Babe, 2026-10-31: "when you select
+                                        * the model it should change how the
+                                        * slots, modes and agent works". The
+                                        * row already decided WHICH cells
+                                        * (`takes`) and which tabs (`only`);
+                                        * this is the third thing it has to be
+                                        * able to say, because LTX 2.3's first
+                                        * reference is a FRAME and the cell
+                                        * beside it on every other row is a
+                                        * character. A mode can still override
+                                        * it, which is the merge every other
+                                        * field here follows. */
+                                       names: spec.names || null,
+                                       /* AND WHAT KIND OF FILE THAT CELL
+                                        * TAKES - Babe, 2026-11-01, looking
+                                        * at Kling's dark fourth quadrant:
+                                        * "can we turn the 4th slot into
+                                        * something so its not just blank,
+                                        * make it usable", then "we can
+                                        * update the slots based on the
+                                        * model", then "that is part of our
+                                        * pattern making, the slots are based
+                                        * on the mode or model".
+                                        * `names` was the third thing a row
+                                        * could say about a cell and this is
+                                        * the fourth: the slot's own
+                                        * `faceAccept` is the floor, and a
+                                        * row whose fourth input is a PICTURE
+                                        * where the slot's is a SOUND has to
+                                        * be able to say so, or the chooser
+                                        * offers a file the job cannot
+                                        * read. */
+                                       accept: spec.accept || null,
                                        modes: Object.keys(modes).length ? modes : null };
         }
       }
       return json(res, 200, { ok: true, key: keyNow() ? "set" : "MISSING", wired });
     }
-    return await serveStatic(res, url.pathname);
+    return await serveStatic(res, url.pathname, req);
   } catch (err) {
     console.error(err);
     json(res, 500, { error: String(err && err.message || err) });

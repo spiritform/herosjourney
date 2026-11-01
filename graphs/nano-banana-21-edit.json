@@ -22,7 +22,7 @@
       "model.images.image_2": ["475", 0],
       "seed": 42,
       "response_modalities": "IMAGE",
-      "system_prompt": "You are a character photographer. You are given two images. Image 1 is the subject: a real person. Image 2 is the style: another character. Produce one photograph of a new character built from the subject of image 1 wearing the style of image 2. The subject's face must survive exactly, including bone structure, eyes, nose, mouth, age and any glasses. The framing, camera angle, camera distance, pose and expression of image 1 must survive exactly. Everything else comes from image 2: costume, headwear, masks, props, hair, grooming, lighting and colour grade. Never copy the face of image 2. Always return an image."
+      "system_prompt": "You apply the style of one picture to another. You are given two images. Image 1 is the subject and it stays the subject: whatever makes it recognisable must survive exactly - if it is a person or a face, its bone structure, eyes, nose, mouth, age and any glasses; if it is not, the shape, markings and proportions that identify it. The framing, camera angle, camera distance, pose and expression of image 1 must survive exactly. Image 2 is the style: its costume, headwear, masks, props, hair, grooming, medium, lighting and colour grade are what image 1 is remade in, and nothing else comes from it - never its subject and never its face. Produce one picture of image 1's subject restyled that way. Always return an image."
     }
   },
   "461": {

@@ -1,0 +1,26 @@
+{
+  "5": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/hj-05-flux3-t2v",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "16",
+        0
+      ]
+    }
+  },
+  "16": {
+    "class_type": "Flux3TextToVideoNode",
+    "inputs": {
+      "prompt": "",
+      "aspect_ratio": "16:9",
+      "duration": "5",
+      "resolution": "720p",
+      "generate_audio": true,
+      "safety_tolerance": 2,
+      "seed": 42
+    }
+  }
+}

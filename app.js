@@ -13,9 +13,72 @@
   /* Which graph input each slot feeds, per rung. The right slot of rung 3 is
      words rather than a file, so it has no key here. */
   var SLOTS = {
-    1: { left: 'source', right: 'ref',  accept: { left: 'image/*', right: 'image/*' } },
+    /* AND 01's REFERENCE MOVED TO THE LEFT, 2026-10-30 - Babe: "01 we have
+       an input on the left and right. we can consolidate that by keeping our
+       inputs on the left and adding the multiple slots instead", and "the
+       right remains the place for the prompt / agent and ?".
+       IT IS THE RULE THIS PANEL ALREADY RUNS ON, said properly: the left is
+       the INPUTS and the right is the WORKFLOW that reads them. `left is
+       inherited, right is chosen` was never true of this rung anyway - the
+       source is the one input somebody has to BRING, which this file has
+       recorded as an exception since the panel was drawn. There is no
+       exception now, only a rung whose inputs happen to start empty.
+       AND THE MODE CHANGES THE COUNT - Babe: "style / edit should change the
+       slots. for example slot becomes a two input. edit is single." STYLE is
+       the two-image combine; an edit changes one named thing in one
+       photograph. That is `takes` and nothing new. */
+    1: { left: 'source', right: null,   alt: 'ref',
+         /* AND THE SHAPE FOLLOWS THE SOURCE HERE TOO, 2026-10-31. I excluded
+            01 this morning on the reading that AR is 1:1 "to keep the face
+            off forty pixels", and that a 16:9 webcam frame would drag the
+            character 16:9 - which is the thing the capture's own centre-crop
+            exists to prevent.
+            HALF OF THAT WAS WRONG AND BABE'S RUN SHOWED IT: a 16:9 frame
+            restyled through this rung came back 2048x2048. The scaffolding
+            says, in as many words, KEEP THE CROP, THE CAMERA ANGLE AND THE
+            CAMERA DISTANCE OF IMAGE 1 - so the source IS the framing guide,
+            and a square output from a wide guide is the rung contradicting
+            its own instruction.
+            AND THE WEBCAM WORRY CANNOT HAPPEN, because the capture is
+            centre-cropped TO THE ROW'S AR BEFORE IT IS UPLOADED: by the time
+            a box holds that frame it already has the row's shape, so
+            following it is a no-op. 1:1 is still the default, which is what
+            a cold rung and the square bust both get. */
+         arFollows: true,
+         faceRoll:   'ref',
+         faceKeys:   ['source',  'ref'],
+         faceSends:  ['source',  'ref'],
+         faceFrom:   [0,         0],
+         /* AND THE SUBJECT CAN BE A CLIP - Babe, 2026-10-31: "record a video
+            of yourself then load it into 01 to become someone else... then
+            use the video and stylized first frame together in reshoot".
+            THE WHOLE LOOP TURNS ON THIS ONE LIST. With `video/*` here the
+            box takes a take, WEBCAM on this slot RECORDS rather than
+            photographs (`wantsVideo` reads this picker), and the countdown,
+            the transport and the trim all arrive having been built for 06.
+            AND `faceStill` IS WHAT KEEPS THE MODEL HONEST: whatever the box
+            holds, this face sends ONE PICTURE - frame zero of it - because
+            01 restyles a still and LTX paints that still back in at frame 0.
+            The reference beside it is image-only and says so. */
+         faceAccept: ['image/*,video/*', 'image/*'],
+         faceStill:  [true,      false] },
     2: { left: 'figure', right: null,   accept: { left: 'image/*' } },
-    3: { left: 'sheet',  right: 'place', accept: { left: 'image/*', right: 'image/*' } },
+    /* AND 03's PLACE MOVED TO THE LEFT, 2026-10-31 - the last file on a
+       right-hand slot anywhere on the rail. It was `right: 'place'`, which
+       read as the rule the panel runs on (the environment is the one thing
+       chosen here) and is the rule it actually runs on now: the left is the
+       INPUTS and the right is the WORKFLOW that reads them. Nothing on the
+       server moved - 475 has been image 2 since the slot was drawn - so this
+       is the same two inputs in the column that says what they are.
+       AND THE ROLL FILLS THE CELL IT IS FOR. RANDOM rolls a room and that
+       room has one address; `faceRoll` names it, so the cell can only ever
+       be the environment whichever face the box happens to be showing. */
+    3: { left: 'sheet',  right: null,   alt: 'place',
+         faceRoll:   'place',
+         faceKeys:   ['sheet',   'place'],
+         faceSends:  ['sheet',   'place'],
+         faceFrom:   [2,         0],
+         faceAccept: ['image/*', 'image/*'] },
     /* 04 PLANS AND 05 SHOOTS, 2026-10-25. The board rung's left slot is the
        hero frame it draws FROM, which the server takes as `figure`; the key
        stays `start` because that is what the journey already wrote down and
@@ -25,38 +88,160 @@
        close-ups on a board had nothing but one wide frame to read a face off
        and invented the rest. `alt` is that face's own key, the way it is on
        06, so an imported sheet is remembered apart from the frame. */
+    /* AND 04's PAIR BECAME A PANEL, 2026-10-31 - Babe: "04.. same pattern.
+       remove import and frame tab. add inputs, that change based on the
+       mode". The two faces were always a LOOK rather than a choice, which is
+       the quad's own premise: both travel, the board is drawn from the frame
+       AND the sheet, so there was never anything to step into.
+       AND `faceSends` IS HERE AFTER ALL, 2026-11-01. It was left out on the
+       grounds that `runBoard` already maps `start` to `figure` and that "the
+       only reader that would see a difference is `markFaces`, which never
+       compares face 0 at all" - true when it was written, and then
+       `markOnly` grew a `blind` test that reads the same list and DOES
+       compare face 0. Babe: "seems like we lost some workflows / models on
+       04 too", with the picker down to NANO and no caret.
+       IT COMPARED THE SERVER'S WORD AGAINST THE JOURNEY'S. Every row here
+       takes `figure`; the panel's cells were named `start` and `sheet`, so
+       no row matched face 0 and the three open rows read as taking no input
+       this panel holds - hidden, with NANO surviving by accident because it
+       is the only one that also takes `sheet`.
+       SO THE MAPPING IS DECLARED WHERE THE KEYS ARE rather than inferred by
+       whoever reads them next. `valuesFor` starts at face 1 and `run()`
+       returns into `runBoard` before its upload loop, so face 0's send key
+       has exactly one reader and this is it. */
     4: { left: 'start',  right: null,   alt: 'sheet',
-         accept: { left: 'image/*' } },
+         faceKeys:   ['start',   'sheet'],
+         faceSends:  ['figure',  'sheet'],
+         faceFrom:   [3,         2],
+         faceAccept: ['image/*', 'image/*'] },
     /* and the motion rung's left slot is the board itself, with 02's sheet on
        its back - the same two references the clip has always taken. */
     /* AND THE SHEET ON ITS BACK HAS ITS OWN KEY, the way 04's does. Both
        travel - board on image_1, sheet on image_2 - so an imported sheet has
        to be remembered apart from the slate or switching faces would hand the
        model the other one. */
+    /* AND 05 IS THE SAME SLOT WITH TWO INPUTS - Babe, 2026-10-30, looking
+       at it beside the new 06: "does it make sense to make it similar?
+       INPUTS", and the argument in one line: "slate is basically nested in
+       the input".
+       IT ALREADY WAS ONE, drawn as a tab. Both faces travel - the slate on
+       image_1 and the sheet on image_2 - which is the quad's premise and
+       never the pick pair's, and on a row that takes one of them the pair
+       collapsed to a single lit cell with nothing to choose between: the
+       `.solo` shape the model picker has a rule against. Two inputs draw as
+       two stacked, one draws as a square, and the `+` and `x` live in the
+       cell they act on instead of IMPORT acting on whichever tab was lit. */
     5: { left: 'board',  right: null,   alt: 'sheet',
-         accept: { left: 'image/*' } },
+         /* AND THE FIRST FACE DECIDES THE SHAPE OF THE CLIP - see
+            `arFollow`. 05 is the one rung where the left picture IS the
+            thing being moved, so the AR cell follows it; 01, 03 and 04 are
+            excluded there with a reason each. */
+         arFollows: true,
+         faceKeys:   ['board',   'sheet',   'last'],
+         faceSends:  ['board',   'sheet',   'last'],
+         faceFrom:   [4,         2,         0],
+         faceAccept: ['image/*', 'image/*', 'image/*'] },
     /* 05's LEFT SLOT HAS TWO FACES AND ONE OF THEM IS SENT. `alt` is the
        second face's own key, so an imported LOCATION is remembered apart from
        an imported CHARACTER and switching between them cannot hand the model
        the other one. Both land on node 30 at run time - the graph has one
        reference_image - which is why they are a choice and not a pair. */
-    6: { left: 'ref1',   right: 'clip', alt: 'place',
-         accept: { left: 'image/*', right: 'video/*' } }
+    /* AND THE CLIP IS A CELL OF ITS OWN, 2026-10-30 - Babe: "what you
+       generate in 05 should appear as an input in 06 in the box.. but if you
+       hit input you see the quad".
+       IT WAS `byKind` FOR A DAY, which read the KIND of file in one box and
+       sent it to one of two addresses - a video is the driving clip, an
+       image is the character. That is true and it is a box doing two jobs:
+       05's clip carried into the quadrant labelled CHARACTER, correct in the
+       payload and wrong on the label, which is the 2026-10-28 bug wearing a
+       label rather than a face. A CELL PER JOB SAYS IT ONCE, and it is the
+       rule this rail already keeps about references: a reference with no
+       stated job is one the model is free to average into the others.
+       AND THE CLIP LEADS, which is what makes the box arrive holding
+       something. 06's box showed 02's sheet before this and the sheet is now
+       one cell in; the thing the journey just handed this workflow is the
+       clip, so that is what the box is standing in when you get here. */
+    /* THE FACES IN ORDER: the key each one sends, the workflow it falls back
+       to, and the kind of file it takes. `left` and `alt` are faces 0 and 1
+       said the old way, for every caller that only ever had two; these lists
+       are the same fact as a list, so a fourth face is an entry in each and
+       nothing else. */
+    /* AND THE RIGHT SLOT HOLDS NO FILE AT ALL, 2026-10-30. It became a
+       writing face the hour the panel landed - Babe: "the right doesn't
+       really need import. it just needs the prompt and agent" - and `clip`
+       stayed on it, which is the shape this file keeps paying for: a
+       mechanism that existed to stop two things disagreeing outlives one of
+       them, and then it is the only thing still disagreeing. MEASURED, on a
+       drawer from any sitting that ran 06 before the panel: the left box
+       held the clip carried from 05 and the payload sent the OLD right-slot
+       take, because `v[map.right]` is written AFTER `byKind` has already put
+       the left box's video on the same address. And `restoreJourney` painted
+       that same stale take into the writing box.
+       NOTHING HAD TO BE DROPPED FROM THE DRAWER: with no key here, the save
+       stops writing `clip` and the next one heals it. */
+    /* AND WHAT EACH FACE ARRIVES AS, which is not what it is called. A
+       face is named for the job it does and lands on the address the graph
+       has for it: SCENE is `place` in the journey and `ref2` at the far
+       end. `markFaces` is the only reader - it is how a row says which of
+       these it can actually be handed, and a row that takes no second
+       reference should not be offering a cell for one. */
+    6: { left: 'clip',   right: null,   alt: 'ref1',
+         /* AND THE SHAPE FOLLOWS THE CLIP - Babe, 2026-10-31, on an EDIT
+            that came back 1344x768 from a 1280x704 source: "we should prob
+            add the AR cell". The cell went on; this is what makes it right
+            by default. Face 0 is the clip and `arFollow` reads an element's
+            `videoWidth` as readily as a picture's `naturalWidth`, so the
+            output takes the shape of the footage it is made from - which on
+            EDIT is the whole contract and on the other two is still the
+            honest default. A press is still the artist's until the model
+            changes. */
+         arFollows: true,
+         /* AND THE FOURTH IS BROUGHT RATHER THAN INHERITED - Babe,
+            2026-10-30: "should the 4th one be something that can be
+            referenced in a prompt. like a MISC (another character, prop,
+            etc)", then "it can just be MISC". Nothing on the rail makes
+            it, so its `faceFrom` is 0 and the carry has nowhere to look;
+            it arrives by the cell's own `+` or a double-press, which is
+            every other way a file gets in here. */
+         faceKeys:   ['clip',    'ref1',    'place',   'audio'],
+         faceSends:  ['clip',    'ref1',    'ref2',    'audio'],
+         faceFrom:   [5,         2,         3,         0],
+         faceAccept: ['video/*', 'image/*', 'image/*', 'audio/*'] }
   };
+
+  /* WHAT A FACE TAKES. A slot with one box says it once as the side's own
+     `accept`; a slot with a box per input says it per box, because CHARACTER
+     takes a picture and the clip beside it does not. The side is the
+     fallback, so nothing that has one face had to grow a list - and it is
+     asked by NAME, because the key is what every caller already has and the
+     position is what this table exists to stop them counting. */
+  function acceptFor(map, key, side) {
+    var i = (map.faceKeys || []).indexOf(key);
+    var per = i > -1 && (map.faceAccept || [])[i];
+    return per || ((map.accept || {})[side] || '');
+  }
 
   /* ADDRESSED BY SLOT, NEVER BY POSITION IN THE SLIDE. Every one of these used
      to read `slide.querySelectorAll('.drop')[n]` and call index 1 the right
      slot - which held while a slide had at most one box per slot, and stopped
      the moment 05's hero gained a LOCATION face: the second face sits between
      the two slots in the DOM, so the clip slot would have been wired to it. */
+  /* AND A SLOT CAN HAVE MORE THAN TWO FACES, 2026-10-30. Babe: "the box
+     holds one visually at a time" - so the box is a VIEWER and the faces are
+     the inputs, which generalises the pair this was written for to a list.
+     `alt` stays the second face for every caller that only ever had two;
+     `all` is every box of that slot in face order, front first. */
   function boxesOf(slide) {
     var inps = slide.querySelectorAll('.inp');
-    var front = [], alt = [];
+    var front = [], alt = [], all = [];
     for (var n = 0; n < inps.length; n++) {
-      front.push(inps[n].querySelector('.drop:not(.alt)'));
-      alt.push(inps[n].querySelector('.drop.alt'));
+      var one = inps[n].querySelector('.drop:not(.alt)');
+      var rest = [].slice.call(inps[n].querySelectorAll('.drop.alt'));
+      front.push(one);
+      alt.push(rest[0] || null);
+      all.push([one].concat(rest));
     }
-    return { front: front, alt: alt };
+    return { front: front, alt: alt, all: all };
   }
 
   /* A FIRST GUESS, SO NO BUTTON FLASHES "NOT WIRED" ON EVERY LOAD. The slots
@@ -173,6 +358,11 @@
     /* and it is no longer a slot somebody emptied */
     if (s.gone) delete s.gone[key];
     saveJourney();
+    /* THE ONE PLACE A SLOT RECORDS WHAT IT IS SHOWING is the one place that
+       knows the picture changed, whichever of the six ways it arrived by -
+       the `+`, a drop, the camera, the roll, the carry or the restore. */
+    var sl = (window.HJ && window.HJ.slides || [])[rung - 1];
+    if (sl) arFollow(sl);
   }
 
   /* AN EMPTY SLOT AND AN EMPTIED SLOT ARE NOT THE SAME SLOT - Babe,
@@ -194,7 +384,8 @@
       var out = { v: 1, rungs: {}, traits: {}, sheet: null };
       Object.keys(state).forEach(function (r) {
         var s = state[r], map = SLOTS[r] || {}, keep = {};
-        [map.left, map.right, map.alt].forEach(function (k) { if (k && s[k]) keep[k] = s[k]; });
+        (map.faceKeys || [map.left, map.alt]).concat([map.right])
+          .forEach(function (k) { if (k && s[k]) keep[k] = s[k]; });
         if (s.urls) keep.urls = s.urls;
         /* and which cell put it there, where the cell is one that can say so */
         if (s.src && Object.keys(s.src).length) keep.src = s.src;
@@ -214,6 +405,11 @@
            not noticing is a job you thought was free. It is a name, which is
            what this drawer is allowed to hold. */
         if (s.model) keep.model = s.model;
+        /* AND WHICH TAB IT WAS ON. A mode is the JOB on every rung that has
+           one, and on 06 it is also what makes a pinned row legal - so a
+           drawer that holds the row and not the mode hands back a row the
+           mode forbids, and the picker steps off it on the way in. */
+        if (s.tab) keep.tab = s.tab;
         /* AND WHAT KIND OF SHOT IT WAS - Babe, 2026-10-29, on an H3 clip that
            came back as the BOARD, animated, all six panels moving: "it created
            a video but it animated the board itself".
@@ -242,10 +438,17 @@
          same save every other fact here goes through. */
       if (window.HJ && window.HJ.index) out.at = window.HJ.index();
       out.traits = traitsObj();
-      var sh = document.querySelector('.tray .sheet[aria-pressed="true"]');
-      if (sh) out.sheet = sh.dataset.sheet;
+      var sh = document.querySelector('.ftabs .sheet[aria-pressed="true"]');
+      if (sh) out.sheet = sh.dataset.mode;
       localStorage.setItem(SAVE_KEY, JSON.stringify(out));
     } catch (err) { /* nothing here is worth failing a run over */ }
+    /* AND THE RESULT CELL FOLLOWS THE STATE FROM HERE, which is the one
+       place every change to `out` already passes through - a run finishing,
+       the carry, a restore and `S` all end up saving. A class set at any one
+       of those is a class the other three forget. */
+    try {
+      (window.HJ.slides || []).forEach(function (sl) { markOut(sl); });
+    } catch (err) { }
   }
 
   function restoreJourney() {
@@ -267,13 +470,22 @@
         if (u && u.url && boxes.front[n]) showMedia(boxes.front[n], u.url, u.video);
       });
 
-      /* the second face of a two-faced slot, by its own key */
-      if (map.alt && keep[map.alt]) {
-        st(rung)[map.alt] = keep[map.alt];
-        var ua = keep.urls && keep.urls[map.alt];
-        if (ua && ua.url && boxes.alt[0]) showMedia(boxes.alt[0], ua.url, ua.video);
+      /* EVERY OTHER FACE, BY ITS OWN KEY AND ITS OWN BOX. It restored
+         `alt` and nothing else, which was the whole table while a slot had
+         two answers; 06's third face came back empty on every reload. The
+         boxes are read in face order the way everything else addresses
+         them, so a fourth is an entry in `faceKeys` and nothing here. */
+      var restKeys = map.faceKeys || (map.alt ? [map.left, map.alt] : []);
+      var restAll = boxes.all[0] || [];
+      for (var fi = 1; fi < restKeys.length; fi++) {
+        var fk = restKeys[fi];
+        if (!fk || !keep[fk]) continue;
+        st(rung)[fk] = keep[fk];
+        var ua = keep.urls && keep.urls[fk];
+        if (ua && ua.url && restAll[fi]) showMedia(restAll[fi], ua.url, ua.video);
       }
       if (keep.model) st(rung).model = keep.model;
+      if (keep.tab) st(rung).tab = keep.tab;
       if (keep.mode) st(rung).mode = keep.mode;
       if (keep.urls) st(rung).urls = keep.urls;
       if (keep.gone) st(rung).gone = keep.gone;
@@ -359,7 +571,7 @@
     });
 
     if (data.sheet) {
-      var btn = document.querySelector('.tray .sheet[data-sheet="' + data.sheet + '"]');
+      var btn = document.querySelector('.ftabs .sheet[data-mode="' + data.sheet + '"]');
       if (btn && btn.getAttribute('aria-pressed') !== 'true') btn.click();
     }
 
@@ -488,18 +700,95 @@
      weather or the hour is doing to it, and where the light comes from. No
      people in it at all - the character arrives from the sheet, and a figure
      already standing in the reference is one the model has to remove. */
+  /* AND IT GOT THE CHARACTER ROLL'S TREATMENT, 2026-10-31 - Babe, looking at
+     a rolled car park: "what are the prompts for random environments... can
+     we do what we did for characters? i think we have more of a variety
+     there". There was: twelve wheres against twenty roles times sixteen cast
+     words - and every one of the twelve was the SAME REGISTER, a grim
+     industrial night. A corridor, an underpass, a car park, a stairwell, a
+     cargo hold, a scrapyard: six crops of one mood, which is the sentence
+     this file already wrote about 01's own roll the day its medium became a
+     pick of its own.
+     WHAT IS COPIED IS THE METHOD, NOT THE LIST: more axes, each one spanning
+     registers rather than decorating one, and a BRANCH where a single list
+     would write a sentence nobody meant - which is `beast`'s move exactly.
+     INSIDE AND OUTSIDE ARE THAT BRANCH, and it was a live bug rather than a
+     refinement: half the old wheres were interiors and every weather word
+     assumed open sky, so "a cargo hold, snow coming in sideways" was one roll
+     in four. A place comes off one side and its air and its light come off
+     that same side, so the pairing is right by construction and neither list
+     has to carry a word that only fits the other.
+     AND THE MEDIUM IS DELIBERATELY NOT A PICK HERE, which is the one thing
+     the character roll does that this one must not. On 01 the reference IS
+     the style donor - the whole job of that slot - so `look` varies it on
+     purpose. On 03 the reference is the PLACE: `PLACE_SYS` takes its
+     architecture, surfaces, weather, time of day and light, and then says
+     "photographic, unless the words below call for another medium" - so the
+     medium is the ARTIST'S, written in the box one column over. A roll that
+     handed back an oil-painted car park would be settling that in a dice
+     throw and contradicting the rung's own default in the same breath.
+     WHAT VARIES INSTEAD IS THE PHOTOGRAPHY. `stock` is four ways of taking
+     the same picture, all of them photographic, so the look moves without
+     the medium moving. (*) Every word in all seven lists is mine and Babe's
+     to cut. */
   var ROLL_PLACE = {
-    where: ['a rain-black service corridor', 'a flooded underpass', 'a rooftop above a lit city',
-            'a sodium-lit car park', 'a shuttered market street', 'a cold concrete stairwell',
-            'a diner at the end of a highway', 'a treeline at the edge of a field',
-            'a cargo hold', 'a tiled municipal pool, drained', 'a scrapyard of stacked cars',
-            'a chapel with the roof gone'],
-    weather: ['rain on everything', 'low fog holding the light', 'dry heat and dust in the air',
-              'steam off the grates', 'snow coming in sideways', 'the air completely still'],
-    light: ['one failing strip light', 'sodium orange from off frame', 'cold daylight through a far opening',
-            'a single bare bulb', 'the glow of a city below', 'headlights raking across it'],
-    frame: ['A wide photograph of', 'A photograph from the far end of', 'A low photograph of',
-            'A photograph looking down into', 'A tight photograph of one corner of']
+    frame: ['A wide photograph of', 'A photograph from the far end of',
+            'A low photograph of', 'A photograph looking down into',
+            'A tight photograph of one corner of', 'An eye-level photograph of',
+            'A photograph of the far side of'],
+
+    /* OUTSIDE: where it is, what the air is doing, where the light is from */
+    outside: ['a rooftop above a city', 'a flooded underpass',
+              'a shuttered market street', 'a scrapyard of stacked cars',
+              'a treeline at the edge of a field', 'a salt flat running to the horizon',
+              'a fishing harbour at low tide', 'a mountain road cut into the rock',
+              'a railway cutting between two bridges', 'a drive-in lot long closed',
+              'a desert of black volcanic sand', 'a pine forest after a fire',
+              'a stone jetty running into deep water', 'a canyon floor between red walls',
+              'terraced rice paddies on a hillside', 'a frozen lake with the ice cracking',
+              'a ruined hilltop fort', 'a chapel with the roof gone',
+              'a service station forecourt on an empty road',
+              'a sunflower field gone over'],
+    outair: ['rain on everything', 'low fog holding the light',
+             'dry heat and dust in the air', 'snow coming in sideways',
+             'the air completely still', 'wind flattening everything',
+             'sea spray hanging in the air', 'smoke drifting through'],
+    outlight: ['the sun straight overhead', 'low sun raking across it',
+               'overcast, no shadows at all', 'the blue hour just after sunset',
+               'headlights raking across it', 'the glow of a city below',
+               'moonlight and nothing else', 'floodlights on a tall pole',
+               'the sky going orange behind it', 'a storm sky with one break in it'],
+
+    /* INSIDE: the same three questions, asked of a room */
+    inside: ['a service corridor of painted pipework', 'a cold concrete stairwell',
+             'a cargo hold', 'a tiled municipal pool, drained',
+             'a diner at the end of a highway', 'a launderette of banked machines',
+             'a library of dark wood and brass lamps', 'a hotel ballroom under dust sheets',
+             'a boiler room of pipes and valves', 'a hospital corridor',
+             'a greenhouse of overgrown glass', 'a theatre seen from the wings',
+             'a kitchen at the back of a restaurant', 'a bathhouse of tile and deep basins',
+             'a workshop of half-built engines', 'a grain silo, empty and echoing',
+             'a subway platform between trains', 'an aircraft hangar with the doors open',
+             'a cathedral nave', 'a control room of dead screens',
+             'a barn with light coming through the boards',
+             'a record shop packed to the ceiling'],
+    inair: ['dust hanging in the light', 'steam filling the air',
+            'the air completely still', 'cold enough to see your breath',
+            'smoke in the air', 'damp on every surface',
+            'heat coming up off the floor', 'condensation running down the glass'],
+    inlight: ['one failing strip light', 'a single bare bulb',
+              'cold daylight through a far opening', 'sodium orange from off frame',
+              'shafts of sun through high windows', 'a wall of monitors and nothing else',
+              'firelight from one side', 'work lamps on stands',
+              'neon spill through a doorway', 'candles and nothing else'],
+
+    /* AND FOUR WAYS OF TAKING THE SAME PICTURE. This was one hard-coded
+       "35mm film grain" at the end of the sentence, which is the medium
+       pinned where the medium has to stay pinned - so the only thing it
+       could do was make every roll the same film. These are all
+       photographic and they move the look without moving the medium. */
+    stock: ['sharp and clean, high contrast', '35mm film grain',
+            'medium format, very fine grain', 'a little halation in the highlights']
   };
 
   function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
@@ -541,10 +830,20 @@
        character arrives from the sheet when Run puts them in it, and a figure
        already standing in the reference is one the model has to remove. */
     if (rung === 3) {
-      return pick(ROLL_PLACE.frame) + ' ' + pick(ROLL_PLACE.where) + ', ' +
-             pick(ROLL_PLACE.weather) + ', ' + pick(ROLL_PLACE.light) + '. ' +
+      /* INSIDE OR OUTSIDE FIRST, AND THEN EVERYTHING FROM THAT SIDE. The
+         three lists are paired by name rather than by a flag on each entry,
+         so a place can only ever be handed air and light that belong to it -
+         the `beast` branch's argument, which is that one list would write
+         "a cargo hold, snow coming in sideways" sooner or later. It did, in
+         about one roll in four. */
+      var out = Math.random() < 0.5;
+      return pick(ROLL_PLACE.frame) + ' ' +
+             pick(out ? ROLL_PLACE.outside : ROLL_PLACE.inside) + ', ' +
+             pick(out ? ROLL_PLACE.outair : ROLL_PLACE.inair) + ', ' +
+             pick(out ? ROLL_PLACE.outlight : ROLL_PLACE.inlight) + '. ' +
              'Empty: nobody in the frame, no people anywhere. ' +
-             'Photographic, 35mm film grain, no text anywhere in the frame.';
+             'Photographic, ' + pick(ROLL_PLACE.stock) +
+             ', no text anywhere in the frame.';
     }
     return pick(ROLL.frame) + ' of ' + rollWho() + ' ' + pick(ROLL.ground) + ', wearing ' +
            pick(ROLL.wear) + '. ' + pick(ROLL.light) + '. ' + pick(ROLL.look) + ' ' +
@@ -583,10 +882,16 @@
     /* 05's front face is the board 04 drew and its back is 02's sheet - the
        two references the clip takes, in the box they are taken from. */
     { at: 4, faces: [{ from: 4, key: 'board' }, { from: 2, key: 'sheet' }] },
-    /* and LOCATION names the newest place the character has stood, which is
-       05's clip now rather than 04's - 04 draws a board, which is a plan and
-       not a place. 03's frame is still behind it. */
-    { at: 5, faces: [{ from: 2, key: 'ref1' }, { from: [5, 3], key: 'place' }] }
+    /* AND SCENE GOES BACK TO 04, BECAUSE 05 IS THE CLIP NOW. It named the
+       newest place the character had stood - 05's clip rather than 04's
+       board - which was right while this slot had two faces and neither of
+       them was the footage. With CLIP as face 0 it meant SCENE wore a FRAME
+       OF THE CLIP IN THE CELL ABOVE IT: the same shot twice, and a prompt
+       arguing with itself, since RESHOOT tells the model that @Image2 is
+       the setting and in the next breath not to take the location from
+       @Video1. The slide table has said `from: [4, 3]` and "from 04" all
+       along; this was the half that disagreed. */
+    { at: 5, faces: [{ from: 2, key: 'ref1' }, { from: [4, 3], key: 'place' }] }
   ];
 
   /* WHAT THAT RUNG MADE, EVEN WHEN THIS SESSION DID NOT MAKE IT. The rail
@@ -597,7 +902,13 @@
      the rung it is made of, exactly the way `S` picks one. It is shown, so it
      is no secret which file it is, and showing is still not sending: the run
      uploads whatever the box ended up holding. */
-  async function newestIn(rung) {
+  /* AND IT ANSWERS FOR CLIPS TOO, BY ASKING. Every caller until 06's CLIP
+     face wanted a picture, so the video filter was written in - and asking
+     it for 05's output then returned nothing at all, which is why that cell
+     came up empty on a session whose 05 folder is seven clips. One reader
+     of this listing rule, with the kind as a question rather than a second
+     copy of the walk. */
+  async function newestIn(rung, wantVid) {
     if (!OUTPUTS) OUTPUTS = fetch('/api/output').then(function (r) { return r.json(); });
     var list = await OUTPUTS;
     var files = ((list && list.files) || []).filter(inSession);
@@ -605,7 +916,7 @@
        way `S` tells one rung's folder from another's. */
     for (var n = 0; n < files.length; n++) {
       if (files[n].indexOf('/0' + rung + '/') > -1 && madeHere(files[n]) &&
-          !isVideoName(files[n])) return files[n];
+          isVideoName(files[n]) === !!wantVid) return files[n];
     }
     return '';
   }
@@ -618,7 +929,17 @@
       var boxes = boxesOf(slide);
 
       w.faces.forEach(async function (f, n) {
-        var box = n === 0 ? boxes.front[0] : boxes.alt[0];
+        /* BY KEY WHERE THE SLOT HAS A LIST OF THEM, NEVER BY POSITION. This
+           read `n === 0 ? front[0] : alt[0]`, which is the two-face slot
+           said the old way and was true of 06 until the clip became a cell
+           of its own and took face 0. MEASURED on a cold session21: the
+           02 sheet painted into CLIP and a frame of 05 into CHARACTER -
+           both one place to the left of where they belong.
+           04 and 05 declare no `faceKeys`, so they keep the pair. */
+        var fspec = SLOTS[rung] || {};
+        var fat = f.key ? (fspec.faceKeys || []).indexOf(f.key) : -1;
+        var box = fat > -1 ? (boxes.all[0] || [])[fat]
+                : n === 0 ? boxes.front[0] : boxes.alt[0];
         if (!box) return;
         /* a picture you put here yourself outranks the one the rail made,
            and so does having taken one out: the X is an answer too.
@@ -731,6 +1052,90 @@
       });
       v.src = url;
     });
+  }
+
+  /* FRAME ZERO, WHICH IS THE ONE `framesOf` REFUSES TO GIVE - Babe,
+     2026-10-31, closing the loop: "showing how to record a video of yourself
+     then load it into 01 to become someone else... then use the video and
+     stylized first frame together in reshoot".
+     THE SKIP ABOVE IS LOAD-BEARING AND IT IS FOR THE OTHER JOB. `framesOf`
+     takes a frame every `every` seconds and "never the very first or last"
+     because a clip's first frame is the hero frame it was built FROM, which
+     is already the room - right for a plate and exactly wrong here.
+     AND IT HAS TO BE FRAME ZERO RATHER THAN A FRAME. LTX paints the still
+     into the latent AT FRAME 0 and guides from the depth of the same frame,
+     so a plate made from anywhere else in the clip sits on geometry it does
+     not match and the take opens on a jump. The whole loop rests on the
+     styled picture being the SAME frame the control starts from.
+     PNG RATHER THAN JPEG, because this one is going to be restyled by a
+     model rather than blurred into a wall. */
+  /* AND ANY FRAME, NOT ONLY THE FIRST - Babe, 2026-10-31, looking at a
+     library clip whose first frame has two hands blurred across it: "we
+     should prob make a custom video player with a similar transport bar to
+     the webcam one, where you can select a frame from the video, most likely
+     the first frame... you hit restyle and that frame is sent to that
+     workflow. not the entire video".
+     THE DEFAULT IS STILL ZERO AND THAT IS NOT A PREFERENCE. LTX paints the
+     styled still into the latent AT frame 0 and reads its depth from frame 0
+     too, so a plate made from 1.4s sits on geometry that belongs to a
+     different moment - the hands are somewhere else. Picking a later frame is
+     right whenever the clip is going somewhere that does not pin it, and on
+     the LTX row it wants the clip trimmed to start there. */
+  function frameAt(url, t, wide) {
+    return new Promise(function (done) {
+      var v = document.createElement('video');
+      v.muted = true; v.playsInline = true; v.crossOrigin = 'anonymous';
+      v.preload = 'auto';
+      var sent = false;
+      function give(d) { if (!sent) { sent = true; done(d || ''); }
+                         v.removeAttribute('src'); v.load(); }
+      v.addEventListener('error', function () { give(''); });
+      v.addEventListener('loadedmetadata', function () {
+        /* some containers will not paint until the playhead has MOVED, and a
+           MediaRecorder webm reports no duration at all - so ask for zero and
+           take whatever the first seek lands on. */
+        try { v.currentTime = Math.max(0, +t || 0); } catch (err) { give(''); }
+      });
+      v.addEventListener('seeked', function () {
+        var w = wide || 1280;
+        var vw = v.videoWidth || 16, vh = v.videoHeight || 9;
+        if (vw > w) { } else { w = vw; }
+        var h = Math.round(w * vh / vw);
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        try {
+          c.getContext('2d').drawImage(v, 0, 0, w, h);
+          give(c.toDataURL('image/png'));
+        } catch (err) { give(''); }
+      });
+      setTimeout(function () { give(''); }, 8000);
+      v.src = url;
+    });
+  }
+
+  function frameZero(url, wide) { return frameAt(url, 0, wide); }
+
+  /* WHAT A BOX IS HOLDING, WHEN WHAT IT IS HOLDING IS A CLIP. Two ways a
+     video gets into a box and the run has to find it either way: a live
+     element (a take, an import, a carry) or a path it was painted from. */
+  function clipUrlIn(box) {
+    var v = box && box.querySelector('video');
+    var src = v && (v.currentSrc || v.src);
+    if (src) return src;
+    var f = box && box.dataset.fromFile;
+    return (f && isVideoName(f)) ? '/' + String(f).replace(/^\//, '') : '';
+  }
+
+  /* AND A FACE CAN SEND A STILL WHATEVER IT HOLDS. `faceAccept` says what
+     the BOX takes and this says what the MODEL gets, which on 01's SOURCE
+     are two different things: bring a photograph or bring a clip, and either
+     way the model is handed one picture. It is a fact about the face rather
+     than about the file, so it cannot be derived from `wantsVideo` - that
+     asks the picker, and the picker is about to start taking video. */
+  function sendsStill(rung, key) {
+    var map = SLOTS[rung] || {};
+    var i = (map.faceKeys || []).indexOf(key);
+    return i > -1 ? !!(map.faceStill || [])[i] : false;
   }
 
   /* A ROOM IS NOT A PICTURE OF THE SHOT, AND THE SLOT WAS SHOWING THE ROOM -
@@ -903,10 +1308,30 @@
     var c = box.cloneNode(true);
     /* `.whybox` IS FURNITURE TOO - it is a note about the mode, not something
        the box is holding, and a snapshot that carried it would restore it as
-       dead markup over whatever came back. Same reason the picker comes out. */
-    c.querySelectorAll('.wait, .whybox, input[type=file]').forEach(function (n) { n.remove(); });
+       dead markup over whatever came back. Same reason the picker comes out.
+       AND `.boxer-stage` BY THE SAME ARGUMENT. It is the box face's drawing
+       surface, laid over the picture rather than held by the box, and
+       `ensureStage` makes it on the way in - so a snapshot carrying one
+       would hand back a surface with nobody drawing on it. */
+    /* AND `.outplate` IS THE RESULT STANDING IN THE BOX, which is a thing
+       the rung MADE rather than a thing the box holds - `outPlate` paints
+       it from the state on the way past, so a snapshot carrying one would
+       restore a dead copy over the live one. */
+    c.querySelectorAll('.wait, .whybox, .boxer-stage, .outplate, input[type=file]')
+      .forEach(function (n) { n.remove(); });
     return c.innerHTML;
   }
+
+  /* AND SOUND IS A THIRD KIND OF THING A BOX CAN HOLD, 2026-10-30. Every
+     caller until now had one question - picture or clip - so the third
+     argument was a boolean. An audio reference is neither, and an `<img>`
+     pointed at a wav is a broken-image icon where the file should be.
+     IT TAKES `'audio'` AS WELL AS true/false, which leaves every existing
+     caller saying exactly what it said before, and it guesses from the name
+     when nobody says - a restored journey hands back a url rather than the
+     file it came from. */
+  function isAudioName(n) { return /\.(mp3|wav|m4a|aac|ogg|flac|opus)$/i.test(String(n || '')); }
+  window.HJ.isAudioName = isAudioName;
 
   function showMedia(box, src, isVideo) {
     /* CAPTURED ONCE, AND "ONCE" HAS TO MEAN EVER - the same empty-string
@@ -933,7 +1358,19 @@
     box.innerHTML = '';
     if (x) box.appendChild(x);
     if (picker) box.appendChild(picker);
-    var el = document.createElement(isVideo ? 'video' : 'img');
+    var kind = isVideo === 'audio' || (!isVideo && isAudioName(src)) ? 'audio'
+             : isVideo ? 'video' : 'img';
+    var el = document.createElement(kind === 'img' ? 'img' : kind);
+    /* AND IT IS NOT DRAGGABLE, which is the half CSS cannot do everywhere:
+       `-webkit-user-drag` is Blink's and this attribute is the one every
+       browser consults. An <img> is draggable by default, so the native
+       drag starts on the same press the box surface is listening for and
+       takes the pointer with it. Nothing on this rail wants a picture
+       dragged out of the page; the quad's trade is a `dragstart` on the ROW,
+       which is a button and is untouched. */
+    el.draggable = false;
+    /* a sound you can hear is the only honest way for a box to show one */
+    if (kind === 'audio') { el.controls = true; el.preload = 'metadata'; }
     el.src = src;
     if (isVideo) {
       /* `defaultMuted` IS THE ONE THAT SURVIVES A ROUND TRIP THROUGH MARKUP,
@@ -977,6 +1414,121 @@
     }
     box.classList.add('is-filled');
     if (box.parentNode) box.parentNode.classList.add('is-full');
+    boxesFollow(box);
+    refsFollow(box);
+  }
+
+  /* AND A BOX REBUILT FROM ITS OWN MARKUP TAKES THE BOX FACE WITH IT. The
+     drawing surface on 01 is an overlay inside the input box, so the two
+     functions that fill a box and empty it - this one and `clearSlot` - take
+     the overlay and every region drawn on it along with the picture they
+     were about. That is correct rather than a bug: a region is a position in
+     a particular picture and the picture is gone.
+     WHAT IT COSTS IS THE SENTENCE, which lives one column over in the
+     writing box and would otherwise go on describing regions that no longer
+     exist. So the two rebuilders tell the face, and the face remakes its
+     surface and clears its own leftovers. It is two call sites for one fact
+     because those are the two places the fact happens, which is the same
+     arrangement `paintRefs` already has.
+     IT ONLY COSTS ANYTHING WHILE THE FACE IS OPEN - no boxing slot in the
+     pair and there is nothing to tell. */
+  /* AND IT LIVES IN THE MODULE BODY, 2026-10-31 - Babe, pressing Continue
+     journey: "SETTLEREFS IS NOT DEFINED".
+     IT WAS DECLARED INSIDE `boot()`, the one block in this file that is not
+     the module body - so the boot pass that calls it could see it and nothing
+     else could. `carry` called it bare and threw. THE OTHER CALL SITE GUARDS
+     WITH `window.HJ.settleRefs`, which is the tell: somebody hit this before
+     and reached for the seam instead of moving the function, and the guard
+     then made the second half of the bug invisible by swallowing it.
+     AND IT WAS MEASURED RATHER THAN READ. Both the declaration and the call
+     look like module-level code at a glance - two-space indentation, a
+     hundred lines apart - and a brace-depth scan is what said otherwise:
+     `carry`'s call at depth 4 and the declaration at 2, with `boot`'s own
+     brace between them. A function hoists to its scope and no further, and
+     nothing this repo can run without a browser could see it: `node --check`
+     is happy, every id resolves, and the name IS declared somewhere. */
+  /* AN EMPTY BOX WITH A SET BEHIND IT SHOWS THE SET - Babe, 2026-10-30:
+    "if you first go to 06 since nothing is from 05 it should just land on
+    the inputs quad panel so users can start pluging things in or see what
+    they have already plugged in".
+    IT IS THE PREVIEW RULE FOLLOWED THROUGH. The box shows whichever input
+    is selected, so with nothing to preview the thing worth showing is the
+    quad - and a cold 06 was an empty square with INPUTS under it, which
+    asks you to know there is a panel before it will show you one.
+    AND IT PICKS THE FIRST FACE THAT HAS SOMETHING, not face 0 outright:
+    a sitting that ran 02 and not 05 has a sheet and no clip, and an empty
+    CLIP standing in front of it is the box saying there is nothing here
+    while there is. THE PANEL IS STILL WHERE YOU CHANGE THE SET AND NEVER
+    WHERE YOU FIND IT - the moment anything is in there, the box is what
+    you arrive on.
+    IT LEAVES THROUGH THE CELL, so the one thing that knows how to open and
+    close that face goes on being the only thing that does it. */
+  function settleRefs(slot) {
+   if (!slot || !slot.querySelector('.refs')) return;
+   var boxes = [].slice.call(slot.querySelectorAll('.drop'));
+   var at = -1;
+   for (var i = 0; i < boxes.length && at < 0; i++) {
+     if (boxes[i].querySelector('img, video')) at = i;
+   }
+   var cell = slot.querySelector('.tray .tr[data-act="inputs"]');
+   var open = slot.classList.contains('is-refs');
+   if (at < 0) {
+     /* and never onto a panel with one cell in it - that door is already
+        off, and opening it would be the control this rail has a rule
+        against wearing a different hat. */
+     if (!open && cell) cell.click();
+     return;
+   }
+   if (window.HJ.showFace) window.HJ.showFace(slot, at);
+   if (open && cell) cell.click();
+  }
+  window.HJ.settleRefs = settleRefs;
+
+  /* AND THE QUAD IS A VIEW OF THESE BOXES, SO IT FOLLOWS THEM TOO - Babe,
+     2026-10-31: "i select a file and then nothing happens.... it does not
+     upload into the slot", then the half that named it: "if i click on
+     inputs to go back i see it tho", "then i click on inputs again and its
+     there".
+     THE FILE LANDED EVERY TIME. The panel's thumbnails are CLONES of these
+     boxes - deliberately, so that a cell has nothing of its own to be wrong
+     with - and `paintRefs` ran when the panel OPENED and nowhere else. So
+     the one route that fills a box while the panel is in front of it was the
+     one route whose result you could not see, and closing and reopening the
+     drawer was the only way to make the picture appear: a press that spends
+     a file chooser and changes nothing on screen, which is the roll's own
+     bug from this morning arriving through the other door.
+     IT IS THE SAME TWO CALL SITES `boxesFollow` HAS, and for the same
+     reason: a box is filled and a box is emptied, and those are the two
+     places the fact happens. Every route in - the `+`, a press on an empty
+     cell, a dropped file, the camera, the roll, the restore, the carry -
+     ends at one of them. */
+  function refsFollow(box) {
+    var slot = box && box.closest && box.closest('.slot');
+    /* AND THE PICKER FOLLOWS THE BOXES TOO, for the reason this function
+       already exists: a row that insists on an input is usable or not
+       depending on whether that input is THERE, so the filter has to be
+       re-run wherever the answer changes. These are the two places it
+       changes, which is why it goes here rather than growing a third pair
+       of call sites that can fall out of step with these. */
+    var slide = box && box.closest && box.closest('.slide');
+    if (slide && window.HJ && window.HJ.markOnly) window.HJ.markOnly(slide);
+    if (slot && slot.querySelector('.refs') && window.HJ.paintRefs) {
+      window.HJ.paintRefs(slot);
+    }
+  }
+
+  function boxesFollow(box) {
+    var words = boxingPair(box);
+    if (words && window.HJ && window.HJ.syncBoxes) window.HJ.syncBoxes(words);
+  }
+
+  /* AND ONE READER ANSWERS BOTH HALVES OF IT. The face lives on the slot
+     that holds the words and the picture is one column over, so everything
+     that has to know asks the pair - the repaint above, and the three
+     presses below that would change a picture somebody is drawing on. */
+  function boxingPair(el) {
+    var pr = el && el.closest && el.closest('.pair');
+    return (pr && pr.querySelector('.slot.is-boxing')) || null;
   }
 
   /* ONE HANDLER FOR EVERY SPEAKER ON THE PAGE, now and after any restore. It
@@ -1076,6 +1628,8 @@
     box.classList.remove('is-filled', 'is-busy');
     if (box.parentNode) box.parentNode.classList.remove('is-full');
     if (picker) { picker.value = ''; box.appendChild(picker); }
+    boxesFollow(box);
+    refsFollow(box);
   }
 
   /* Random: a real generation, not a stock card. The slot carries its own
@@ -1093,9 +1647,11 @@
        AND THE INPUT GOES WITH IT, not just the picture. A box that has been
        emptied while it still names a file is the failure this rail keeps
        paying for: RUN would have sent the reference you can no longer see.
-       NOT THE WRITING FACE. On 03 this same function generates what you
-       typed, and there the box holds the sentence - clearing it would throw
-       away the thing being run. */
+       NOT A WRITING FACE, where this same function generates what you typed
+       and the box holds the sentence - clearing it would throw away the
+       thing being run. It named 03, which rolled a place out of a line until
+       that face became the rung's own prompt; the guard belongs to the
+       generator shape rather than to the rung that last wore it. */
     if (!box.classList.contains('is-ask') &&
         box.querySelector(':scope > img, :scope > video')) {
       clearSlot(box, rung, key, true);
@@ -1208,9 +1764,13 @@
       st(rung)[key] = out.name;
       /* shown from the browser's own copy, which is instant; remembered as
          the server's copy of it, which is the one that survives a reload. */
-      showMedia(box, URL.createObjectURL(file), /^video\//.test(file.type));
+      /* AN OBJECT URL CARRIES NO NAME, so the kind comes off the file's own
+         type here - it is the one place that still has it. */
+      var kind = /^video\//.test(file.type) ? true
+               : /^audio\//.test(file.type) ? 'audio' : false;
+      showMedia(box, URL.createObjectURL(file), kind);
       noteSlot(rung, key, '/api/file?filename=' + encodeURIComponent(out.name) +
-               '&subfolder=&type=input', /^video\//.test(file.type));
+               '&subfolder=&type=input', kind);
     } catch (err) {
       say(box.closest('.slide'), String(err.message || err), true);
     } finally {
@@ -1234,9 +1794,31 @@
      `accept` says which it is, so nothing here needs to know about rungs,
      and it is why the cell is labelled from here rather than in the markup:
      RECORD or CAPTURE is a fact about the file chooser beside it. */
+  /* THE CAMERA PHOTOGRAPHS UNLESS A PHOTOGRAPH WOULD BE USELESS - Babe,
+     2026-10-31, on 01 with the camera offering FLIP: "that is for video. we
+     want to capture a still image in this workflow", "and so the web-cam
+     still image becomes the source for you to style".
+     THIS QUESTION HAS BEEN ASKED THREE WAYS AND THE FIRST TWO WERE ABOUT
+     ORDER. It began anchored - is video the FIRST thing this box takes -
+     which held while every box took exactly one kind; then it became "does
+     it take video at all", because a clip face that also accepted an
+     imported picture would otherwise have photographed a slot whose whole
+     job is to hold a performance. Both read the list as an ordering, and
+     then 01's SOURCE grew `image/*,video/*` so a clip could be restyled
+     through frame zero - and the second reading turned this rung's camera
+     into a recorder.
+     SO IT IS NOT ABOUT ORDER AT ALL. A still is the cheap, instant answer
+     and recording is the special case; the only face that genuinely cannot
+     use a photograph is one that will not accept one. 01's SOURCE takes
+     either and wants a portrait, 06's CLIP takes video alone and wants a
+     performance, and no face has to say anything it was not already
+     saying. (*) An audio-only face answers false and would photograph into
+     a cell that takes neither - unreachable today, since nothing points
+     the camera at one, and written down rather than guarded. */
   function wantsVideo(box) {
     var picker = box.querySelector('input[type=file]');
-    return !!picker && /^video\//.test(picker.accept || '');
+    var a = (picker && picker.accept) || '';
+    return /video\//.test(a) && !/image\//.test(a);
   }
 
   function camCell(box) {
@@ -1610,7 +2192,12 @@
       paint();
     }
     var type = MediaRecorder.isTypeSupported(file.type) ? file.type : '';
-    var rec = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
+    /* THE SAME BITRATE AS THE TAKE ITSELF, or trimming one - or flipping it -
+       quietly re-encodes it at Chrome's default and the cut take is worse
+       than the one you shot. */
+    var rec = new MediaRecorder(stream,
+      type ? { mimeType: type, videoBitsPerSecond: 8000000 }
+           : { videoBitsPerSecond: 8000000 });
     var parts = [];
     rec.ondataavailable = function (e) { if (e.data && e.data.size) parts.push(e.data); };
     var done = new Promise(function (r) { rec.onstop = r; });
@@ -1705,6 +2292,52 @@
     box._camWas = null;
     stopCam(box);
     await putFile(box, file, rung, key);
+    /* AND A TAKE YOU HAVE ACCEPTED IS FILED - Babe, 2026-10-31: "when you
+       record a web-cam clip where does it go? should it show up in the
+       session?". It did not, unless you pressed SAVE: before that it was a
+       blob object URL and nothing else, so it died with the page and the
+       library never saw it.
+       USE IS THE RIGHT MOMENT, because it is the acceptance. RETAKE throws a
+       take away and SAVE was the only thing that kept one - which left the
+       press in between, the one that puts the clip into the rail, writing
+       down a URL that stops resolving the moment you reload. A take the
+       journey now points at is work, and work on this rail lives under
+       `output/`.
+       AND IT CLOSES A HOLE THIS SESSION OPENED. 01's SOURCE sends frame zero
+       of whatever clip it holds, and `noteSlot` was recording the object URL
+       as the thing the box is showing - a dead link on the next load. With a
+       filed take there is a real path, so `fromFile` is set and the restore,
+       the run and the library all read the same file.
+       (*) A STILL CAPTURE IS STILL NOT FILED. It has the same mortality and
+       a smaller cost, and auto-filing every frame somebody photographs is a
+       drawer nobody asked for. SAVE keeps one. */
+    /* NO REGEX LITERAL ON THIS LINE, AND THAT IS NOT STYLE - the export's
+       shadow check strips `//` comments with a plain pattern, so a regex
+       holding an escaped slash takes the line's trailing brace with it and
+       the whole file below reads as top level: six shadows at once, which is
+       the tell, since a name collision does not arrive in a burst.
+       I TRIED TO FIX THE CHECKER TWICE AND BROKE IT BOTH TIMES - once by
+       losing a backslash on the way into the file, once by writing a scanner
+       that gets lost inside this codebase's block comments. It is a
+       heuristic and it earns its keep; the cheap half of the trade is not
+       writing `\//` at the end of a line that opens a block. */
+    var kind = String(file.type || '');
+    var ext = String(file.name || '').toLowerCase().split('.').pop();
+    if (kind.indexOf('video/') === 0 || ['mp4', 'webm', 'mov'].indexOf(ext) > -1) {
+      try {
+        var kept = await fetch('/api/take?name=' + encodeURIComponent(file.name || 'take.mp4'), {
+          method: 'POST',
+          headers: { 'Content-Type': file.type || 'application/octet-stream' },
+          body: file
+        }).then(function (r) { return r.ok ? r.json() : null; });
+        if (kept && kept.saved) {
+          box.dataset.fromFile = kept.saved;
+          noteSlot(rung, key, '/' + kept.saved, true);
+        }
+      } catch (err) { /* a server that will not keep it is not a reason to
+                         lose the take: the box still holds it for this
+                         sitting, exactly as it did before. */ }
+    }
     /* WHERE IT CAME FROM, BECAUSE THE INSTRUCTION DEPENDS ON IT. A frame off
        a webcam is a photograph of you in a room with a ceiling light, and the
        scaffolding has to keep your face while refusing all of that - see
@@ -1714,6 +2347,24 @@
       (st(rung).src = st(rung).src || {})[key] = 'webcam';
       saveJourney();
     }
+    /* AND IT PUTS YOU BACK IN FRONT OF THE SET - Babe, 2026-10-31: "maybe
+       when you hit use it takes you to this view tho", "instead of the
+       preview", with the panel open and the still sitting in SOURCE.
+       USE IS THE ACCEPTANCE AND THE SET IS WHAT YOU JUST CHANGED. You have
+       already looked at this picture full size - that is what the review
+       face is for - so landing on it again says nothing, while the panel
+       says what the workflow now holds and which cell is still empty. It
+       is the same move Continue journey makes one level out: the press
+       that ends one thing puts you where the next decision is.
+       AND IT IS THE DOOR'S OWN CELL, not a class - the one place that
+       opens the set, the same way RANDOM and WEBCAM reach it. A slot with
+       no panel has no door and nothing happens, which is every slot that
+       never had one. */
+    var slot = box.closest('.slot');
+    var door = slot && !slot.classList.contains('is-refs') &&
+               slot.querySelector('.refs') &&
+               slot.querySelector('.tray .tr[data-act="inputs"]');
+    if (door) door.click();
   }
 
   function enterCam(box, label) {
@@ -1800,6 +2451,19 @@
        with one button floating over it. Pressing WEBCAM there means the one
        thing it can mean. */
     if (!wantsVideo(box)) return webcam(box, rung, key);
+    /* AND SO DOES AN EMPTY CLIP SLOT, 2026-10-30 - Babe: "i think when you
+       press web-cam the dialogue should come up... we changed it for the
+       demo video".
+       THE RULE ABOVE IS ABOUT A TAKE YOU ARE HOLDING. Waiting for RECORD
+       protects the clip in the box: stepping in to look at it, trim it or
+       keep it must not spend the permission prompt and put a live preview
+       over the thing you came to look at. WITH NOTHING IN THE BOX THERE IS
+       NOTHING TO PROTECT, and the face is then a dead transport reading
+       0.0s over an empty square - which is what read as broken.
+       So the question is what the box is HOLDING, not which kind it takes:
+       a clip in it means step in, an empty one means open the camera, and
+       pressing WEBCAM means the one thing it can mean either way. */
+    if (!box.querySelector('video')) return webcam(box, rung, key);
     box._rk = { rung: rung, key: key };
     if (box.dataset.hint === undefined) box.dataset.hint = bareHTML(box);
 
@@ -1868,9 +2532,38 @@
     if (box._stream) return;
     try {
       var vid = wantsVideo(box);
+      /* ASK FOR A FRAME RATE, OR THE CAMERA WILL SPEND IT - Babe, 2026-10-31:
+         "can we figure out why the video is so chunky... the fps", "not
+         getting a clean smooth video recording", then the question that named
+         it: "is it displayed as 1920x1080 there or something?".
+         A BARE `width: 1280` IS AN IDEAL AND NOT A FLOOR. getUserMedia treats
+         a plain number as `ideal`, so a camera that would rather give
+         1920x1080 does - and at 1080p most webcams fall to 15fps or lower,
+         which is exactly what chunky looks like. NOTHING HERE ASKED FOR A
+         FRAME RATE AT ALL, so there was never an instruction to trade the
+         other way.
+         AND 1280x720 IS THE RIGHT ASK TWICE OVER: it is what this rail
+         records for, and it is the size the LTX depth pass is capped to, so a
+         bigger capture is resolution nobody downstream will use. `max` on the
+         size stops a camera overshooting; `min` on the rate is what makes it
+         pick a mode that holds one. */
       var stream = await navigator.mediaDevices.getUserMedia(
-        vid ? { video: { width: 1280, height: 720 }, audio: true }
-            : { video: { width: 1280, height: 1280 } });
+        vid ? { video: { width: { ideal: 1280, max: 1280 },
+                         height: { ideal: 720, max: 720 },
+                         frameRate: { ideal: 30, min: 24 } },
+                audio: true }
+            : { video: { width: { ideal: 1280, max: 1920 },
+                         height: { ideal: 1280, max: 1920 } } });
+      /* AND WHAT IT ACTUALLY GAVE IS WORTH SAYING OUT LOUD, because the
+         constraint is a request and the camera is the one that answers. A
+         chunky take with no number attached is three guesses; this is the
+         reading that settles which. */
+      try {
+        var got = stream.getVideoTracks()[0];
+        var set = got && got.getSettings ? got.getSettings() : {};
+        console.log('[webcam] camera gave ' + set.width + 'x' + set.height +
+                    ' at ' + (set.frameRate ? Math.round(set.frameRate) : '?') + 'fps');
+      } catch (err) { /* a browser that will not say is not a reason to stop */ }
       /* NOTHING IN THE TRAY IS PRESSED WHILE THE CAMERA IS LOOKING AT YOU -
          Babe, 2026-10-26: "if you use webcam we should unhighlight preset".
          PRESET stayed lit over a live preview, which is the one lie this rail
@@ -1958,7 +2651,16 @@
     var type = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find(function (t) {
       return MediaRecorder.isTypeSupported(t);
     });
-    var rec = new MediaRecorder(box._stream, type ? { mimeType: type } : undefined);
+    /* AND A BITRATE, BECAUSE THE DEFAULT IS NOT FOR A FACE. Chrome picks
+       about 2.5Mbps when nothing says otherwise, which at 720p holds up on a
+       still shot and falls apart on movement - the blockiness that reads as
+       "chunky" alongside a low frame rate, and the two are different causes
+       with one symptom. 8Mbps at 720p is generous and this footage is the
+       input to a depth pass, where mush in the frame becomes mush in the
+       geometry. */
+    var rec = new MediaRecorder(box._stream,
+      type ? { mimeType: type, videoBitsPerSecond: 8000000 }
+           : { videoBitsPerSecond: 8000000 });
     var parts = [];
     box._rec = rec;
     rec.ondataavailable = function (e) { if (e.data && e.data.size) parts.push(e.data); };
@@ -2008,17 +2710,20 @@
     /* STOP IS THE SAME CELL AND IT DOES NOT COUNT YOU IN AGAIN. */
     if (box._rec) return box._rec.stop();
     if (box._count) return;
-    /* THREE, TWO, ONE IN FRONT OF A TAKE, AND NOTHING IN FRONT OF A
-       PHOTOGRAPH - Babe, 2026-10-27: "we dont need the same options or
-       countdown for the webcam". A take that opens on you reaching for the
-       keyboard has spent the first second of a performance, which is why the
-       count was written. A still is one frame of a pose you are already
-       holding: counting somebody in to it puts three seconds in front of a
-       press that is instant, and a bad one costs a RETAKE, which costs
-       nothing. */
+    /* THREE, TWO, ONE IN FRONT OF BOTH, 2026-10-31 - Babe: "i like the
+       countdown we just need to make it for still images".
+       IT WAS TAKES ONLY, on the argument that a still is one frame of a
+       pose you are already holding, so counting somebody in puts three
+       seconds in front of a press that is instant. THAT IS TRUE OF A POSE
+       AND NOT OF A PERSON: the hand that presses the shutter is in the
+       frame, and on this rung the frame is the SUBJECT every later
+       workflow reads a face off. The count is what buys you the second to
+       put your hand down and look up.
+       It is cancellable either way, which is what makes it cheap: the way
+       out of this face is a press you can make while it is counting. */
+    if (!(await countIn(box, 3))) return;
+    if (!box._stream) return;
     if (wantsVideo(box)) {
-      if (!(await countIn(box, 3))) return;
-      if (!box._stream) return;
       return rollCam(box, rung, key);
     }
     /* THE CAPTURE IS CROPPED TO THE ROW'S AR, because rung 01's graph takes
@@ -2038,11 +2743,19 @@
   }
 
   /* ONE LISTENER FOR BOTH DECISIONS, bound where the camera's own cell is. */
-  function bindShot(box, rung, key) {
-    var inp = box.closest && box.closest('.inp');
+  /* THE TAKE'S OWN CELLS ACT ON THE FACE THE CAMERA OPENED ON, resolved at
+     the press rather than closed over at bind time - the cells are the
+     slot's and the take is one box's, so a slot with a box per input would
+     otherwise have USE putting a performance into face 0 whatever face was
+     recording. `at` is `bindSlot`'s own `face`, lent in rather than worked
+     out again here. */
+  function bindShot(front, rung, frontKey, at) {
+    var inp = front.closest && front.closest('.inp');
     if (!inp) return;
+    var on = function () { return (at && at()) || { box: front, key: frontKey }; };
     inp.querySelectorAll('.tray .tr.camr').forEach(function (cell) {
       cell.addEventListener('click', async function () {
+        var f = on(), box = f.box, key = f.key;
         if (cell.dataset.cam === 'use') return useShot(box, rung, key);
         if (cell.dataset.cam === 'retake') return retakeShot(box);
         /* SAVE KEEPS WHAT YOU ARE LOOKING AT, which is the trimmed range and
@@ -2195,7 +2908,15 @@
     cell.classList.remove('is-live');
     field.focus();
     field.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { closeAsk(box, cell); }
+      /* AND ESCAPE CANNOT LEAVE A FACE THAT IS THE SLOT. It owns Escape
+         while it is up, which is right where there is a box behind it to go
+         back to; on a slot whose only answer is words there is nothing
+         behind it and the press would have been the one way to shut a face
+         with no cell left to reopen it. */
+      if (e.key === 'Escape' &&
+          !box.closest('.slot').classList.contains('always-ask')) {
+        closeAsk(box, cell);
+      }
       /* AND ENTER IS A LINE BREAK IN A BOX THAT IS THE PROMPT - Babe,
          2026-10-29: "if you press enter while writing a prompt... instead of
          going to a line it disappears". It pressed `cell`, which was right
@@ -2233,6 +2954,16 @@
     if (!slot) return;
     var head = slot.querySelector('.tray .tray-k');
     if (!head) return;
+    /* AND A RESULT COVERING THE SENTENCE NAMES ITSELF, from here rather
+       than from the press that revealed it - which is what stops the
+       header and the picture disagreeing after a trip into the agent.
+       That panel hides the box and the picture with it, and on the way
+       back this is the one thing that writes the row, so it answers with
+       what is actually on screen rather than with what was last pressed. */
+    if (slot.classList.contains('is-out')) {
+      head.innerHTML = '<b>Result</b>';
+      return;
+    }
     var on = slot.querySelector('.ftab[aria-pressed="true"]');
     var mode = on ? on.textContent.trim() : '';
     head.innerHTML = (mode ? mode + ' ' : '') + '<b>' + (which || 'Prompt') + '</b>';
@@ -2253,9 +2984,20 @@
      be orphaned there while a dead copy of it came back in the box - the
      slot showing a picture that is no longer the one it is holding. Calling
      this first is what makes that impossible rather than unlikely. */
+  /* AND THE RESULT IS NOT A PLATE, SO IT DOES NOT TRAVEL - Babe,
+     2026-11-01: "i removed the rendered result but when i click on agent its
+     still there". A plate is a picture you write OVER and the result is a
+     FACE of this box, which is the distinction the two sets of rules already
+     draw - and the hide half of that pair is scoped to the box
+     (`.drop.is-ask > .outplate`, `.writer > .outplate`), so a node carried
+     out of the box escapes BOTH halves and lands in the panel with nothing
+     left to say it is at rest. It was showing dismissed and all.
+     A NODE THAT CAN LEAVE ITS SCOPE CANNOT BE HIDDEN BY ITS SCOPE: the
+     answer is not a third rule in the panel, it is not moving it. */
   function movePlate(from, to) {
     if (!from || !to) return;
-    var plate = from.querySelector(':scope > img, :scope > video');
+    var plate = from.querySelector(
+      ':scope > img:not(.outplate), :scope > video:not(.outplate)');
     if (plate) to.appendChild(plate);
   }
 
@@ -2304,6 +3046,29 @@
     if (slot && slot.classList.contains('is-describing')) {
       var cbox = slot.querySelector('.drop');
       if (cbox) { e.__backDone = 1; return closeCard(cbox); }
+    }
+    /* AND THE INPUTS HEADER IS THE WAY BACK TOO - Babe, 2026-10-30: "link
+       inputs header to go back". This handler knew the traits card and the
+       writing face and nothing about the newest one, so `< INPUTS` was a
+       dead press - the arrow beside it is the only thing anybody could use.
+       THE HEADER AND THE ARROW HAVE BEEN ONE PRESS SINCE THE CARD, which is
+       what this selector says, so a face that joins the list has to join it
+       here. It presses the cell that already toggles the panel rather than
+       closing it a second way: a hidden button still answers `.click()`,
+       and one mechanism cannot disagree with itself about which face is up. */
+    /* AND THE RESULT IS PUT AWAY BY ITS OWN HEADER, which is what Babe
+       asked the header to become. It is first in this chain because it is
+       the outermost surface: the sentence it is covering may itself be
+       inside the agent or the box face, and one press goes one level. */
+    if (slot && slot.classList.contains('is-out')) {
+      e.__backDone = 1;
+      return showOut(slot, false);
+    }
+    if (slot && slot.classList.contains('is-refs')) {
+      var inCell = slot.querySelector('.tray .tr[data-act="inputs"]');
+      e.__backDone = 1;
+      if (inCell) inCell.click();
+      return;
     }
     if (!slot || !slot.classList.contains('is-asking')) return;
     /* ONE LEVEL AT A TIME - Babe, 2026-10-25: "if you are in AGENT mode it
@@ -2388,6 +3153,19 @@
        re-made, same as the writing face. */
     movePlate(box, box.parentNode.querySelector('.card'));
     box.parentNode.classList.add('is-describing');
+    /* AND THE HEADER NAMES THIS FACE, which it stopped doing the moment this
+       slot gained a second one. The markup writes TRAITS once and the inputs
+       panel writes INPUTS over it on the way in, so a card opened after a
+       look at the set came up reading `‹ INPUTS` - the header naming a face
+       you are not standing in, which is the one thing it cannot do. Every
+       other face on the rail says its own name on the way in; this was the
+       only one still relying on the markup. */
+    /* AND IT LEAVES THE SET BEHIND. The DESCRIBE cell is reachable from
+       inside the inputs face, so pressing it there left the slot wearing
+       both - `slot is-refs is-describing`, measured - which is the one thing
+       `FACE_CLASSES` exists to prevent. One face at a time. */
+    box.parentNode.classList.remove('is-refs');
+    if (window.HJ && window.HJ.faceHead) window.HJ.faceHead(box.parentNode, 'Traits');
     /* AND IT BUILDS TOP TO BOTTOM - Babe, 2026-10-27. The card arrives as
        five rows at once, which is the one face on the rail that is a list
        rather than a picture, and a list that appears whole says nothing
@@ -2411,21 +3189,252 @@
     box.parentNode.classList.remove('is-describing');
   }
 
-  function bindSlot(box, rung, key, accept, altBox, altKey) {
-    var picker = document.createElement('input');
-    picker.type = 'file';
-    picker.accept = accept || 'image/*';
-    picker.style.display = 'none';
-    box.appendChild(picker);
+  /* THE CELL BEING DRAGGED, which has to live outside the handlers because
+     `dataTransfer.getData` is unreadable during a dragover - the browser
+     will only tell you the TYPES until the drop, and the question here is
+     whether two particular cells can take each other's file. */
+  var dragFace = null;
 
-    /* WHICHEVER FACE IS UP IS THE ONE EVERY ACTION MEANS. A two-faced slot
-       shows one box at a time and each face has its own key, so IMPORT, a
-       dropped file and PRESET all have to ask which one is showing rather
-       than assuming the front. A one-faced slot answers the same question
-       with the only box it has. */
+  /* AND THE RESULT BEING DRAGGED, for the same reason and read by the same
+     three handlers - see `outPlate`. It is its own variable rather than a
+     shape inside `dragFace` because the two are different gestures: one
+     exchanges what two cells are holding and the other fills one cell from
+     a file, so a single variable would need a tag saying which, which is a
+     fact drawn twice. */
+  var dragOut = null;
+
+  /* AND A PASTE INTO A WRITING BOX IS PLAIN TEXT - Babe, 2026-10-31, with
+     a line typed into 03's direction box: "i noticed the font changed when
+     you type it into the direction box".
+     MEASURED FIRST: there is no serif anywhere in the stylesheet, `--ui`
+     resolves, and `.drop.is-ask .ask` asks for it - so the CSS was not the
+     cause and an inherited value cannot produce Times either. What can is
+     the content carrying its own `font-family`, which is what a
+     `contenteditable` with NO PASTE HANDLER does: the clipboard's markup
+     arrives intact, styles and all.
+     AND IT WAS ONLY EVER COSMETIC, which is worth knowing before anyone
+     goes looking for it in a payload: `closeAsk` keeps the sentence as
+     `textContent`, so the model has always been sent plain text and the
+     styling dies the moment the face closes.
+     IT IS ONE DELEGATED HANDLER rather than one per box, because every
+     `contenteditable` on this page wants the same thing and a list of them
+     is a list that can fall behind the markup. `insertText` is the
+     deprecated call that every browser still implements and the only one
+     that leaves UNDO working, which a manual range splice does not. */
+  document.addEventListener('paste', function (e) {
+    var el = e.target.closest && e.target.closest('[contenteditable="true"]');
+    if (!el) return;
+    var cb = e.clipboardData || window.clipboardData;
+    if (!cb) return;
+    e.preventDefault();
+    var text = cb.getData('text/plain') || '';
+    try { document.execCommand('insertText', false, text); }
+    catch (err) { el.textContent = (el.textContent || '') + text; }
+  });
+
+  /* WHAT KIND OF THING A BOX IS HOLDING, read off what is drawn in it rather
+     than off the record beside it: the box is the thing being traded. */
+  function heldKind(box) {
+    if (box.querySelector(':scope > video')) return 'video/';
+    if (box.querySelector(':scope > audio')) return 'audio/';
+    if (box.querySelector(':scope > img')) return 'image/';
+    return '';
+  }
+
+  /* AND A TRADE IS LEGAL WHEN EACH CELL WOULD TAKE THE OTHER'S FILE. An
+     empty cell takes anything, because there is nothing to be wrong. */
+  function takesKind(accept, kind) {
+    if (!kind) return true;
+    if (!accept) return true;
+    return accept.indexOf(kind) !== -1 || accept.indexOf('*/*') !== -1;
+  }
+
+  /* AND A RESULT IS A FILL RATHER THAN A TRADE, which is why it is its own
+     question and not a branch inside `canTrade`: a trade needs both cells
+     to accept each other's contents, and this needs one cell to accept one
+     file. What they share is the three handlers and the `is-over` mark. */
+  function canDropOut(row, at, faces) {
+    if (!dragOut) return false;
+    if (row.disabled || row.classList.contains('off')) return false;
+    var f = faces[at];
+    if (!f || !f.key) return false;
+    return takesKind(f.accept, dragOut.vid ? 'video/' : 'image/');
+  }
+
+  /* AND THE FILL IS `sendTo`'s OWN BODY, aimed at a named face instead of
+     at face 0. Marked rather than uploaded - the run sends it on the way
+     out, which is how `fill` does it and why what you are looking at is
+     what gets sent - and the state key is cleared, because whatever this
+     face had uploaded is not this file. `showMedia` already tells the quad
+     and the box face, so nothing else has to be kept in step. */
+  function dropOutInto(slot, rung, faces, at) {
+    var f = faces[at];
+    if (!f || !f.key || !dragOut) return;
+    f.box.dataset.fromFile = dragOut.path;
+    showMedia(f.box, '/' + dragOut.path, dragOut.vid);
+    st(rung)[f.key] = '';
+    markAct(f.box, '');
+    saveJourney();
+  }
+
+  function canTrade(row, at, faces) {
+    if (!dragFace || dragFace.at === at) return false;
+    if (dragFace.slot !== row.closest('.slot')) return false;
+    if (row.disabled || row.classList.contains('off')) return false;
+    var a = faces[dragFace.at], b = faces[at];
+    if (!a || !b || !a.key || !b.key) return false;
+    return takesKind(b.accept, heldKind(a.box)) &&
+           takesKind(a.accept, heldKind(b.box));
+  }
+
+  /* AND THE TRADE MOVES THE NODE RATHER THAN RE-MAKING IT, the way
+     `facePlate` does: a re-made <video> reloads, and the picture you are
+     looking at is the one that was proven to decode. Everything the journey
+     keeps per key goes with it - the Comfy input name, the url, the
+     provenance and whether the emptiness was a decision - because a record
+     left behind is a box claiming a file that is now in the cell next door.
+     THE HINT STAYS WITH ITS OWN CELL, which is why both are cleared first
+     rather than having their whole contents exchanged: the empty-box words
+     are written per face ("A photograph of whoever is becoming someone" is
+     not what the reference cell says), so moving them would hand a cell the
+     other one's invitation. `clearSlot` is what knows how to put a box back
+     to its own empty state, and `replacing` keeps it from recording the
+     emptiness as a decision. */
+  function liftFace(rung, f) {
+    var s = st(rung);
+    var nodes = [].filter.call(f.box.children, function (n) {
+      return n.matches('img, video, audio, .spk');
+    });
+    return {
+      nodes: nodes,
+      filled: f.box.classList.contains('is-filled'),
+      from: f.box.dataset.fromFile,
+      input: s[f.key],
+      url: s.urls && s.urls[f.key],
+      src: s.src && s.src[f.key]
+    };
+  }
+
+  function dropFace(rung, f, p) {
+    var s = st(rung);
+    if (!p.nodes.length && !p.input && !p.url) return;
+    /* AND THE INVITATION GOES WHEN THE PICTURE ARRIVES, which is the dance
+       `showMedia` already does: the box was just put back to its own empty
+       state by `clearSlot`, so the words it shows when nothing is in it are
+       sitting under whatever lands on top. Everything but the furniture
+       comes out, and the furniture is the same three things it always is. */
+    [].slice.call(f.box.children).forEach(function (n) {
+      if (n.matches('.clr, input[type=file], .boxer-stage')) return;
+      n.remove();
+    });
+    p.nodes.forEach(function (n) { f.box.appendChild(n); });
+    if (p.filled) {
+      f.box.classList.add('is-filled');
+      if (f.box.parentNode) f.box.parentNode.classList.add('is-full');
+    }
+    if (p.from) f.box.dataset.fromFile = p.from;
+    if (p.input) s[f.key] = p.input;
+    if (p.url) (s.urls = s.urls || {})[f.key] = p.url;
+    if (p.src) (s.src = s.src || {})[f.key] = p.src;
+    if (s.gone) delete s.gone[f.key];
+  }
+
+  function tradeFaces(slot, rung, faces, i, j) {
+    var a = faces[i], b = faces[j];
+    if (!a || !b || !a.key || !b.key) return;
+    var pa = liftFace(rung, a), pb = liftFace(rung, b);
+    clearSlot(a.box, rung, a.key, true);
+    clearSlot(b.box, rung, b.key, true);
+    dropFace(rung, a, pb);
+    dropFace(rung, b, pa);
+    saveJourney();
+    if (window.HJ && window.HJ.paintRefs) window.HJ.paintRefs(slot);
+    /* AND THE LENGTH FOLLOWS THE CLIP. A moved <video> does not fire
+       `loadedmetadata` again, so the cell that reads it has to be asked. */
+    setTimeout(function () { markDuration(a.box); markDuration(b.box); }, 0);
+  }
+
+  function bindSlot(box, rung, key, accept, altBox, altKey) {
+    /* EVERY FACE OF THIS SLOT, IN ORDER - the box, the key it sends and the
+       kind of file it takes. `box`/`altBox` are faces 0 and 1 said the old
+       way and still the answer for a slot with one or two; a slot that
+       declares `faceKeys` has as many as it has boxes. */
+    /* THE FACE TABLE IS THE LEFT SLOT'S, AND THIS IS CALLED FOR BOTH. Read
+       outright it handed 06's right-hand writing box `faceKeys[0]` - the
+       clip's own key - and with it a file picker, on the one slot whose
+       whole point is that it takes no deliveries. The left box is the one
+       the table is about; everything else answers with the key it was
+       given. */
+    var spec = boxesOf(box.closest('.slide')).front[0] === box
+      ? (SLOTS[rung] || {}) : {};
+    var faces = [].slice.call(box.parentNode.querySelectorAll('.drop'))
+      .map(function (b, i) {
+        var k = (spec.faceKeys || [])[i];
+        if (k === undefined) k = i ? (i === 1 ? altKey : undefined) : key;
+        return { box: b, key: k, accept: (spec.faceAccept || [])[i] || accept };
+      });
+    if (!faces.length) faces = [{ box: box, key: key, accept: accept }];
+
+    /* ONE PICKER PER FACE, 2026-10-30. There was one, on the front box, and
+       every other face borrowed it - which held while IMPORT was a tray cell
+       asking `face()` which box it meant. The panel's own cells open the
+       face they stand for, and `target.querySelector('input[type=file]')`
+       found NOTHING on an alt box: pressing an empty SCENE cell opened no
+       chooser at all. The chooser belongs to the box, because the box is
+       what the file lands in - and it is what lets a face say what it takes,
+       so the clip's cell offers videos and the character's does not. */
+    /* AND IT IS MADE WHEN IT IS NEEDED RATHER THAN KEPT, 2026-10-31 - Babe,
+       on an empty SOURCE: "its not letting me upload an image".
+       A PICKER LIVES INSIDE THE BOX AND THE BOX IS REBUILT FROM MARKUP. That
+       is not a defect of any one caller - `showMedia` writes innerHTML,
+       `clearSlot` puts the empty state back, a writing face restores `_was`
+       and `bareHTML` strips the chooser on the way past, which is correct
+       because it is furniture rather than contents. FOUR CALLERS ALREADY
+       CARRY IT BY HAND across their own wipe, which is the tell: a thing
+       four places have to remember is a thing the fifth will forget, and the
+       fifth is whichever one somebody writes next.
+       SO THE LOOKUP MAKES ONE IF IT IS GONE. Nothing can destroy a chooser
+       that does not have to survive - and the eager pass stays, because
+       `wantsVideo` reads this element's `accept` to decide whether a slot
+       records or photographs, and that answer has to be there before
+       anybody presses anything. */
+    function pickerFor(f) {
+      if (!f || !f.key) return null;
+      var pk = f.box.querySelector('input[type=file]');
+      if (pk) return pk;
+      pk = document.createElement('input');
+      pk.type = 'file';
+      /* THE BOX'S OWN ANSWER WINS, because `markFaces` writes what the
+         PRESSED ROW takes there and this table is what the SLOT takes - the
+         floor rather than the fact. */
+      pk.accept = f.box.dataset.accept || f.accept || 'image/*';
+      pk.style.display = 'none';
+      pk.addEventListener('change', function () {
+        var got = pk.files && pk.files[0];
+        pk.value = '';
+        if (got) putFile(f.box, got, rung, f.key);
+      });
+      f.box.appendChild(pk);
+      return pk;
+    }
+    faces.forEach(pickerFor);
+
+    /* WHICHEVER FACE IS UP IS THE ONE EVERY ACTION MEANS. The box shows one
+       at a time and each face has its own key, so IMPORT, a dropped file and
+       PRESET all have to ask which one is showing rather than assuming the
+       front. A one-faced slot answers the same question with the only box it
+       has. `showFace` is what writes `on`, so this reads the one thing that
+       decides it rather than keeping a second opinion. */
     function face() {
-      var on = altBox && box.parentNode.classList.contains('is-flipped');
-      return on ? { box: altBox, key: altKey } : { box: box, key: key };
+      for (var i = 1; i < faces.length; i++) {
+        if (faces[i].box.classList.contains('on')) return faces[i];
+      }
+      return faces[0];
+    }
+    /* the chooser of whichever face is up - every caller that used to reach
+       for a single shared one wants this. */
+    function picked() {
+      return pickerFor(face());
     }
 
     var tray = box.parentNode.querySelector('.tray');
@@ -2435,8 +3444,11 @@
          might want to change the word REPLACE to IMPORT so its consistent".
          The selector keeps the old id so a tray that still says REPLACE
          anywhere keeps working rather than going quietly dead. */
-      var imp = tray.querySelector('[data-act="import"], [data-act="replace"]');
-      if (imp) imp.addEventListener('click', function () { picker.click(); });
+      var imp = tray.querySelector('[data-act="import"], [data-act="replace"], [data-act="upload"]');
+      if (imp) imp.addEventListener('click', function () {
+        var pk = picked();
+        if (pk) pk.click();
+      });
 
       /* PRESET: something already in bg/, so the rung can be tried without
          handing over a face or shooting a performance. It is a real upload
@@ -2472,8 +3484,44 @@
         }
       });
 
+      /* AND THE CAMERA OPENS ON THE FACE YOU ARE STANDING IN. It took the
+         front box and the front key outright, which was the same assumption
+         the X made and the agent made: on 06 that meant a performance
+         recorded into whichever cell happened to be face 0. `wantsVideo`
+         reads that box's own picker, so a face that takes a clip records and
+         one that takes a picture captures a still - which is the cell saying
+         what it is rather than the slot guessing. */
       var cam = tray.querySelector('[data-act="webcam"]');
-      if (cam) cam.addEventListener('click', function () { openCamFace(box, rung, key); });
+      if (cam) cam.addEventListener('click', function () {
+        var t = face();
+        if (!t.key) return;
+        /* AND IT SHOWS THE FACE IT IS FILLING, which is the roll's own fix
+           arriving through the door opened the same hour - Babe,
+           2026-10-31: "when i enable i dont see the web-cam video
+           anymore", "i see flip", "and two slots".
+           THE BIG BOX IS `display: none` WHILE THE SET IS UP, and the
+           camera face is not in `FACE_CLASSES`, so opening it left the
+           panel standing and put a live preview into a box nobody could
+           see - the quad still on screen, the tray already saying what
+           the camera says. A press that changes nothing visible, for the
+           second time, and for the same reason: you cannot preview into a
+           panel any more than you can draw on one.
+           SO IT PUTS THE PANEL DOWN AND SHOWS THE CELL, exactly as RANDOM
+           does - the door's own cell closes the set and `showFace` is the
+           one place that says which box is up. **And it is `face()` that
+           decides which**, so the camera opens on the cell you selected
+           and the word on the cell beside it - FLIP on a face that takes
+           a clip, CAPTURE on one that takes a picture - is about that
+           same face rather than about whichever box happened to be in
+           front. */
+        var slot = box.closest('.slot');
+        var at = faces.map(function (f) { return f.key; }).indexOf(t.key);
+        var door = slot && slot.classList.contains('is-refs') &&
+                   slot.querySelector('.tray .tr[data-act="inputs"]');
+        if (door) door.click();
+        if (slot && at > -1 && window.HJ.showFace) window.HJ.showFace(slot, at);
+        openCamFace(t.box, rung, t.key);
+      });
       /* the face's own cell - the only one in the row while the camera is up */
       var camgo = tray.querySelector('.tr.camgo');
       /* THE FACE'S OWN CELL IS THE MIRROR NOW - Babe: "add flip where record
@@ -2484,15 +3532,85 @@
         /* the cell is labelled from here because RECORD, CAPTURE or FLIP is a
            fact about the file chooser beside it, and it has to DO what it
            says: on a stills slot it is the shutter. */
-        if (!wantsVideo(box)) return camAct(box, rung, key);
-        box._flip = !box._flip;
-        paintFlip(box);
+        /* AND IT ACTS ON THE FACE THE CAMERA IS LIVE ON, which is the one
+           thing it was still reading off the closure - Babe, 2026-10-31:
+           "i think capture is broke on the webcam", "the button just turns
+           white".
+           THE CELL BESIDE IT WAS FIXED AND THIS ONE WAS NOT. WEBCAM asks
+           `face()` and `bindShot` is handed it, so stepping into a face
+           and opening the camera there both land correctly; this one kept
+           the FRONT box, which on 01 is SOURCE. Open the camera on
+           REFERENCE and the press ran `wantsVideo(sourceBox)` - true,
+           because SOURCE takes a clip as well as a picture - so it took the
+           FLIP branch and mirrored a box that was not on screen. The cell
+           lit up and nothing happened, which is exactly what a press that
+           lands and does the wrong thing looks like.
+           THE LABEL WAS RIGHT THE WHOLE TIME, which is what made it read as
+           broken rather than as the wrong cell: the word is written from the
+           LIVE face and only the handler was reading the other one. */
+        var t = face();
+        var b = t.box || box, k = t.key || key;
+        if (!wantsVideo(b)) return camAct(b, rung, k);
+        b._flip = !b._flip;
+        paintFlip(b);
       });
-      /* and the two that decide about what it took */
-      bindShot(box, rung, key);
+      /* AND THE STILLS FACE'S OWN MIRROR, which is the same toggle with a
+         cell of its own because over there the one above is the shutter. */
+      var camflip = tray.querySelector('.tr.camflip');
+      if (camflip) camflip.addEventListener('click', function () {
+        var t = face();
+        var b = t.box || box;
+        b._flip = !b._flip;
+        paintFlip(b);
+      });
+      /* and the two that decide about what it took, on that same face */
+      bindShot(box, rung, key, face);
 
+      /* AND A ROLL FILLS THE FACE IT IS FOR, NOT THE ONE IN FRONT. RANDOM
+         was bound to the box this was called with, which was the whole slot
+         while a slot had one picture in it; 01's reference and 03's
+         environment are cells of their own now and the roll has always been
+         for those, never the source and never the sheet. `faceRoll` names
+         it, because a key is an address and a position is what the face
+         tables exist to stop callers counting - and a slot with one face
+         answers with that face as it always did.
+         IT IS NOT THE UPLOAD PROBLEM. A tray cell acting on whichever cell
+         is SELECTED has a subject you have to remember, which is why UPLOAD
+         came off 06's tray; this one names one face and can only ever mean
+         that one, the same way PRESET names one file. */
+      var rollAt = faces.filter(function (f) { return f.key === spec.faceRoll; })[0]
+                || faces[0] || { box: box, key: key };
+      /* AND IT SHOWS THE FACE IT IS FILLING FIRST - Babe, 2026-10-31, on 03's
+         new tray: "idk if random is wired tho". It was, and you could not
+         tell: `faceRoll` points the roll at a cell, and the cell it points at
+         is not the one in front of you. The box arrives on face 0, so RANDOM
+         drew its waiting mark into a HIDDEN box and showed the picture there
+         too - a press that spends a generation and changes nothing on screen.
+         01 HAS DONE THIS SINCE ITS REFERENCE MOVED LEFT. The cell has rolled
+         into face 1 there for a day and nothing said so, which is why the
+         first question about the wiring came from the rung that got it
+         second: a roll you cannot see is indistinguishable from a dead cell.
+         IT IS `showFace` AND THE DOOR'S OWN CELL, not a third mechanism.
+         That function is the one place that writes which box shows, which
+         pick is pressed, which quad cell is marked and what the picture is
+         called; the door's cell closes the panel, because the big box is
+         `display: none` while the set is up and a mark drawn in it is a mark
+         nobody sees.
+         AND IT SHOWS THE FACE WITHOUT STEPPING INTO IT. Pressing the pick
+         cell would have done the showing for free and added `is-inface` with
+         it - which is right when a person chose to go and look at one input,
+         and wrong for a press whose whole job is somewhere else. A roll is
+         not a decision about which input you are working on. */
       var rnd = tray.querySelector('[data-act="random"]');
-      if (rnd) rnd.addEventListener('click', function () { roll(box, rnd, rung, key); });
+      if (rnd) rnd.addEventListener('click', function () {
+        var slot = box.closest('.slot');
+        var at = faces.indexOf(rollAt);
+        var door = slot && slot.classList.contains('is-refs') &&
+                   slot.querySelector('.tray .tr[data-act="inputs"]');
+        if (door) door.click();
+        if (slot && at > -1 && window.HJ.showFace) window.HJ.showFace(slot, at);
+        roll(rollAt.box, rnd, rung, rollAt.key);
+      });
 
       /* PROMPT turns the slot itself into the box you write in. Press it
          again to generate what you wrote; press it on an empty box, or hit
@@ -2572,6 +3690,7 @@
     var x = box.parentNode.querySelector(':scope > .clr');
     if (x) x.addEventListener('click', function (e) {
       e.stopPropagation();
+
       /* AND IT THROWS AWAY THE FACE YOU ARE LOOKING AT - Babe, 2026-10-29,
          on 06's HERO with SCENE up: "i pressed x but the image did not
          remove", then "not getting an x to delete now". There is ONE X on a
@@ -2591,7 +3710,136 @@
       var askCell = box.parentNode.querySelector('[data-act="prompt"]');
       if (f.box.classList.contains('is-ask') && askCell) return closeAsk(f.box, askCell);
       clearSlot(f.box, rung, f.key);
+      /* AND ON A PANEL SLOT THE X SHOWS THE QUAD - Babe, 2026-10-30: "so if
+         they hit the x it shows the quad". You have just emptied the thing
+         you were looking at, so the box behind it is an empty square with
+         nothing to say; the set is what you now have to choose from. It is
+         the same move Continue journey makes in the other direction - the
+         press that ends one thing puts you where the next decision is. */
+      var mySlot = box.closest('.slot');
+      var panelCell = box.parentNode.querySelector('.refs') &&
+                      box.parentNode.querySelector('.tray .tr[data-act="inputs"]');
+      if (panelCell && mySlot && !mySlot.classList.contains('is-refs')) panelCell.click();
     });
+
+    /* AND A NAMED REFERENCE HAS ITS OWN X, 2026-10-30. The inputs panel draws
+       one per cell, and it means what the slot's X means everywhere else:
+       throw away what is in THIS box. It is bound here because this is where
+       the box, the rung and the key for each face already are - resolving
+       them again from a delegated handler would be a second copy of the one
+       thing `face()` exists to answer. The panel is repainted by its own
+       painter rather than by this guessing at the markup. */
+    var inputs = box.parentNode.querySelector('.refs');
+    if (inputs) {
+      inputs.querySelectorAll('.refx').forEach(function (x) {
+        x.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          ev.preventDefault();
+          var f = faces[+x.dataset.f || 0];
+          if (!f || !f.key) return;
+          clearSlot(f.box, rung, f.key);
+          if (window.HJ && window.HJ.paintRefs) window.HJ.paintRefs(x.closest('.slot'));
+        });
+      });
+
+      /* AND THE PLUS IS THE WAY IN, DRAWN INSIDE THE THING IT FILLS -
+         Babe, 2026-10-30: "should we add maybe a plus icon in the top right
+         of the header row". It is the X's corner and the X's construction,
+         and the two are never both there: a cell has something to throw
+         away or it has somewhere to put one.
+         IT DOES NOT STOP THE PRESS GETTING THROUGH, so the cell is marked
+         as the one you are working on at the same time - which is the
+         subject UPLOAD never had when it sat in the outer tray. */
+      inputs.querySelectorAll('.refadd').forEach(function (a) {
+        a.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          var pk = pickerFor(faces[+a.dataset.f || 0]);
+          if (pk) pk.click();
+        });
+      });
+
+      /* A CELL IS PRESSED TO LOOK AT IT, AND AN EMPTY ONE IS PRESSED TO FILL
+         IT - Babe, 2026-10-31: "maybe just single click the full box to
+         upload if there isn't an image there", then "its not letting me
+         upload an image".
+         IT WAS A DOUBLE-PRESS AND THE ARGUMENT FOR THAT HAS GONE. The two
+         could not share the first press while a single press NAVIGATED: it
+         fires on the way to a double-click and the second one lands on
+         whatever the first put under the pointer. On an empty cell the
+         single press never navigated - there is nothing to go and look at -
+         so it marked the cell and stopped, which is a press that does
+         nothing you can see. Nothing collides, so the gesture is going
+         spare, which is the same test that put a double-click on an empty
+         box two days ago and the same answer one step further in.
+         SO THE PRESS IS THE PAGE'S, where the cell already lives, and it
+         presses this cell's own `+` rather than reaching for a picker: one
+         mechanism, two ways in, and the file lands in the cell you pressed
+         and nowhere else. */
+
+      /* AND ONE CELL DRAGGED ONTO ANOTHER TRADES PLACES - Babe, 2026-10-31:
+         "make it so you can drag and drop on input into another to basically
+         re-order if you want", and the case: "if i want the reference to
+         become the source".
+         IT IS AN EXCHANGE, NOT A REORDER. The cells are not a list that can
+         be shuffled: each one is a named job with a node address behind it,
+         so SOURCE is always `<ref_image_0>` and REFERENCE is always
+         `<ref_image_1>`. What moves is what is IN them - the picture, the
+         Comfy input it was uploaded as, the url the journey remembers and
+         the mark saying where it came from - which is exactly what Babe
+         asked for: the reference BECOMES the source.
+         AND IT ASKS BOTH ACCEPTS, which is the carry's own lesson arriving
+         in the panel: 06's cells are a clip, two pictures and a sound, so a
+         swap that did not ask would quietly put a video where an image goes.
+         A drop that either cell would refuse is simply not a drop target,
+         so nothing lights up promising it. */
+      inputs.querySelectorAll('.refrow').forEach(function (row) {
+        var at = +row.dataset.f || 0;
+        var mine = function () { return faces[at]; };
+        /* A CELL WITH NOTHING IN IT HAS NOTHING TO MOVE, so only a filled
+           one is a handle - and either kind can be dropped ON, because
+           dragging a picture into an empty cell is the same gesture. */
+        row.draggable = true;
+        row.addEventListener('dragstart', function (ev) {
+          var f = mine();
+          if (row.disabled || !f || !f.key || !f.box.classList.contains('is-filled')) {
+            return ev.preventDefault();
+          }
+          dragFace = { slot: box.parentNode, at: at };
+          ev.dataTransfer.effectAllowed = 'move';
+          /* a payload is required for a drag to start at all in some
+             browsers; the index is carried in `dragFace` because `getData`
+             is deliberately unreadable during dragover. */
+          try { ev.dataTransfer.setData('text/plain', String(at)); } catch (err) {}
+        });
+        row.addEventListener('dragend', function () {
+          dragFace = null;
+          inputs.querySelectorAll('.refrow').forEach(function (r) {
+            r.classList.remove('is-over');
+          });
+        });
+        row.addEventListener('dragover', function (ev) {
+          var out = canDropOut(row, at, faces);
+          if (!out && !canTrade(row, at, faces)) return;
+          ev.preventDefault();
+          ev.dataTransfer.dropEffect = out ? 'copy' : 'move';
+          row.classList.add('is-over');
+        });
+        row.addEventListener('dragleave', function () { row.classList.remove('is-over'); });
+        row.addEventListener('drop', function (ev) {
+          row.classList.remove('is-over');
+          if (canDropOut(row, at, faces)) {
+            ev.preventDefault();
+            dropOutInto(box.parentNode, rung, faces, at);
+            dragOut = null;
+            return;
+          }
+          if (!canTrade(row, at, faces)) return;
+          ev.preventDefault();
+          tradeFaces(box.parentNode, rung, faces, dragFace.at, at);
+          dragFace = null;
+        });
+      });
+    }
 
     /* CLICKING A SLOT DOES NOT OPEN A FILE CHOOSER, ON ANY SLOT. It was a
        shortcut that cost more than it saved: it fired on the way to a
@@ -2623,18 +3871,45 @@
        already does. One mechanism, reached two ways.
        NOT WHILE THE BOX IS BEING WRITTEN IN: there the empty box is a
        sentence nobody has typed yet, not a picture nobody has brought. */
+    /* AND AN EMPTY BOX OPENS ITS OWN CHOOSER ON ONE PRESS - Babe,
+       2026-10-31: "maybe just single click the full box to upload if there
+       isn't an image there".
+       THE GESTURE THAT WAS TAKEN AWAY IS NOT THE ONE COMING BACK. A single
+       click used to open a chooser on ANY slot, and it was removed because
+       it fired on the way to a double-click and again when a click dismissed
+       the big view onto the box underneath - the box doing two unrelated
+       things depending on how fast you were. An EMPTY box has neither
+       problem: there is nothing to look at bigger, so nothing to be on the
+       way to and nothing for a dismissed panel to land on.
+       AND IT REPLACES THE DOUBLE-CLICK RATHER THAN JOINING IT, or the same
+       press would open the chooser twice. That branch reached for a tray
+       cell - `[data-act="import"]` - which came off every left slot when the
+       panel landed, so on all six rungs it had quietly been finding nothing.
+       THIS IS THE FACE'S OWN PICKER, so the file lands in the box you
+       pressed; the tray cell could only ever mean "whichever face is up". */
+    /* EVERY FACE, EACH ONE OPENING ITS OWN. Only one is on screen at a time,
+       and a press on the box you are looking at has to mean the cell you are
+       looking at - which is the whole reason the chooser belongs to the box
+       rather than to the slot. */
+    faces.forEach(function (f) {
+      if (!f.key) return;
+      f.box.addEventListener('click', function (e) {
+        if (f.box.querySelector('img, video, audio')) return;
+        if (f.box.classList.contains('is-ask') || boxingPair(f.box)) return;
+        /* the corner controls and the chooser itself answer for themselves */
+        if (e.target.closest('.clr, .refadd, .refx, input, button')) return;
+        var pk = pickerFor(f);
+        if (pk) { e.preventDefault(); pk.click(); }
+      });
+    });
     box.addEventListener('dblclick', function (e) {
+      /* NOT WHILE SOMEBODY IS DRAWING ON IT. The box face overlays the
+         input box with a drawing surface, so while the pair is boxing this
+         box has one gesture and it is the drag - a bigger look would cover
+         the thing being drawn on, and two quick strokes is a double-click. */
+      if (boxingPair(box)) return;
       var shown = box.querySelector('img, video');
-      if (!shown) {
-        if (box.classList.contains('is-ask')) return;
-        var slot = box.closest('.slot');
-        var imp = slot && slot.querySelector(
-          '.tray .tr[data-act="import"], .tray .tr[data-act="replace"]');
-        if (!imp) return;
-        e.preventDefault();
-        imp.click();
-        return;
-      }
+      if (!shown) return;
       e.preventDefault();
       peek(box.closest('.slide'), shown.src, shown.tagName === 'VIDEO');
     });
@@ -2643,26 +3918,40 @@
     if (cardEl) cardEl.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeCard(box);
     });
-    picker.addEventListener('change', function () {
-      var t = face();
-      if (picker.files && picker.files[0]) putFile(t.box, picker.files[0], rung, t.key);
-    });
-
     /* both faces take a dropped file and a double-click, and each one lands
        on its own key - the second face is a box like any other, not a
        picture of one. */
     [box, altBox].forEach(function (b) {
       if (!b) return;
-      b.addEventListener('dragover', function (e) { e.preventDefault(); b.classList.add('is-busy'); });
-      b.addEventListener('dragleave', function () { b.classList.remove('is-busy'); });
-      b.addEventListener('drop', function (e) {
-        e.preventDefault();
-        b.classList.remove('is-busy');
-        var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (f) putFile(b, f, rung, b === altBox ? altKey : key);
-      });
+      var bk = b === altBox ? altKey : key;
+      /* AND A BOX WITH NO KEY TAKES NO DROP. A writing surface has nowhere
+         to put a file, so a dropped one would land on `undefined` - and the
+         dragover would have lit the box up promising otherwise. */
+      /* AND A BOX BEING DRAWN ON TAKES NO DELIVERIES EITHER - Babe,
+         2026-10-31: "if you are in edit mode we need that source to be
+         locked down so you can draw boxes on it". The tray is dimmed by a
+         rule in the page, which cannot reach a file somebody drags onto the
+         picture: the overlay is a CHILD of the box, so a drop bubbles
+         straight past it to the listener underneath. The dragover is
+         refused with it, or the box would light up promising a swap it is
+         not going to make. */
+      if (bk) {
+        b.addEventListener('dragover', function (e) {
+          if (boxingPair(b)) return;
+          e.preventDefault(); b.classList.add('is-busy');
+        });
+        b.addEventListener('dragleave', function () { b.classList.remove('is-busy'); });
+        b.addEventListener('drop', function (e) {
+          if (boxingPair(b)) return;
+          e.preventDefault();
+          b.classList.remove('is-busy');
+          var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) putFile(b, f, rung, bk);
+        });
+      }
       if (b === box) return;
       b.addEventListener('dblclick', function (e) {
+        if (boxingPair(b)) return;
         var shown = b.querySelector('img, video');
         if (!shown) return;
         e.preventDefault();
@@ -2757,8 +4046,12 @@
      is `figure` to the server and `start` to the journey and has been since
      the renumbering, so the table answers first and this is the fallback -
      one line the day a key moves house, rather than a second slot table. */
+  /* AND `place` LIVES ON A FACE NOW, not on a right slot: 03's moved there
+     with the rest of its inputs and 06's has been a cell since the quad. The
+     slot answers first on both, so this entry was a fallback nothing could
+     reach - and a fallback that is wrong is still a fallback somebody reads. */
   var WANT_SIDE = { source: 'left', figure: 'left', start: 'left', board: 'left',
-                    ref1: 'left', sheet: 'alt', ref: 'right', place: 'right',
+                    ref1: 'left', sheet: 'alt', ref: 'right', place: 'alt',
                     clip: 'right' };
 
   function wantSlot(slide, text) {
@@ -2766,23 +4059,71 @@
     if (!hit) return false;
     var key = hit[1].toLowerCase();
     var map = SLOTS[rungOf(slide)] || {};
-    var side = key === map.left ? 'left'
+    /* AND A SLOT WITH A BOX PER INPUT ANSWERS TO EVERY ONE OF THEIR NAMES.
+       `WANT_SIDE` is a table of where a key usually lives and it said `clip`
+       was a right-hand input, which 06 stopped being true of - so a refusal
+       naming it red-edged a writing face. Asked of the slot first, because
+       the slot is what knows which of its boxes a key belongs to. */
+    var at = (map.faceKeys || []).indexOf(key);
+    var side = at > 0 ? 'alt'
+             : at === 0 ? 'left'
+             : key === map.left ? 'left'
              : key === map.right ? 'right'
              : key === map.alt ? 'alt'
              : WANT_SIDE[key];
+    /* AND A FACE IS AN INDEX, NOT A SIDE, 2026-10-30. `alt` is face 1 by
+       another name, so a key further along the list pointed at face 1 - and
+       on 05 that is reachable the moment TRANSITION is pressed: `last` is
+       face 2 and required, so `needs last` lit SHEET, which is a cell that
+       mode does not even draw. The red edge says which slot and the lit cell
+       says which FACE, so a cell naming the wrong face is the same lie as a
+       box naming the wrong file. `side` still answers for the right slot and
+       for a slot with no list of faces at all. */
     var boxes = boxesOf(slide);
+    var face = at > -1 ? at : side === 'alt' ? 1 : side === 'left' ? 0 : -1;
+    var all = boxes.all[0] || [];
     var box = side === 'right' ? boxes.front[1]
-            : side === 'alt' ? (boxes.alt[0] || boxes.alt[1])
-            : side === 'left' ? boxes.front[0]
+            : face > -1 ? (all[face] || boxes.alt[1] || boxes.front[0])
             : null;
     var slot = box && box.closest('.slot');
     /* a key nothing on this slide answers to is a refusal with nowhere to
        point, and that one still deserves the panel. */
     if (!slot) return false;
-    console.warn('run:', String(text));
+    /* AND IT SAYS WHAT IT FOUND, 2026-10-31 - Babe, with a character in 01's
+       SOURCE and the line typed: "when i tried to do a basic prompt edit it
+       wouldn't let me", over NEEDS SOURCE. A box that looks full and a run
+       that says it is empty is the box-must-not-lie rule arriving as a
+       refusal, and there are exactly three ways a picture reaches the model:
+       a name this sitting already has, a file the box was painted from, and
+       the carry. Printing all three turns the next press into the
+       measurement rather than the next guess. */
+    console.warn('run:', String(text), {
+      face: face, showing: !!(box && box.classList.contains('on')),
+      named: st(rungOf(slide))[key] || null,
+      painted: (box && box.dataset.fromFile) || null,
+      holds: !!(box && box.querySelector(':scope > img, :scope > video'))
+    });
     slot.classList.add('is-want');
     clearTimeout(slot._want);
     slot._want = setTimeout(function () { slot.classList.remove('is-want'); }, 2600);
+    /* AND ON A PANEL SLOT IT SHOWS THE FACE IT IS NAMING. The red edge says
+       which SLOT and the lit pick cell says which FACE - and the pick cells
+       are `display: none` on every slot with a quad, which is five of the
+       six now. So the half that answers "which one" was invisible exactly
+       where a slot has more than one box to be wrong about, and a refusal
+       naming an empty cell could be read in front of a different cell with a
+       picture in it.
+       IT IS THE ROLL'S OWN MOVE AN HOUR LATER: the thing being talked about
+       has to be the thing you are looking at. The quad row is marked too, so
+       the answer is there as well when the panel is open. */
+    if (face > -1 && slot.querySelector('.refs')) {
+      if (window.HJ.showFace) window.HJ.showFace(slot, face);
+      var wrow = slot.querySelector('.refs .refrow[data-f="' + face + '"]');
+      if (wrow) {
+        wrow.classList.add('is-want');
+        setTimeout(function () { wrow.classList.remove('is-want'); }, 2600);
+      }
+    }
     /* AND THE WORDS HANG UNDER THE PROGRESS BAR, NOT ON RUN - Babe,
        2026-10-29: "i would rather that show somewhere else tho maybe on the
        left below the progress bar". Run said it because Run is the cell that
@@ -2800,7 +4141,7 @@
     var pick = null;
     var picks = slot.querySelectorAll('.tray .pick');
     for (var pi = 0; pi < picks.length; pi++) {
-      if ((picks[pi].dataset.f || '0') === (side === 'alt' ? '1' : '0')) pick = picks[pi];
+      if ((picks[pi].dataset.f || '0') === String(face < 0 ? 0 : face)) pick = picks[pi];
     }
     var word = (pick && pick.textContent.trim()) || slot.dataset.face0 || key;
     if (pick) {
@@ -3227,44 +4568,299 @@
      picture is the subject, and SOURCE is exactly what 01 calls the subject.
      The right-hand slot is then free to be what it should be - the sentence
      saying what to change - so the PROMPT face opens with it.
-     ON 05 IT IS STILL front[1], because there the clip is the performance
-     being transferred and the left slot is the character it is transferred
-     onto. Same rule read correctly in both places: the shot goes where its
-     own role lives. */
-  function sendTo(mode, path, vid) {
+     AND ON 06 IT IS front[0] TOO, AS OF 2026-10-30. It was `front[1]` on a
+     "the clip is the performance and the left slot is the character it is
+     transferred onto" reading - true when it was written and read off the
+     wrong number even then, since `slides[5]` is 06 rather than the 05 this
+     comment named. THE LEFT SIDE IS THE INPUTS, which is Babe's own words
+     for it, and the clip is one: it lands in the CLIP face the quad names.
+     Same rule in both places - the shot goes where its own role lives, and
+     on both rungs that is the left. */
+  /* WHERE A SHOT GOES BACK IN, AND IT IS NO LONGER THE FILE'S KIND THAT
+     DECIDES - Babe, 2026-10-31, on the library: "if it did we can add a
+     button to restyle and send it to that workflow". A clip going to 06 is
+     an edit and a clip going to 01 is a RESTYLE - the same file, two
+     workflows - so the destination is told rather than derived.
+     AND THE KEY COMES OFF THE SLOT. It was `vid ? 'clip' : 'source'`, which
+     is the same guess one level down and gets 01 wrong the moment a clip
+     lands there: 01's first face is `source` whatever it is holding, because
+     that face sends frame zero. `SLOTS` is the thing that knows. */
+  function sendTo(mode, path, vid, at) {
     /* 06 is the rung that edits and extends footage; 05 makes a clip from a
        board and has nothing to send one back into. */
-    var at = vid ? 5 : 0;
+    if (at === undefined) at = vid ? 5 : 0;
     var slide = window.HJ.slides[at];
     if (!slide) return;
     var pair = boxesOf(slide);
-    var box = vid ? pair.front[1] : pair.front[0];
+    var box = pair.front[0];
     if (box) {
       /* marked, not uploaded: the run sends it on the way out, which is how
          fill() does it and why what you are looking at is what gets sent. */
       box.dataset.fromFile = path;
       showMedia(box, '/' + path, vid);
-      st(at + 1)[vid ? 'clip' : 'source'] = '';
+      var smap = SLOTS[at + 1] || {};
+      st(at + 1)[(smap.faceKeys || [])[0] || smap.left] = '';
       markAct(box, '');
+      /* and the quad closes onto what just arrived, the way the carry from
+         05 does - a panel standing open because there was nothing to show
+         has had its answer. */
+      settleRefs(box.closest('.slot'));
     }
     /* PRESSED, NOT SET. The strip's own handler is what writes the slot's
        mode, its `writes` class and the prompt line, so setting the
        attributes by hand left the rung wearing the other mode's line and a
        writing face that still thought it was a generator. */
-    var slot = slide.querySelector('.slot[data-mode]');
+    /* AND NO MODE MEANS NO PRESS. A caller that names one is choosing a job;
+       one that does not is only handing the file over, and the rung keeps
+       whichever tab it was on. */
+    var slot = mode && slide.querySelector('.slot[data-mode]');
     var want = slot && slot.querySelector('.ftab[data-mode="' + mode + '"]');
     if (want) want.click();
     else if (slot) slot.dataset.mode = mode;
     /* and the sentence is the thing left to write, so the box that takes one
        is already open when you arrive. The tray cell is the one path into
        that face, so it is pressed rather than re-implemented. */
-    if (!vid) {
+    /* AND THE WRITING FACE OPENS WHERE THERE IS A SENTENCE LEFT TO WRITE,
+       which is 01 whichever kind of file arrived - a restyled clip needs a
+       line exactly as a restyled still does. It was `!vid`, the file's kind
+       standing in for the destination a third time. */
+    if (at === 0) {
       var askCell = slide.querySelector('.inp:last-child .tray .tr[data-act="prompt"]');
       var asking = slide.querySelector('.slot.is-asking');
       if (askCell && !asking) askCell.click();
     }
     closeResult();
     window.HJ.go(at);
+  }
+
+  /* A QUICK EDIT, CUT ON THE SERVER. The take's own cut is a re-record
+     because a take is a blob with no file behind it; this one is already a
+     file on the disk, so `ffmpeg -c copy` returns before the clip would have
+     finished playing and loses nothing. See `apiTrim`.
+     AND THE WHOLE CLIP IS NOT A TRIM - pressing SAVE without having moved a
+     handle would file a byte-for-byte second copy of something already in
+     the library, which is a drawer filling up with nothing. */
+  async function cutRange(el, stage, path, say, btn) {
+    var d = el && isFinite(el.duration) ? el.duration : 0;
+    var a = stage ? (stage._in || 0) : 0;
+    var b = stage && stage._out ? stage._out : d;
+    if (!d) return say('that clip has no length to cut');
+    if (a < 0.05 && b > d - 0.05) return say('drag a handle first');
+    var was = btn.textContent;
+    btn.textContent = 'CUTTING';
+    btn.disabled = true;
+    try {
+      var got = await fetch('/api/trim', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: path, start: a, end: b })
+      }).then(function (r) { return r.json(); });
+      if (!got || got.error) return say(got && got.error || 'could not cut that');
+      say('saved ' + got.name);
+      /* AND THE GRID IS NOT REBUILT. `shots()` is the only thing that loads
+         it and it rebuilds the whole panel - which would throw away the clip
+         you are looking at and the range you just set, under your hands, to
+         show you a tile. The drawer picks it up the next time it opens, and
+         the line says the name in the meantime. */
+    } catch (err) {
+      say('could not cut that');
+    } finally {
+      btn.textContent = was; btn.disabled = false;
+    }
+  }
+
+  /* AND THE DRAWER IS ONE CALLER OF IT NOW, not the owner. The modal wants
+     the same cut on the same kind of file, so what the two share is the verb
+     and what differs is only where the clip, the range and the message live.
+     One mechanism, a second caller. */
+  function saveTrim(panel, cell, btn) {
+    var stage = panel.querySelector('.shots-stage');
+    var el = stage && stage.querySelector('video');
+    return cutRange(el, stage, cell.dataset.path, function (m) { shotSay(panel, m); }, btn);
+  }
+
+  /* AND THIS PANEL SAYS ITS OWN FAILURES, because the rung's line is BEHIND
+     it - a message written to the rail while the drawer is open is a message
+     nobody can read, which is what "nothing happens" means when something
+     did. It borrows the file row, which is the one line here that is already
+     about the clip you have selected. */
+  function shotSay(panel, words) {
+    var line = panel.querySelector('.shots-line');
+    if (!line) return console.log('[library] ' + words);
+    if (line.dataset.was === undefined) line.dataset.was = line.innerHTML;
+    line.textContent = words;
+    clearTimeout(line._back);
+    line._back = setTimeout(function () {
+      if (line.dataset.was !== undefined) line.innerHTML = line.dataset.was;
+      delete line.dataset.was;
+    }, 4000);
+  }
+
+  /* RESTYLE SENDS THE FRAME, NOT THE FILM - Babe, 2026-10-31: "you hit
+     restyle and that frame is sent to that workflow. not the entire video".
+     THE FIRST VERSION SENT THE CLIP and let 01 take frame zero on its way to
+     the model, which works and is the wrong shape: the box then holds a
+     film, the frame is chosen by a rule rather than by a person, and what
+     you are looking at is not what gets sent. Picking it here makes the
+     choice visible and leaves 01 holding exactly the picture it will restyle.
+     IT GOES THROUGH `putFile`, the path every dropped file already takes, so
+     the upload, the journey entry and the repaint on reload are the ones that
+     are already proven - a frame with no file anywhere becomes a file like
+     any other.
+     (*) 01's OWN VIDEO SOURCE STAYS, because the camera on that slot records
+     straight into it and there is no library press in that path. */
+  async function grabFrame(el, path, say) {
+    var t = el ? el.currentTime : 0;
+    if (el) el.pause();
+    var shot = await frameAt('/' + path, t, 1280);
+    /* AND IT REPORTS HERE RATHER THAN ON THE RAIL. The rung's own line is
+       behind this panel, so a failure written there looked exactly like the
+       press doing nothing. */
+    if (!shot) {
+      console.log('[restyle] no frame from ' + path + ' at ' + t.toFixed(2) + 's');
+      return say('could not read that frame');
+    }
+    var blob = await (await fetch(shot)).blob();
+    var name = path.split('/').pop().replace(/\.[a-z0-9]+$/i, '') +
+               '-f' + Math.round(t * 100) + '.png';
+    var slide = window.HJ.slides[0];
+    var box = boxesOf(slide).front[0];
+    closeResult();
+    window.HJ.go(0);
+    if (box) {
+      await putFile(box, new File([blob], name, { type: 'image/png' }), 1, 'source');
+      settleRefs(box.closest('.slot'));
+    }
+    /* and the mode and the writing face, the way `sendTo` leaves them */
+    var slot = slide.querySelector('.slot[data-mode]');
+    var want = slot && slot.querySelector('.ftab[data-mode="STYLE"]');
+    if (want) want.click();
+    var askCell = slide.querySelector('.inp:last-child .tray .tr[data-act="prompt"]');
+    if (askCell && !slide.querySelector('.slot.is-asking')) askCell.click();
+  }
+
+  /* AND THE SAME SPLIT AS THE CUT BESIDE IT: the drawer resolves its own clip
+     and its own line, and the verb is the modal's too. */
+  function restyleFrame(panel, cell) {
+    var stage = panel.querySelector('.shots-stage');
+    var el = stage && stage.querySelector('video');
+    return grabFrame(el, cell.dataset.path, function (m) { shotSay(panel, m); });
+  }
+
+  /* THE LIBRARY'S TRANSPORT. `.cam-trim`'s CSS is reused rather than copied,
+     so the strip in the drawer and the strip on a take cannot drift apart -
+     and `is-live` is not set, because that class is the camera saying there
+     is nothing to play yet. */
+  function shotTrim(stage, el) {
+    var wrap = document.createElement('div');
+    wrap.className = 'cam-trim is-shot';
+    /* AND IT HAS THE HANDLES TOO - Babe, 2026-10-31: "can we add the trim
+       handles too. and make a save button in case you do want to make a
+       quick edit". Same two marks and the same kept band as a take, because
+       a range is a range; what differs is what the SAVE at the end of it
+       does with one. */
+    wrap.innerHTML =
+      '<button class="pp" type="button" aria-label="Play"></button>' +
+      '<div class="bar"><div class="kept"></div><div class="at"></div>' +
+        '<div class="h in" data-end="in"></div><div class="h out" data-end="out"></div></div>' +
+      '<div class="t"></div>';
+    var bar = wrap.querySelector('.bar');
+    var at = wrap.querySelector('.at');
+    var kept = wrap.querySelector('.kept');
+    var hIn = wrap.querySelector('.h.in');
+    var hOut = wrap.querySelector('.h.out');
+    var pp = wrap.querySelector('.pp');
+    var tt = wrap.querySelector('.t');
+    /* THE RANGE LIVES ON THE STAGE, which is the one thing that outlives the
+       element and dies with the clip you are looking at - pick another and
+       `showShot` empties this and the range goes with it, which is correct:
+       a range belongs to a particular clip. */
+    stage._in = 0; stage._out = 0;
+
+    function span() { var d = el.duration; return (d && isFinite(d)) ? d : 0; }
+    function pct(t) { var d = span(); return (d ? Math.max(0, Math.min(1, t / d)) : 0) * 100; }
+    function paint() {
+      var d = span();
+      if (d && !stage._out) stage._out = d;
+      at.style.left = pct(el.currentTime) + '%';
+      kept.style.left = pct(stage._in) + '%';
+      kept.style.width = (pct(stage._out) - pct(stage._in)) + '%';
+      hIn.style.left = pct(stage._in) + '%';
+      hOut.style.left = pct(stage._out) + '%';
+      /* THE PLAYHEAD AND WHAT YOU WOULD KEEP, which is the take strip's own
+         pair - the left number says which frame RESTYLE would send and the
+         right says how long a SAVE would be. */
+      tt.textContent = el.currentTime.toFixed(1) + ' / ' +
+                       Math.max(0, stage._out - stage._in).toFixed(1) + 's';
+      pp.classList.toggle('is-on', !el.paused);
+      /* A CONTAINER WITH NO DURATION CANNOT BE SEEKED, so it cannot be
+         trimmed either - the handles go and the transport stays, which is
+         the honest version of a control that would not work. */
+      wrap.classList.toggle('no-seek', !d);
+    }
+    function timeAt(e) {
+      var d = span(); if (!d) return null;
+      var r = bar.getBoundingClientRect();
+      return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * d;
+    }
+    function seekTo(e) {
+      var t = timeAt(e); if (t === null) return;
+      el.currentTime = t;
+      paint();
+    }
+    /* A HANDLE DRAGS ITS OWN END AND NEVER PAST THE OTHER, and the playhead
+       follows it, because what you are setting is a frame and the picture is
+       how you know which one. */
+    [hIn, hOut].forEach(function (h) {
+      h.addEventListener('pointerdown', function (e) {
+        e.stopPropagation(); e.preventDefault();
+        try { h.setPointerCapture(e.pointerId); } catch (err) {}
+        el.pause();
+        var end = h.dataset.end;
+        var move = function (ev) {
+          var t = timeAt(ev); if (t === null) return;
+          if (end === 'in') stage._in = Math.min(t, stage._out - 0.1);
+          else stage._out = Math.max(t, stage._in + 0.1);
+          el.currentTime = (end === 'in') ? stage._in : stage._out;
+          paint();
+        };
+        var up = function () {
+          h.removeEventListener('pointermove', move);
+          h.removeEventListener('pointerup', up);
+        };
+        h.addEventListener('pointermove', move);
+        h.addEventListener('pointerup', up);
+        move(e);
+      });
+    });
+    pp.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (el.paused) el.play().catch(function () {}); else el.pause();
+      paint();
+    });
+    /* A DRAG, NOT A CLICK - scrubbing is how you find a frame, and a bar that
+       only takes single presses makes you hunt for one. */
+    bar.addEventListener('pointerdown', function (e) {
+      e.stopPropagation(); e.preventDefault();
+      /* capture so a drag that leaves the bar keeps scrubbing - and guarded,
+         because a pointer id that is not actually down throws, which would
+         take the seek with it. */
+      try { bar.setPointerCapture(e.pointerId); } catch (err) {}
+      el.pause(); seekTo(e);
+      var move = function (ev) { seekTo(ev); };
+      var up = function () {
+        bar.removeEventListener('pointermove', move);
+        bar.removeEventListener('pointerup', up);
+      };
+      bar.addEventListener('pointermove', move);
+      bar.addEventListener('pointerup', up);
+    });
+    el.addEventListener('timeupdate', paint);
+    el.addEventListener('loadedmetadata', paint);
+    el.addEventListener('play', paint);
+    el.addEventListener('pause', paint);
+    stage.appendChild(wrap);
+    paint();
+    return wrap;
   }
 
   function showShot(panel, cell) {
@@ -3292,8 +4888,23 @@
        its autoplay, where a clip IS the answer you just asked for.
        (*) `library.json` IS SHOT WITH IT ON. If that take is ever re-filmed,
        it needs a press on the transport where it used to need none. */
-    if (vid) { el.controls = true; el.loop = true; el.playsInline = true; }
+    if (vid) { el.loop = true; el.playsInline = true; }
     stage.appendChild(el);
+    /* AND THE VIEWER WEARS THE TAKE'S OWN TRANSPORT - Babe, 2026-10-31: "we
+       should prob make a custom video player with a similar transport bar to
+       the webcam one, where you can select a frame from the video".
+       THE NATIVE BAR WAS THE LAST BROWSER UI ON THE PAGE. The camera face
+       grew its own for exactly that reason and this panel never did, so the
+       one place you LOOK at a clip was the one place that did not look like
+       the app. It is the same `.cam-trim` - same classes, same height, same
+       colours - minus the two things that belong to a take: the record
+       circle, because there is nothing to record here, and the in/out
+       handles, because trimming is a decision about a take and this is a
+       drawer you are reading.
+       AND THE PLAYHEAD IS THE POINT, not the playing. What this panel needed
+       was a way to say WHICH FRAME, so the bar is a scrubber first and a
+       progress line second. */
+    if (vid) shotTrim(stage, el);
 
     /* WHICH WORKFLOW MADE IT, OVER THE PICTURE IT MADE - Babe, 2026-10-25:
        "for the header on the right column tho maybe we do show the workflow
@@ -3378,7 +4989,46 @@
          different thing from one that lies, and `.tr[disabled]` already dims
          its text rather than fading the divider it carries. The day 01 grows
          that tab, this is one line and the row does not move. */
-      (vid ? ['EDIT', 'EXTEND'] : ['EDIT']).forEach(function (mode) {
+      /* AND A CLIP CAN GO BACK TO 01 - Babe, 2026-10-31, closing the loop:
+         "showing how to record a video of yourself then load it into 01 to
+         become someone else... then use the video and stylized first frame
+         together in reshoot", then "if it did we can add a button to restyle
+         and send it to that workflow".
+         RESTYLE IS THE FIRST PRESS OF THAT LOOP and EDIT is already the
+         second: this sends the clip to 01, where the face takes frame zero
+         and the rung restyles it, and the same clip is still in the library
+         to send to 06 as the thing that drives it. Two presses, one file,
+         and neither of them is a file chooser.
+         (*) THE WORD IS MINE. It says what 01 does to the frame rather than
+         naming the workflow it ends in. */
+      /* AND SAVE LEADS THE ROW, which is the result panel's own order: the
+         thing you keep comes before the things you do with it. It only shows
+         on a clip, because a still has no range to cut. */
+      /* AND ON A CLIP IT IS USE, NOT EDIT - Babe, 2026-10-31: "if we are here
+         and click edit it sends to the edit workflow. im wonder if it should
+         send it also as the source clip for other workflows - in case you
+         want to switch", then "maybe EDIT is USE".
+         THE MECHANISM WAS ALREADY RIGHT and only the word was wrong: the
+         clip lands in 06's CLIP cell, which is face 0 and which EVERY mode
+         takes, so it was already the source for all four. Babe checked:
+         "ah it is true!".
+         SO THE NAME STOPS PROMISING A JOB. `USE` is this rail's own word for
+         accepting something into a slot - the camera face has used it since
+         the take grew a transport - and a button called USE must not quietly
+         press a tab for you, which is why this one passes no mode. 06 keeps
+         whichever it was on, which is exactly "in case you want to switch".
+         AND A STILL KEEPS `EDIT`, because there it names a real job: the
+         picture goes to 01's SOURCE with the EDIT tab pressed, since for an
+         edit the picture IS the subject.
+         AND EXTEND WENT WITH ITS TAB, 2026-10-31. It pressed a mode 06 no
+         longer has, so it would have sent the clip and then pressed nothing.
+         It was already the odd one out - USE plus a tab press, and the only
+         one of 06's modes with a shortcut here, which was true when EDIT and
+         EXTEND were the two jobs that took a clip and stopped being true
+         when all four did.
+         THREE CELLS, THREE DESTINATIONS: keep a trim, a frame to 01, the
+         clip to 06. */
+      (vid ? ['SAVE', 'RESTYLE', 'USE'] : ['EDIT']).forEach(function (mode) {
         var btn = document.createElement('button');
         btn.className = 'tr';
         btn.type = 'button';
@@ -3386,7 +5036,10 @@
         /* EDIT IS LIVE ON A STILL NOW that 01 has a tab to land on, so
            neither button is drawn only to be refused. */
         btn.addEventListener('click', function () {
-          sendTo(mode, cell.dataset.path, vid);
+          if (mode === 'SAVE') return saveTrim(panel, cell, btn);
+          if (mode === 'RESTYLE') return restyleFrame(panel, cell);
+          /* USE names no mode, so none is pressed - see above. */
+          sendTo(mode === 'USE' ? null : mode, cell.dataset.path, vid);
         });
         acts.appendChild(btn);
       });
@@ -3568,6 +5221,131 @@
     return name && fileFromSrc(src).filename === name ? out : null;
   }
 
+  /* THE MODAL WEARS THE LIBRARY'S TRANSPORT - Babe, 2026-10-31: "i'd like
+     to make the videos in the modals also have our new custom video player",
+     "same one as in our media library". It is `shotTrim` unchanged: that
+     function only ever touched the stage it was handed, the element, and its
+     own markup, so the drawer's strip and this one cannot drift apart - which
+     is the whole reason the take's CSS was reused for the drawer in the first
+     place.
+     AND THE NATIVE BAR GOES, because two transports on one clip is two things
+     saying the same thing and the browser's was the last piece of browser UI
+     left on the page. `.cam-trim` is absolute at the bottom, so it lands
+     exactly where that bar was - over the picture rather than beside it,
+     which is what keeps the panel sized to the result. */
+  function resultTrim(media, el) {
+    el.controls = false;
+    el.loop = false;
+    return shotTrim(media, el);
+  }
+
+  /* A MESSAGE IN THE PANEL, not on the rail behind it - the same reason the
+     library reports on its own file row.
+     AND IN THE METADATA ROW, NOT A ROW OF ITS OWN - Babe, 2026-10-31: "can we
+     just add the saved message to the same metadata row instead of adding a
+     new row". `.runover-msg` is a block, so a line appearing there pushed the
+     foot down and the panel grew under your hands at the moment you pressed
+     something - which is the same thing the foot strip was made absolute to
+     stop. It is one more segment on the line that already reports on this
+     file, and it is a CHILD rather than appended text, so the next thing to
+     write the metadata drops it by construction: new metadata, new state. */
+  function overSay(slide, msg) {
+    var info = overlayOf(slide).querySelector('.info');
+    if (!info) return;
+    var tag = info.querySelector('.said');
+    if (!msg) { if (tag) tag.remove(); return; }
+    if (!tag) {
+      tag = document.createElement('span');
+      tag.className = 'said';
+      info.appendChild(tag);
+    }
+    tag.textContent = '  ·  ' + msg;
+  }
+
+  /* AND A FILE ON DISK IS THE ONE THING BOTH OF THOSE VERBS NEED. A cut and a
+     frame grab are both given a path under `output/`; a result that is still
+     only `/api/file` with a content hash on it has none, and neither can act
+     on it. The server writes every finished file before it answers the poll,
+     so a finished result has one. */
+  function diskPath(src) {
+    var p = String(src || '').split('?')[0];
+    if (/^output\//.test(p)) return p;              /* what `saved` looks like */
+    var i = p.indexOf('/output/');
+    return i >= 0 ? p.slice(i + 1) : null;         /* and what a painted box does */
+  }
+
+  /* THE FRAME YOU ARE PARKED ON, AS A FILE. `grabFrame` beside it sends the
+     same picture to 01; this one FILES it - Babe: "that can just be saved to
+     assets", and the reason, a beat later: "not show another modal". A
+     download opens the browser's own save dialog over a panel whose whole job
+     is to let you look at something, which is the last piece of browser UI
+     this page would have put back. It lands in the sitting's `takes/` beside
+     a webcam take and a trim, so the drawer picks it up and every verb in
+     there already works on it. PNG, because a still pulled out for an edit is
+     going to be edited. */
+  async function saveStill(el, path, say) {
+    var t = el ? el.currentTime : 0;
+    if (el) el.pause();
+    var shot = await frameAt('/' + path, t, 1280);
+    if (!shot) {
+      console.log('[frame] no frame from ' + path + ' at ' + t.toFixed(2) + 's');
+      return say('could not read that frame');
+    }
+    var name = path.split('/').pop().replace(/\.[a-z0-9]+$/i, '') +
+               '-f' + Math.round(t * 100) + '.png';
+    try {
+      var blob = await (await fetch(shot)).blob();
+      var got = await fetch('/api/take?kind=frame&name=' + encodeURIComponent(name),
+                            { method: 'POST', body: blob })
+                  .then(function (r) { return r.json(); });
+      if (!got || got.error) return say(got && got.error || 'could not keep that frame');
+      say('saved ' + got.name);
+    } catch (err) {
+      say('could not keep that frame');
+    }
+  }
+
+  /* THE FOOT'S TWO VERBS FOR A CLIP - Babe, 2026-10-31: "it would be amazing
+     to be able to capture a specific frame, scrub and trim right in the modal
+     as well". The scrub and the handles are the transport above; these are
+     what commit what you set with them, and both are the drawer's own
+     functions rather than second copies of them.
+     SAVE IS ONE CELL AND NOT TWO. With a handle dragged, what you are looking
+     at IS the range - the transport only plays the kept band - so saving it
+     saves that, and saving an untouched clip saves the clip. A separate TRIM
+     cell would be a second word for the press you were already going to make,
+     on the one strip that cannot afford a fifth.
+     AND `Restyle` IS THE DRAWER'S WORD FOR THE DRAWER'S JOB: the frame you
+     are parked on goes to 01 as the subject, which is the loop this rail was
+     built to close. (*) Both labels are Babe's to cut.
+     NEITHER DRAWS WITHOUT A PATH UNDER `output/` - a cut and a frame grab are
+     both given one, and a result still proxied from Comfy has none. */
+  function clipCells(slide, media, src, rung, file) {
+    var el = media.querySelector('video');
+    var path = el && diskPath(src);
+    var say = function (m) { overSay(slide, m); };
+    var cells = [{ label: 'Save', onClick: function (ev) {
+      var d = isFinite(el && el.duration) ? el.duration : 0;
+      var cut = path && d && (media._in > 0.05 || (media._out && media._out < d - 0.05));
+      if (cut) return cutRange(el, media, path, say, ev.currentTarget);
+      saveFile(rung, file);
+    } }];
+    if (path) {
+      /* AND A STILL IS ITS OWN PRESS - Babe, 2026-10-31: "can we add some
+         sort of button to save a still frame", and the reason in their own
+         words a minute later: "right now save saves the video". It is the
+         frame you are parked on, at the width 01 wants, written out as a PNG
+         beside the clip it came from - so the two cells either side of it
+         are the two things a clip can give you, the whole of it and one
+         frame of it. (*) The word is mine. */
+      cells.push({ label: 'Frame',
+                   onClick: function () { saveStill(el, path, say); } });
+      cells.push({ label: 'Restyle',
+                   onClick: function () { grabFrame(el, path, say); } });
+    }
+    return cells;
+  }
+
   async function peek(slide, src, isVid) {
     var o = overlayOf(slide);
     o.querySelector('.runover-msg').textContent = '';
@@ -3577,7 +5355,7 @@
     if (info) info.textContent = '';
     var el = document.createElement(isVid ? 'video' : 'img');
     /* and a look does not start itself - see the result panel */
-    if (isVid) { el.controls = true; el.loop = true; el.playsInline = true; }
+    if (isVid) { el.playsInline = true; }
     /* the listener goes on before the src, or a cached file fires its load
        while nothing is listening - the same order the result panel keeps. */
     el.addEventListener(isVid ? 'loadedmetadata' : 'load', function () {
@@ -3592,11 +5370,13 @@
     });
     el.src = src;
     media.appendChild(el);
+    if (el.tagName === 'VIDEO') resultTrim(media, el);
     var file = fileFromSrc(src);
     var rung = rungOf(slide);
     var own = ownOut(slide, src);
-    var buttons = [{ label: isVid ? 'Save clip' : 'Save image',
-                     onClick: function () { saveFile(rung, file); } }];
+    var buttons = isVid ? clipCells(slide, media, src, rung, file)
+                        : [{ label: 'Save',
+                             onClick: function () { saveFile(rung, file); } }];
     if (own) {
       buttons.push({ label: 'Cancel', onClick: function () { closeResult(); } });
       /* the same reach the result panel has, read the same way: the last
@@ -3607,6 +5387,12 @@
       }
     }
     acts(slide, buttons);
+    /* AND THE SAME ON THE WAY BACK IN. The eye, the room and a
+       double-click on this workflow's own output all land here, so the
+       face is up behind the panel however you asked for the full size -
+       and `own` is the test, which is what keeps a bigger look at some
+       OTHER box on this rung from putting the result in the prompt. */
+    if (own) revealOut(slide);
     await ready(el);
     o.classList.add('is-on');
     /* AND THE PLATE IS THE RESULT PANEL'S WHEN THE FOOT IS. `.is-peek` is one
@@ -3657,11 +5443,10 @@
        write down - and a name that fails the test is dropped rather than
        corrected, so the run refuses with `needs ref1` instead of sending a
        clip to an image loader. */
-    var takes = (map.accept || {});
     var fits = function (key, side) {
       var name = s[key];
       if (!name) return false;
-      var ok = !isVideoName(name) || /video/.test(takes[side] || '');
+      var ok = !isVideoName(name) || /video/.test(acceptFor(map, key, side));
       if (!ok) {
         delete s[key];
         if (s.urls) delete s.urls[key];
@@ -3671,9 +5456,24 @@
     };
     if (fits(map.left, 'left')) v[map.left] = s[map.left];
     if (map.right && fits(map.right, 'right')) v[map.right] = s[map.right];
-    /* the back face is resolved at run time rather than here, but it is the
-       same slot and the same question, so it is cleaned on the way past */
-    if (map.alt) fits(map.alt, 'left');
+    /* AND EVERY OTHER FACE SENDS ITS OWN KEY, 2026-10-30. This read `left`
+       and `right` and merely CLEANED the back face, which held while the
+       only two-faced slots resolved themselves at run time - 05's sheet
+       through its carry and 06's pair through `faceRef`. 01's reference
+       moving to the left made it a third special case, so it is a loop:
+       every face past the first, by the key it is REMEMBERED under and onto
+       the key it is SENT as, which are not the same word (06's SCENE is
+       `place` in the journey and `ref2` at the far end).
+       06 STILL RESOLVES ITS OWN below - it has to, because its row decides
+       whether the pressed face chooses or both travel - so here it is only
+       cleaned, exactly as before. */
+    var fkeys = map.faceKeys || (map.alt ? [map.left, map.alt] : []);
+    var fsend = map.faceSends || fkeys;
+    for (var fi = 1; fi < fkeys.length; fi++) {
+      if (!fkeys[fi]) continue;
+      var held = fits(fkeys[fi], 'left');
+      if (held && rung !== 6 && fsend[fi]) v[fsend[fi]] = s[fkeys[fi]];
+    }
 
     /* A BOX SHOWING WORDS DOES NOT ALSO SEND THE PICTURE BEHIND THEM. One
        box, one answer: the writing face covers the picture, so a run that
@@ -4010,7 +5810,7 @@
        output. Showing a picture the model never got is the failure that
        looks like success. */
     var figure;
-    try { figure = await ensureLeft(slide, 4); }
+    try { figure = await ensureFront(slide, 4); }
     catch (err) { return say(slide, String(err && err.message || err), true); }
     if (!figure) return say(slide, 'the hero frame has to be there first', true);
 
@@ -4130,7 +5930,14 @@
         if (/^[0-9]+:[0-9]+$/.test(named)) shotAr = named;
       }
       var sheet = '';
-      try { sheet = await ensureFace(slide, 4, 'sheet', boxesOf(slide).alt[0], st(2).out); }
+      try {
+        /* BY KEY, NOT BY POSITION. `alt[0]` is face 1 said the old way and
+           was right while this slot had exactly two; the panel made the
+           table the answer, and a third face here would have moved it. */
+        var sAt = (SLOTS[4].faceKeys || []).indexOf('sheet');
+        sheet = await ensureFace(slide, 4, 'sheet',
+                                 (boxesOf(slide).all[0] || [])[sAt], st(2).out);
+      }
       catch (err) { /* the board is still a board without it */ }
       /* THE LIGHT RIDES IN AS A VALUE AND REACHES NO NODE, the way `lens`
          does on 03 and `face` on 06: the server reads it to decide whether
@@ -4294,6 +6101,337 @@
     peek(slide, src, isVideoName(out.filename));
   });
 
+  /* THE ROOM AND THE PICTURE MAKE THE SAME PRESS. One reader, so the two
+     cannot come apart - what reopens is this workflow's own output and
+     nothing else, which is the test `ownOut` was built on.
+     AND THE EYE IS NO LONGER ONE OF THEM, 2026-11-01. It opened this too,
+     which made it a second door to a panel the picture itself already
+     opens; it toggles the PREVIEW now - Babe: "not the eye. the eye is
+     just a toggle to display it there". */
+  function seeLast(slide) {
+    var out = st(rungOf(slide)).out;
+    var src = out && lastingUrl(out);
+    if (!src) return;
+    peek(slide, src, isVideoName(out.filename));
+  }
+
+  /* AND THE FULL SIZE IS A DOUBLE-CLICK ON IT - Babe: "we could double
+     click on the preview still (or the eye icon) to view it in the modal
+     again too". Both land on `seeLast`, so the preview, the eye and the
+     room are three ways to one press and cannot come apart.
+     IT STOPS THE EVENT because the box underneath has its own answer to a
+     double-click, and a picture that is the subject of the gesture must not
+     also be the thing it is measured against. */
+  document.addEventListener('dblclick', function (e) {
+    var el = e.target.closest && e.target.closest('.outplate');
+    if (!el) return;
+    e.preventDefault(); e.stopPropagation();
+    var slide = el.closest('.slide');
+    if (slide) seeLast(slide);
+  }, true);
+
+  /* AND THE DRAG IS THE POINT OF IT. `dragOut` is read during `dragover`
+     the way `dragFace` is, because `dataTransfer.getData` is unreadable
+     then - see the quad's trade, which this borrows wholesale. */
+  document.addEventListener('dragstart', function (e) {
+    var el = e.target.closest && e.target.closest('.outplate');
+    if (!el) return;
+    if (!el.dataset.path) return e.preventDefault();
+    dragOut = { path: el.dataset.path, vid: !!el.dataset.vid };
+    e.dataTransfer.effectAllowed = 'copy';
+    try { e.dataTransfer.setData('text/plain', el.dataset.path); } catch (err) {}
+  });
+  document.addEventListener('dragend', function (e) {
+    if (!e.target.closest || !e.target.closest('.outplate')) return;
+    dragOut = null;
+    document.querySelectorAll('.refrow.is-over').forEach(function (r) {
+      r.classList.remove('is-over');
+    });
+  });
+
+  /* AND THE CORNER X PUTS A RESULT DOWN ON EVERY SLOT, 2026-11-01.
+     IT WAS INSIDE `bindSlot`, which only runs for a slot that HAS a
+     `.drop` - so on 04 and 05, whose right slot is a `.writer`, the
+     element was drawn and nothing was listening. MEASURED: the press did
+     nothing there and worked on 01.
+     IT IS DELEGATED AND IN THE CAPTURE PHASE, because the per-box handler
+     calls `stopPropagation` - a document listener in the bubble phase
+     would never hear the press on the slots that do have one. Capture
+     runs before the target's own handler, which is the same reason the
+     box face leaves on a capturing listener.
+     AND IT ANSWERS ONLY OVER A RESULT, so every other meaning of this
+     press - throw away what is in this box - is untouched and still
+     belongs to the box. */
+  document.addEventListener('click', function (e) {
+    var x = e.target.closest && e.target.closest('.clr');
+    if (!x) return;
+    var slot = x.closest('.slot');
+    if (!slot || !slot.classList.contains('is-out')) return;
+    e.preventDefault(); e.stopPropagation();
+    /* and it is the one press that says you are finished with this result,
+       so it is the one press that records it - see `markOut`. */
+    var sl = slot.closest('.slide');
+    if (sl) sl.dataset.outSeen = outDone(sl);
+    showOut(slot, false);
+    if (sl) markOut(sl);
+  }, true);
+
+  /* AND THE EYE SHOWS THE PICTURE, NOT THE PANEL - Babe, 2026-11-01:
+     "true the eye is to preview it again", then "maybe we just have the
+     modal appear if you double click on it then".
+     EACH GESTURE DOES ONE THING NOW, which is what those two sentences
+     add up to: the X, the header and a tab press put the result DOWN,
+     the eye brings it BACK, and a double-click on it is the full size.
+     The eye was a second door to the modal, which the picture itself
+     already is - and with the X able to put the preview away, something
+     had to be able to pick it up again or the X would be the end of it
+     until the next run.
+     IT TOGGLES, because a cell that only opens is a cell that lies the
+     second time you press it. */
+  document.addEventListener('click', function (e) {
+    var cell = e.target.closest && e.target.closest('.tr.seen');
+    if (!cell) return;
+    e.preventDefault(); e.stopPropagation();
+    var slide = cell.closest('.slide');
+    if (!slide) return;
+    var up = slide.querySelector('.slot.is-out');
+    if (up) return showOut(up, false);
+    revealOut(slide);
+  });
+
+  /* AND THE CELL IS DRAWN BY THE STATE RATHER THAN BY THE PRESS THAT MADE
+     IT. Four things write `out` - a run, the carry, a restore and `S` - so a
+     class set at any one of them is a class the other three forget. This
+     asks the state, and every one of those four already ends by calling
+     something that lands here. */
+  /* AND A RESULT THE X HAS PUT AWAY STAYS AWAY - Babe, 2026-11-01: "if i
+     press the eye and then hit the x to remove it from the slot, it should
+     prob not reappear when you press the eye again".
+     THE X AND THE EYE WERE TWO CONTROLS FOR ONE FACT, which is the
+     duplication this file deletes rather than tunes - and of the two, the
+     X is the one with a meaning everywhere else on the rail: THROW AWAY
+     WHAT IS HERE. Keeping it as a second way to toggle made it the only X
+     on the page that does not remove anything.
+     SO EACH PRESS HAS ONE MEANING NOW. The header and the arrow go BACK to
+     the sentence, a tab press answers the picture by changing the job, and
+     both leave the eye lit because the result is still a thing you have not
+     finished with. The X says you have, and the eye goes dark with it.
+     IT IS KEYED TO THE RESULT, NEVER A BARE FLAG, so the next run lights
+     the cell again by writing a different name - and a reload lights it
+     too, which is the same "temporary" the face itself keeps. NOTHING IS
+     DELETED: `out` is untouched, the room still opens the modal on a
+     double-click and the library still has the file. */
+  function outDone(slide) {
+    var out = st(rungOf(slide)).out;
+    return (out && (out.filename || lastingUrl(out))) || '';
+  }
+
+  function markOut(slide) {
+    if (!slide) return;
+    var out = st(rungOf(slide)).out;
+    var live = !!(out && lastingUrl(out));
+    var done = live && slide.dataset.outSeen === outDone(slide);
+    slide.classList.toggle('has-out', live && !done);
+    outPlate(slide);
+  }
+
+  /* THE RESULT STANDS IN THE BOX WHERE THE PROMPT IS - Babe, 2026-10-31:
+     "i kind of feel like generated result should end up in the box where
+     the prompt is.. because then you could drag it into a slot after. you
+     can't really do that with the modal. but i like the modal because you
+     get to see it full size", and what it is FOR: "makes it easier to
+     reuse assets", "without going into the media library and digging
+     around".
+
+     AND THE RULE IT REVERSES WAS SETTLED ON A RAIL THAT NO LONGER EXISTS -
+     Babe, in the same breath: "yeah this was before we added inputs on the
+     left". The 2026-10-29 answer rested on three reasons and the strongest
+     was that A SLOT SHOWING A PICTURE SENDS THAT PICTURE, so a result
+     sitting here would go back to the model as the style reference on the
+     next press. MEASURED: `right: null` on all six rungs now - the right
+     slot has no file key, `valuesFor` has nothing to read off it and a drop
+     on it is refused for the same reason - so the one thing that made this
+     dangerous is gone. Of the other two, "the right slot is the CHOICE" is
+     now about the SENTENCE rather than about a picture, and "you already
+     see it, as the room" is still true and still not draggable.
+
+     AND THE NEW ARGUMENT IS A CAPABILITY THAT DID NOT EXIST THEN. The quad
+     cells gained drag-and-drop yesterday, so there is somewhere to drag TO
+     - which is the whole of what the modal cannot do and what the library
+     makes you go and dig for.
+
+     IT IS 01 ALONE, to feel it out - Babe: "we can just do 01 for now". The
+     three rungs whose right box is a bare writing face could take it (03,
+     06); 02 already stands on its own sheet page and 04 and 05 are forms
+     with no `.drop` at all.
+
+     AND IT HANGS OFF `markOut`, which is the one place that already asks
+     the state rather than the press - four things write `out` and all four
+     pass through here, which is the reason that function exists. */
+  /* THE RESULT COVERS THE SENTENCE UNTIL YOU STEP BACK TO IT - Babe,
+     2026-10-31: "it would actually cover the prompt be on top temporary
+     until you go to the style prompt again", "maybe even change the style
+     prompt header ot something else, to go back to it".
+     AND IT IS A FACE, which is this rail's own answer to a temporary
+     surface over a box: the header names where you are standing, the arrow
+     beside it is the way back, and `faceHead` puts the old name back
+     rather than a second copy of it being kept anywhere.
+     AND IT IS IN `FACE_CLASSES`, which I first wrote down as deliberately
+     NOT - on a reading of that list that was simply wrong. It is not what
+     the accent walks (that is `.slot.is-asking:not(.writes)` in the
+     stylesheet) and there is no `faceHome` on this page at all: it is the
+     list the TRAY SWAP watches, and the row does change here, so it
+     belongs. The accent is untouched either way, which is what makes TRY
+     AGAIN pressable without putting the picture away first. */
+  window.HJ.showOut = function (slot, on) { return showOut(slot, on); };
+
+  /* ONE READER WRITES THE ROW: the class is the fact and `faceHead` reads
+     it, so putting the name on here as well would be the same string in
+     two places - and the one not reached on the way back from the agent is
+     the one that would be wrong.
+     AND WHAT IT PUTS BACK IS WHAT WAS THERE, 2026-11-01. MEASURED on 04:
+     the row says `Prompt` at rest - the tabs are directly above it, so an
+     address repeating them would name the same thing twice - and
+     `faceHead` always qualifies with the mode, so stepping out of the
+     result left `Single shot Prompt` on a slot that was not in a face.
+     THE HEADER IS CAPTURED FOR THE LIFE OF THE FACE and handed back, which
+     is what `_was` does for the box one level down. It cannot drift the
+     way the cascade's saved transform did: the only presses that change
+     this row while a result is up are the ones that put the result down
+     first. */
+  function showOut(slot, on) {
+    if (!slot) return;
+    var head = slot.querySelector('.tray .tray-k');
+    var was = slot.dataset.headWas;
+    if (on && head && was === undefined) slot.dataset.headWas = head.innerHTML;
+    slot.classList.toggle('is-out', !!on);
+    if (!on && head && was !== undefined) {
+      head.innerHTML = was;
+      delete slot.dataset.headWas;
+      return;
+    }
+    faceHead(slot);
+  }
+
+  /* AND IT IS REVEALED WHEN YOU PUT THE MODAL DOWN, not when the file
+     lands. A run that is accepted TRAVELS - Continue journey is on 01 and
+     the rail moves to 02 - so the only time you are standing on this rung
+     with a finished result is when you dismissed the panel, which is
+     exactly the moment "temporary" starts.
+     AND A RELOAD DOES NOT OPEN IT, which is the other half of temporary:
+     `outPlate` draws the picture from the state on every load and only
+     this reveals the face, so coming back tomorrow finds the sentence. */
+  /* THE SURFACE THE RIGHT SLOT WRITES ON, WHICHEVER IT IS - Babe,
+     2026-11-01: "we need to actually add that pattern to the rest of the
+     workflows".
+     IT WAS PINNED TO 01 to feel it out, and the pin had already become a
+     bug: `.tr.seen` is emitted on every tray and drawn by `.slide.has-out`
+     on every rung, so FIVE RUNGS HAD AN EYE THAT DID NOTHING - the cell
+     was general and the function behind it was not.
+     AND THE SURFACE IS THE BOX OR THE FORM. 01, 02, 03 and 06 write in a
+     `.drop`; 04 and 05 write in a `.writer`, which `facePlate` has taken
+     as the same thing since 04's board stood behind its form. One reader
+     rather than a list of rungs, which is the list this file keeps
+     deleting. */
+  function outHost(slide) {
+    var slot = (slide || document).querySelectorAll('.pair > .inp > .slot')[1];
+    if (!slot) return null;
+    return slot.querySelector(':scope > .drop') ||
+           slot.querySelector(':scope > .writer');
+  }
+
+  function revealOut(slide) {
+    if (!slide) return;
+    var box = outHost(slide);
+    var out = st(rungOf(slide)).out;
+    if (!box || !out || !lastingUrl(out)) return;
+    var slot = box.closest('.slot');
+    /* AND IT LEAVES WHATEVER IS COVERING THE SURFACE FIRST - Babe,
+       2026-11-01: "if i am viewing the agent and press eye, nothing
+       happens. it should prob close the agent".
+       IT DID HAPPEN: `is-out` went on and the header read RESULT. What it
+       could not do is SHOW anything, because the agent panel replaces the
+       box (`.slot.is-agent .drop { display: none }`) - so the result was
+       revealed underneath the thing you were looking at. TWO FACES AT
+       ONCE, which is what the rest of this panel is built to prevent.
+       AND THE WAY OUT IS PRESSED, NOT CLEARED - a hidden button still
+       answers `.click()`, and one mechanism cannot disagree with itself
+       about which face is up. It goes BEFORE `is-out` is set, so the back
+       arrow's own chain does its agent job rather than meeting a result
+       face that is already open and putting it straight back down. */
+    if (slot.classList.contains('is-agent') ||
+        slot.classList.contains('is-boxing')) {
+      var out0 = slot.querySelector('.tray .tr.back');
+      if (out0) out0.click();
+    }
+    /* and putting it back up un-dismisses it, so the eye and the face
+       cannot disagree about whether there is a result to go back to. This
+       is reachable with the eye dark: the room still opens the modal on a
+       double-click, and closing that reveals the face. */
+    /* AND IT REPAINTS BEFORE IT SHOWS - Babe, 2026-11-01, running KLING-4.0
+       straight after a SCAIL-2 swap: "the generated result still shows the
+       previous run from scail-2 - the result in the modal was correct tho".
+       THE MODAL AND THE FACE READ THE SAME `out` AND ONLY ONE OF THEM WAS
+       DRAWING IT. `showResult` writes `st(rung).out` and ends here, and this
+       set `is-out` over whatever `.outplate` was already in the box - a node
+       built by `markOut`, which nothing on the run's path calls. So the face
+       was correct exactly when something else had repainted it recently
+       enough: a reload does (`markOut` on every slide), which is why the
+       stale picture was the run before this one rather than the first of the
+       sitting.
+       IT IS `markOut` AND NOT `outPlate`, so the eye and the picture are
+       decided by one reader - `outSeen` is cleared above it, so the toggle
+       lands on lit by the same arithmetic the X uses. */
+    delete slide.dataset.outSeen;
+    markOut(slide);
+    showOut(slot, true);
+  }
+
+  function outPlate(slide) {
+    if (!slide) return;
+    var box = outHost(slide);
+    if (!box) return;
+    var had = box.querySelector(':scope > .outplate');
+    var out = st(rungOf(slide)).out;
+    /* THE DRAG NEEDS A COPY ON THIS DISK. `data-fromFile` names a path
+       under `output/`, so a result that lives only as a Comfy proxy url
+       shows and is not draggable rather than promising a drop that would
+       land on nothing. */
+    /* AND A STAGED RESULT CAN BE PICKED UP TOO, 2026-11-01. This was
+       `out.saved` alone and I wrote the gap down as a limitation - a
+       staged result has only a `url`, so it previewed and refused the
+       drag. MEASURED IN THE PAGE: that url is `/output/<session>/<rung>/…`,
+       which is a real path under `output/` with a leading slash on it, and
+       `diskPath` is the reader that already turns one back into a path for
+       the trim and the frame grab. A Comfy proxy url still answers null,
+       so a result that is genuinely not on this disk is still not a
+       handle. */
+    var src = out && lastingUrl(out);
+    var path = (out && out.saved) || diskPath(src) || '';
+    if (!src) { if (had) had.remove(); return; }
+    if (had && had.dataset.src === src) return;
+    /* A NEW ONE REPLACES THE OLD, and the face goes with it: whatever was
+       being shown is not what this rung made any more. */
+    if (had) { had.remove(); showOut(box.closest('.slot'), false); }
+    var vid = isVideoName(out.filename);
+    var el = document.createElement(vid ? 'video' : 'img');
+    el.className = 'outplate';
+    el.dataset.src = src;
+    el.dataset.path = path;
+    el.dataset.vid = vid ? '1' : '';
+    if (vid) {
+      el.muted = true; el.defaultMuted = true;
+      el.loop = true; el.autoplay = true; el.playsInline = true;
+    }
+    /* draggable only when there is a path to hand over, and the attribute
+       as well as the CSS - see the rule, and the morning that took both
+       away from every other picture in a `.drop`. */
+    el.draggable = !!path;
+    el.src = src;
+    box.insertBefore(el, box.firstChild);
+  }
+  window.HJ.markOut = markOut;
+
   /* A BOARD YOU BRING - Babe, 2026-10-26: "it should actually be PROMPT,
      IMAGE and IMPORT". Every other slot on the rail offers one and this is
      the only box that made something without being able to be handed one.
@@ -4335,6 +6473,14 @@
     }
   }
 
+  /* (*) AND THE CELL THAT REACHES THIS IS OFF 04's TRAY, 2026-10-31 - Babe:
+     "remove image and import from the right". The handler stays because the
+     cell is one line from coming back, the way `s.flip`'s builder outlived
+     the last slide that asked for one - and because the job it did is not
+     gone: a board you bring rather than draw is an INPUT one rung forward,
+     where 05's slate cell has a `+` on it. Nothing else on the rail emits
+     `data-act="import"` inside a `.has-form` slot, so this listener is
+     currently unreachable and says so rather than pretending. */
   document.addEventListener('click', function (e) {
     var cell = e.target.closest &&
                e.target.closest('.slot.has-form .tray .tr[data-act="import"]');
@@ -4404,17 +6550,23 @@
      question "which mode is this run" has two places to be answered from.
      The panel wins where there is one, because on 04 the mode IS the panel
      you are standing in. */
+  /* AND THE FALLBACK IS GONE BECAUSE IT NEVER MATCHED ANYTHING. It asked
+     for `.mtab[aria-pressed]` and this page has drawn `.ftab[data-mode]`
+     since the tabs were built - no element on the rail has ever carried
+     that class, so the branch was dead from the day it was written and the
+     real answer has always been the slot's own attribute. THE THIRD READER
+     OF A FACT IS THE ONE THAT ROTS: nothing reaches it, so nothing reports
+     it. Every slot that draws a strip carries `data-mode` from the builder
+     now, which is what makes this safe to say out loud. */
   function modeOf(slide) {
     var slot = slide.querySelector('.slot[data-mode]');
-    if (slot && slot.dataset.mode) return slot.dataset.mode;
-    var tab = slide.querySelector('.mtab[aria-pressed="true"]');
-    return (tab && tab.dataset.m) || null;
+    return (slot && slot.dataset.mode) || null;
   }
 
   function sheetOf(slide) {
     var all = window.HJ.sheets || [];
     var b = slide.querySelector('.sheet[aria-pressed="true"]');
-    var id = b && b.dataset.sheet;
+    var id = b && b.dataset.mode;
     for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
     return all[0];
   }
@@ -4715,7 +6867,7 @@
        THE SOUND STAYS ON: a press is a user gesture, so Chrome allows an
        unmuted start - which is the whole reason the camera's playback works
        the same way. */
-    if (el.tagName === 'VIDEO') { el.controls = true; el.loop = true; el.playsInline = true; el.muted = false; }
+    if (el.tagName === 'VIDEO') { el.playsInline = true; el.muted = false; }
     /* THE SOURCE IS SET BELOW, AFTER THE LISTENER. A cached file fires its
        load before a listener attached a line later can hear it, and the
        info cell is the one thing on this strip that cannot be composed
@@ -4733,13 +6885,23 @@
          numbers were there and the noun was not, and on a rung that can
          return either a frame or a clip that is the first thing to know. */
       var made = madeWith(file.saved, rung);
+      /* AND THE MODEL IS THE PART THAT GIVES WAY - Babe, 2026-10-31: "the
+         box on the left with meta data is not lining up and the text is cut
+         off". The cell is `overflow: hidden` with one anonymous run of text
+         in it, so a narrow window chopped the last word through the middle
+         of a glyph. The strip cannot widen - the picture decides this
+         panel's width and a square result being as wide as its buttons is
+         the thing that arrangement exists to prevent - so the content is
+         what has to degrade, and it degrades at the end: what came back is
+         pixels and a ratio, and which model made it is the footnote. */
       info.innerHTML = '<b>' + (el.tagName === 'VIDEO' ? 'Video' : 'Image') + '</b>' +
-        w + ' × ' + h + '  ·  ' + ratioName(w / h) +
-        (el.duration ? '  ·  ' + el.duration.toFixed(1) + 's' : '') +
-        (made ? '  ·  ' + made : '');
+        '<span>' + w + ' × ' + h + '  ·  ' + ratioName(w / h) +
+        (el.duration ? '  ·  ' + el.duration.toFixed(1) + 's' : '') + '</span>' +
+        (made ? '<span class="made">·  ' + made + '</span>' : '');
     });
     el.src = file.url;
     media.appendChild(el);
+    if (el.tagName === 'VIDEO') resultTrim(media, el);
 
     /* SAVE CAME BACK, AND IT LEADS - Babe, 2026-10-26: "i guess we prob do
        still need a save image, maybe on the left of try again". It came off
@@ -4765,10 +6927,20 @@
        out loud - which this panel needed anyway, being the one face with no
        dismiss drawn on it. */
     var buttons = [
-      { label: isVideoName(file.filename) ? 'Save clip' : 'Save image',
-        onClick: function () { saveFile(rung, file); } },
+      /* AND IT IS JUST SAVE - Babe, 2026-10-31: "we can make save image just
+         be save". The noun was read off the filename because the buttons are
+         composed before anything has decoded, which is still true and no
+         longer the point: the cell immediately to its left says IMAGE or
+         VIDEO, so the word was the strip saying the same thing twice - and
+         saying it in the one cell that had no room for it. */
       { label: 'Cancel', onClick: function () { closeResult(); } }
     ];
+    /* and a clip's SAVE is the trim-aware one, with the frame grab beside it */
+    if (el.tagName === 'VIDEO') {
+      buttons = clipCells(slide, media, file.saved || el.src, rung, file).concat(buttons);
+    } else {
+      buttons.unshift({ label: 'Save', onClick: function () { saveFile(rung, file); } });
+    }
     /* AND IT IS THE LAST RUNG THAT HAS NOWHERE TO CARRY TO, not the fifth.
        This read `rung < 5` from before the six, so 05 - a real step with 06
        in front of it - was being drawn as the end of the rail. */
@@ -4781,6 +6953,19 @@
     }
     acts(slide, buttons);
 
+    /* AND IT IS IN THE BOX BEFORE THE PANEL IS OVER IT - Babe, 2026-11-01:
+       "should the image appear here first and then the modal opens for full
+       screen, so its there and just blurred and there when you close".
+       IT WAS REVEALED ON THE WAY OUT, which is one frame of pop-in at the
+       wrong end: you dismissed a panel and a picture appeared behind where
+       it had been. Revealed on the way IN, the modal is a full-size look at
+       something that is already there, and closing it uncovers what you
+       were already looking at - which is also the only version where the
+       blur behind the panel is of the result rather than of the sentence.
+       THE BLUR IS NOT NEW: `.cam:has(.slide.is-on .runover.is-on) .plane`
+       has blurred everything behind this panel since it was built. What
+       changed is what is back there. */
+    revealOut(slide);
     /* AND ONLY NOW. The picture is loaded, the strip knows what it is and
        the buttons are in it, so the panel arrives finished. */
     await ready(el);
@@ -4893,7 +7078,26 @@
          nothing and a run sends what you are actually looking at. */
       var bx = boxesOf(slide);
       var smap = SLOTS[rung] || {};
-      var pairs = [[smap.left, bx.front[0]], [smap.right, bx.front[1]]];
+      /* AND EVERY FACE OF THE LEFT SLOT, BY THE KEY IT SENDS AS. This was
+         front[0] and front[1] - the two SIDES - which covered 03's place
+         while the place was a right-hand box and covers nothing now that the
+         inputs are cells: a picture painted from `output/` and marked rather
+         than uploaded had no route to the model at all, which is the one
+         failure that looks like success. 01's `fill` paints exactly that -
+         a previous roll into the REFERENCE cell, with nothing in state - and
+         05's sheet arrives the same way.
+         06 IS EXEMPT, for the reason it is exempt from `ensureLeft` below:
+         `faceRef` resolves each of its faces by name, SCAIL-2 takes only the
+         pressed one, and its journey keys and its node keys are not the same
+         word. Sending them from here would answer for a face nobody chose. */
+      var fkeys = smap.faceKeys || [smap.left, smap.alt];
+      var fsend = smap.faceSends || fkeys;
+      var fall = bx.all[0] || [];
+      var pairs = [[smap.right, bx.front[1]]];
+      if (rung === 6) pairs.push([smap.left, bx.front[0]]);
+      else for (var fj = 0; fj < fkeys.length; fj++) {
+        if (fkeys[fj] && fall[fj]) pairs.push([fsend[fj], fall[fj]]);
+      }
       for (var pi = 0; pi < pairs.length; pi++) {
         var pk = pairs[pi][0], pb = pairs[pi][1];
         /* and a box the rail painted is not sent while it is showing words
@@ -4925,7 +7129,7 @@
          for the face you are not on. */
       if (rung !== 6 && smap.left && !values[smap.left]) {
         try {
-          var lname = await ensureLeft(slide, rung);
+          var lname = await ensureFront(slide, rung);
           if (lname) values[smap.left] = lname;
         } catch (err) { /* the server's own refusal is the honest one */ }
       }
@@ -4942,7 +7146,18 @@
          which is why this resolves a face by name rather than by position. */
       if (rung === 6) {
         var on = slide.querySelector('.tray .pick[aria-pressed="true"]');
-        var isLoc = on && on.dataset.f === '1';
+        /* WHICH FACE IS PRESSED, AS AN INDEX. It was a boolean while there
+           were two of them; the box shows one at a time and there can be
+           more than two, so the press is a position rather than a side. */
+        var faceAt = on ? (+on.dataset.f || 0) : 0;
+        /* AND EVERY FACE IS ADDRESSED BY ITS KEY, NOT BY WHERE IT SITS.
+           CHARACTER was face 0 and the place was face 1, so the run read
+           `0` and `1` outright - and the clip becoming a cell of its own
+           moved both of them one along. A position written into a run is a
+           position that has to be found again every time the panel grows. */
+        var fkeys = SLOTS[6].faceKeys || ['clip', 'ref1', 'place'];
+        var idx = function (k) { return fkeys.indexOf(k); };
+        var isLoc = fkeys[faceAt] === 'place';
         /* SCAIL-2's node 30 is still a single reference_image, so that row
            still chooses. Every other row on this rung takes a list. */
         var both = modelOf(slide) !== 'SCAIL-2';
@@ -4955,10 +7170,18 @@
            carry is the way in for a result further back than carry() reaches.
            It returns a Comfy input name or '' - never throws, because
            `needs ref1` downstream is the honest refusal. */
-        async function faceRef(loc) {
-          var key = loc ? 'place' : 'ref1';
-          var box = loc ? bx.alt[0] : bx.front[0];
-          var madeBy = loc ? 3 : 2;
+        /* BY INDEX, NOT BY A BOOLEAN. Two faces made `loc` readable and a
+           third would make it a lie, so the face's own key, box and source
+           workflow are read off the slot table in face order. Adding a face
+           is an entry in `faceKeys` and `faceFrom` and nothing here. */
+        async function faceRef(f) {
+          var keys = SLOTS[6].faceKeys || ['clip', 'ref1', 'place', 'audio'];
+          var froms = SLOTS[6].faceFrom || [5, 2, 3, 0];
+          var i = f === true ? 1 : (f === false ? 0 : f);
+          if (!(i >= 0)) return '';
+          var key = keys[i];
+          var box = (bx.all[0] || [])[i] || (i ? bx.alt[0] : bx.front[0]);
+          var madeBy = froms[i];
           var name = st(6)[key] || '';
           if (!name && box && box.dataset.fromFile) {
             try { name = await uploadLocal(box.dataset.fromFile); }
@@ -4982,7 +7205,9 @@
               } catch (err) { /* the carry below is the other way in */ }
             }
           }
-          if (!name && st(madeBy).out) {
+          /* and a face nothing makes has no rung to carry from - MISC is
+             brought, so the two routes above it are the only ones. */
+          if (!name && madeBy && st(madeBy).out) {
             try {
               var rres = await fetch('/api/carry', {
                 method: 'POST',
@@ -4996,17 +7221,40 @@
           return name;
         }
 
+        /* AND THE CLIP IS A FACE LIKE THE OTHERS NOW, so it arrives by the
+           same three routes they do - the name this sitting uploaded, the
+           file the box is painted from, or the carry from 05. `valuesFor`
+           has it already whenever this sitting put it there by hand; this
+           is the carried and the painted case, which is the common one. */
+        if (!values.clip) {
+          values.clip = await faceRef(idx('clip'));
+          if (!values.clip) delete values.clip;
+        }
+        /* AND THE EXTRA REFERENCE GOES WHEN THERE IS ONE. It is
+           `dropWhenEmpty` at the far end, so an unfilled cell deletes its
+           loader AND takes its sentence with it - the scaffolding names
+           @Audio1 only when @Audio1 exists. */
+        if (!values.audio) {
+          values.audio = await faceRef(idx('audio'));
+          if (!values.audio) delete values.audio;
+        }
+
         if (both) {
           /* THE CHARACTER IS ALWAYS image_1 AND THE PLACE IS ALWAYS image_2,
              because the sentence names them by role and a role cannot swap
              with which cell happens to be pressed. */
-          values.ref1 = await faceRef(false);
-          values.ref2 = await faceRef(true);
+          values.ref1 = await faceRef(idx('ref1'));
+          values.ref2 = await faceRef(idx('place'));
           /* a place that never arrived drops its loader rather than refusing:
              the recast still holds, it just keeps the driving clip's room. */
           if (!values.ref2) delete values.ref2;
+          if (!values.ref1) delete values.ref1;
         } else {
-          values.ref1 = await faceRef(isLoc);
+          /* A ONE-REFERENCE ROW TAKES A PICTURE, so the pressed face only
+             chooses where the clip is not what is pressed - standing in the
+             clip's own cell is not a vote for sending it as the reference. */
+          var one = fkeys[faceAt] === 'place' ? idx('place') : idx('ref1');
+          values.ref1 = await faceRef(one);
           /* WHICH FACE IT IS, BECAUSE ON A ONE-REFERENCE ROW THE TWO ARE NOT
              THE SAME KIND OF PICTURE. The sheet is lit flat on grey and the
              shot is already graded, so the scaffolding asks for the look from
@@ -5385,6 +7633,26 @@
     if (el) el.textContent = text || '';
   }
 
+  /* AND A RUN ASKS FOR THE FACE IT IS ASSIGNING, NOT FOR WHATEVER IS SHOWING.
+     `ensureLeft` was the run's resolution first and grew the visible-face
+     preference on 2026-10-30 for the AGENT, which is right there - that panel
+     helps you write about the picture you are looking at. The run is a
+     different question: it hands the answer to ONE key, `smap.left`, so a
+     visible second face answered for the first one.
+     IT WAS A LIE WORTH MONEY, and 03 is where it became reachable. A fresh
+     sitting has no sheet in that box; import an environment, which selects
+     its cell, and the sheet key was handed the room - so the run went out
+     with the same picture as image 1 and image 2 and came back as a
+     photograph of a room with nobody in it, at ~17 credits. 05 could do the
+     same with SHEET pressed over an empty slate, and 04 with the sheet
+     pressed over an empty frame.
+     ONE QUESTION EACH: this one names a face, `ensureLeft` names a slot. */
+  function ensureFront(slide, rung) {
+    var spec = SLOTS[rung] || {};
+    var all = boxesOf(slide).all[0] || [];
+    return ensureFace(slide, rung, spec.left, all[0], st(rung - 1).out);
+  }
+
   /* A PAINTED SLOT IS NOT AN UPLOADED ONE, AND EVERY JOB HAS TO KNOW THAT.
      `fill()` paints a box from `output/` and marks it `data-fromFile` rather
      than spending five uploads on a page load, and a restored journey may
@@ -5411,12 +7679,42 @@
     var b = boxesOf(slide);
     var spec = SLOTS[rung] || {};
     var slot = b.front[0] && b.front[0].closest('.slot');
-    var up = slot && slot.classList.contains('is-flipped') && b.alt[0] && spec.alt;
-    if (up) {
-      var shown = await ensureFace(slide, rung, spec.alt, b.alt[0], st(rung - 1).out);
+    /* THE FACE THAT IS SHOWING, WHICHEVER IT IS. It asked a boolean and
+       reached for `alt`, which is face 1 by another name - true of a slot
+       with two answers and wrong on a quad. `on` is what `showFace` writes
+       and the only thing that decides it. */
+    var all = b.all[0] || [];
+    var keys = spec.faceKeys || [spec.left, spec.alt];
+    /* AND ONLY A FACE THAT HOLDS A PICTURE ANSWERS, 2026-10-30. This reaches
+       one place - `look` on the agent's chat graph, `figure` on 04's - and
+       both of them are a `LoadImage`, so the kind of file is not a detail: an
+       mp4 or a wav there is a job that fails at Comfy, which arrives as the
+       agent refusing to talk rather than as the agent going blind. An empty
+       answer is safe by design (`dropWhenEmpty` takes the loader and the
+       paragraph naming it with it); a WRONG-KIND answer is not.
+       IT WAS SAFE UNTIL THE QUAD, because every face a slot had was a
+       picture. 06's face 0 is the driving clip now and its fourth is a sound,
+       so the face the box is standing in on arrival is an mp4. The table
+       already says which is which - `faceAccept` - and a slot with no list
+       has one kind of face, which is how 04 and 05 are untouched. */
+    var pic = function (n) {
+      var a = (spec.faceAccept || [])[n];
+      return !a || a.indexOf('image/') > -1;
+    };
+    for (var i = 1; i < all.length; i++) {
+      if (!all[i].classList.contains('on') || !keys[i] || !pic(i)) continue;
+      var shown = await ensureFace(slide, rung, keys[i], all[i], st(rung - 1).out);
       if (shown) return shown;
+      break;
     }
-    return ensureFace(slide, rung, spec.left, b.front[0], st(rung - 1).out);
+    /* THE FALLBACK IS THE FIRST FACE THAT HOLDS ONE, which is `left` on every
+       slot whose own face 0 is a picture and the CHARACTER on 06 - which is
+       what `AGENT_SEES` has claimed to be looking at there all along: "the
+       character and NOT the clip". */
+    var f = 0;
+    while (f < keys.length && !(keys[f] && pic(f))) f++;
+    if (f >= keys.length || !all[f]) return '';
+    return ensureFace(slide, rung, keys[f], all[f], st(rung - 1).out);
   }
 
   /* THE SAME THREE ANSWERS, FOR EITHER FACE OF A TWO-FACED SLOT: the input
@@ -5429,6 +7727,13 @@
        mp4 on its character face and would have sent it again on every press
        until somebody emptied the slot by hand. */
     var have = st(rung)[key];
+    /* AND A FACE THAT SENDS A STILL IS THE REASON THE TEST BELOW CANNOT STAY
+       AS IT WAS. It asked `wantsVideo(box)` and read a NO as "this face sends
+       a picture" - which was the same fact while no box took both. 01's
+       SOURCE takes a photograph OR a clip now, so the picker says yes and the
+       model still wants one frame: the question is what the FACE sends, and
+       `sendsStill` is the only thing that knows. */
+    var still = sendsStill(rung, key);
     if (have && box && !wantsVideo(box) && isVideoName(have)) {
       delete st(rung)[key];
       if (st(rung).urls) delete st(rung).urls[key];
@@ -5436,6 +7741,31 @@
       have = '';
     }
     if (have) return have;
+    /* A CLIP IN A STILL FACE IS ONE FRAME OF IT, AND IT IS FRAME ZERO - see
+       `frameZero`. The box goes on showing the clip, which is honest: it IS
+       holding a clip, and what this face sends is a picture of its first
+       frame. `uploadBlob` is the one place bytes of any provenance go to
+       Comfy and it exists for exactly this - a frame that is no file
+       anywhere.
+       AND THE NAME IS CACHED THE WAY EVERY OTHER ONE IS: the upload's name
+       lands in `st(rung)[key]`, so the seek happens once per clip rather
+       than once per press, and the guard above leaves it alone because an
+       image name is not a video name. What is written down as the slot's URL
+       is the CLIP, because that is what the box is showing and what a reload
+       has to put back. */
+    if (still && box) {
+      var clip = clipUrlIn(box);
+      if (clip) {
+        var shot = await frameZero(clip, 1280);
+        if (shot) {
+          var blob = await (await fetch(shot)).blob();
+          var fname = await uploadBlob(blob, 'frame-' + Date.now() + '.png');
+          st(rung)[key] = fname;
+          noteSlot(rung, key, clip, true);
+          return fname;
+        }
+      }
+    }
     if (box && box.dataset.fromFile && !(!wantsVideo(box) && isVideoName(box.dataset.fromFile))) {
       /* AND WHAT IT IS SHOWING IS WRITTEN DOWN WITH WHAT IT IS SENDING -
          Babe, 2026-10-27: "idk why the hero is lost now". 06's character face
@@ -5598,18 +7928,28 @@
          image slot - and 05 to 06 is where it finally did: Babe, 2026-10-28,
          looking at the transition, found 06's HERO wearing a frame of the 05
          clip under CHARACTER, where the sheet belongs.
-         IT CARRIES NOTHING RATHER THAN CARRYING IT SOMEWHERE ELSE. The right
-         slot does accept video on 06 - but LEFT IS INHERITED AND RIGHT IS
-         CHOSEN is the rule the whole panel runs on, and the driving clip is
-         the one input this file says is BROUGHT, not picked. So a result the
-         next left slot cannot hold is a result that stays where it was made;
-         the travel still happens and the room is still dressed, because
-         Continue journey is the acceptance of the PICTURE, not a promise
-         that the next rung wanted it. */
+         IT CARRIES NOTHING RATHER THAN CARRYING IT SOMEWHERE ELSE: a result
+         the next left slot cannot hold is a result that stays where it was
+         made. The travel still happens and the room is still dressed,
+         because Continue journey is the acceptance of the PICTURE, not a
+         promise that the next rung wanted it.
+         AND 05 TO 06 CARRIES AGAIN AS OF 2026-10-30, by that same test
+         rather than by an exception to it: 06's left box takes either kind
+         now, so the clip meets the `accept` and lands - and `byKind` is what
+         makes it the driving clip at the far end instead of the character.
+         (*) IT LANDS IN THE QUADRANT LABELLED CHARACTER, which is the half
+         of Babe's source-box move that has not been built: the box is meant
+         to become SOURCE with the named references beside it in the panel.
+         Until it does, a carried clip is correct in the payload and wrong on
+         the label. */
       var map = SLOTS[rung + 1] || {};
       var key = map.left;
       var vid = isVideoName(file.filename);
-      var takes = String((map.accept && map.accept.left) || '');
+      /* AND IT ASKS THE FACE, NOT THE SIDE. Guarded against a missing
+         `accept` it fell through to the empty string, which `!takes` reads
+         as "takes anything" - the exact opposite of what this check is for,
+         on the one slot that has no side-wide `accept` to find. */
+      var takes = String(acceptFor(map, key, 'left') || '');
       if (key && (!takes || takes.indexOf(vid ? 'video' : 'image') > -1)) {
         st(rung + 1)[key] = out.name;
         /* BY SLOT, NEVER BY POSITION. `querySelectorAll('.drop')[0]` held
@@ -5624,6 +7964,12 @@
         if (box) staleTraits(box);
         if (box) showMedia(box, file.url, vid);
         noteSlot(rung + 1, key, lastingUrl(file), vid);
+        /* AND A PANEL STANDING OPEN BECAUSE THERE WAS NOTHING TO SHOW
+           CLOSES ONTO THE THING THAT JUST ARRIVED. A cold 06 lands on its
+           quad, and the clip carried in from 05 is exactly the answer that
+           panel was asking for - so the box takes the front again rather
+           than the result landing behind the door. */
+        if (box) settleRefs(box.closest('.slot'));
       }
 
       /* A SECTION'S ROOM IS WHAT IT MADE, AND ONLY THAT. Carrying used to dress
@@ -5662,7 +8008,8 @@
 
   /* CLICK OFF TO CLOSE. The result has no dismiss button, so anywhere that
      is not the panel closes it, and so does Escape. */
-  /* AND THE RACK BACK IS QUICK. `.cam:has(.runover.is-on) .plane` stops
+  /* AND THE RACK BACK IS QUICK. `.cam:has(.slide.is-on .runover.is-on)
+     .plane` stops
      matching the instant the panel closes, so the return is governed by the
      plane's own filter transition - which is --plane-fade, the 1300ms a
      neighbouring slide takes to come into focus across a travel. Right here
@@ -5715,7 +8062,10 @@
      the traits card do, so nothing new is invented for it to sit on. */
   function whyOff(slot) {
     slot.classList.remove('is-why');
-    /* wherever it was hung - the box on a mode note, the stage on a box one */
+    /* wherever it was hung - the box, the writer, the agent panel or the
+       boxer, all of them inside this slot, which is what makes one lookup
+       enough. It said "the stage on a box one" and the stage was never in
+       this slot at all - see `whyBits`. */
     var old = slot.querySelector('.whybox');
     if (old) old.remove();
     var cell = slot.querySelector('.tr.why');
@@ -5731,12 +8081,8 @@
      AND THE NOTE NEEDS SOMEWHERE VISIBLE TO STAND. It hosts in `.drop`,
      which the box face hides - so a note hung there would have been drawn
      into a box nobody can see, which is why the cell was hidden rather than
-     answered in the first draft. The stage is the visible surface there. */
+     answered in the first draft. `.boxer` is the visible surface there. */
   function whyBits(slot) {
-    if (slot.classList.contains('is-boxing') && slot.dataset.boxes) {
-      return { n: 'Boxes', why: slot.dataset.boxes,
-               host: slot.querySelector('.boxer-stage') };
-    }
     var rows = window.HJ.modeHelp ? window.HJ.modeHelp(slot) : [];
     var now = (slot.dataset.mode || '').toUpperCase();
     var mine = rows.find(function (r) { return String(r.k).toUpperCase() === now; })
@@ -5766,16 +8112,51 @@
     /* AND A FORM SLOT HAS NO `.drop` AT ALL, which is the same fallback
        `facePlate` makes for the same reason: on 04 the face you are standing
        in is the `.writer`, so that is the surface the note covers. */
+    /* AND THE BOX FACE IS THE THIRD ONE THAT HIDES THE BOX, which the note
+       above half-remembered: the comment credits the box face with having
+       answered this and the chain never named it, so `.slot.is-boxing .drop
+       { display: none }` has been swallowing the note there since the cell
+       was shown in that face. One more arm, the same shape as the agent's -
+       the visible surface of the face you are standing in. */
     var host = slot.classList.contains('is-agent')
       ? slot.querySelector('.helper')
+      : slot.classList.contains('is-boxing')
+      ? slot.querySelector('.boxer')
       : (slot.querySelector('.drop') || slot.querySelector('.writer'));
+    /* AND THE BOX FACE'S NOTE IS DECIDED HERE, BELOW THE HOST, WHICH IS THE
+       WHOLE BUG - Babe, 2026-11-01: "i cant press the ? in edit boxes
+       panel".
+       IT RETURNED EARLY WITH A HOST OF ITS OWN, `.boxer-stage` - and the
+       stage is the drawing surface, which is an overlay inside the LEFT
+       slot's picture, while `is-boxing` and the `?` cell are both on the
+       RIGHT. So `slot.querySelector` asked one column for an element that
+       lives in the other, got null, and `toggleWhy` bails on a null host
+       without a word. A SECOND HOST EXPRESSION IS A SECOND ANSWER TO ONE
+       QUESTION, and this one was wrong AND silent: the ternary above has
+       had the right arm (`.boxer`) since the cell was first shown in this
+       face, and the early return was shadowing it.
+       AND IT HANGS WHERE YOU ARE LOOKING, which is the rule the agent's own
+       arm follows: the note belongs over the list you pressed `?` beside,
+       not over the picture you are drawing on. */
+    if (slot.classList.contains('is-boxing') && slot.dataset.boxes) {
+      return { n: 'Boxes', why: slot.dataset.boxes, host: host };
+    }
     if (!mine || !mine.why) {
       if (!slot.dataset.why) return null;
       var k = slot.querySelector('.ftab-k');
       return { n: (k && k.textContent.trim()) || slot.dataset.face0 || 'Prompt',
                why: slot.dataset.why, host: host, sends: true };
     }
-    return { n: mine.n || mine.k, why: mine.why, host: host, sends: true };
+    /* AND A SLOT'S NOTE IS THE HALF THAT IS TRUE OF EVERY MODE - Babe,
+       2026-10-31: "each mode should have its own ?". On 02 what differs is
+       what each page IS, in frames, and what differs is all four notes
+       should carry; HOW it travels - drawn empty, uploaded, named frame by
+       frame in a system prompt - is one fact and would otherwise be written
+       out four times. So a slot that declares one puts it after the mode's
+       own, and a slot with modes and no note of its own is unchanged, which
+       is every other tabbed slot on the rail. */
+    var both = slot.dataset.why ? mine.why + ' ' + slot.dataset.why : mine.why;
+    return { n: mine.n || mine.k, why: both, host: host, sends: true };
   }
 
   function toggleWhy(slot) {
@@ -5797,10 +8178,78 @@
        is pressed - see `sends` in the slide table. A slot that does not
        declare one simply has no line, the way a mode without `why` has no
        cell. */
-    if (mine.sends && slot.dataset.sends) {
+    /* AND THE AGENT IS WORTH SAYING ONCE, NOT THIRTEEN TIMES - Babe,
+       2026-10-31: "the agent is also there to assist with prompt
+       structure", "so maybe mention that too idk".
+       IT IS TRUE OF EVERY FACE THAT HAS THE CELL - 01's two modes, 03, 04's
+       three, 05's three and 06's four - so writing it into a `why` would be
+       one fact in thirteen strings, which is the shape this file keeps
+       deleting rather than tuning. It is asked of the ROW IN FRONT OF YOU
+       rather than of a table: `.tr.face` is the agent cell, drawn only
+       where a slot declares the line it opens with, so a slot without one
+       says nothing and nothing has to be kept in step.
+       AND IT GOES IN THE `whyhow` BLOCK, which is already the quieter
+       register for how a thing works rather than what it is for - the
+       `sends` lines are its other tenant. So the block is built when either
+       has something to say. (*) The line is mine. */
+    var agent = slot.querySelector('.tray .tr.face');
+    var sends = mine.sends && slot.dataset.sends
+      ? slot.dataset.sends.split('|') : [];
+    /* AND THE EYE GETS A LINE OF ITS OWN WHEN THERE IS ONE - Babe,
+       2026-11-01: "maybe a line break after the paragaph for a new thing
+       about the eye. click the eye to view the most recent result".
+       IT ASKS THE SAME QUESTION THE CELL ASKS. `.tr.seen` is emitted on
+       every tray and drawn only by `.slide.has-out`, which is written from
+       the state by `markOut` - so the line and the cell cannot disagree
+       about whether there is a result to go back to, and a rung that has
+       made nothing says nothing.
+       IT READS BEFORE THE AGENT because it is about the thing on screen
+       right now; the agent is the standing offer. Both are `whyhow` lines,
+       which is already the register for how a thing works rather than what
+       it is for - and the block's own gap is Babe's line break. */
+    var slide = slot.closest('.slide');
+    if (slide && slide.classList.contains('has-out')) {
+      sends.push('Click the eye to view the most recent result.');
+    }
+    /* AND BOXES GETS ONE WHEREVER THE CELL IS - Babe, 2026-11-01: "we need
+       a line for boxes in the ?".
+       IT IS CONDITIONAL TWICE OVER AND THAT IS WHY IT BELONGS HERE rather
+       than in the paragraph: the cell is drawn only on a mode that is made
+       of regions AND a row whose encoder can read a table of them, which
+       today is FLUX-3-KLEIN's EDIT alone. A sentence in the note would
+       have named a control that is absent on five of the six rows.
+       SO IT ASKS THE ROW IN FRONT OF YOU, the way the agent line does -
+       `.tr.boxes` is the cell, and `can-box` is written from what
+       `/api/health` says that row can take. (*) The line is mine. */
+    if (slot.querySelector('.tray .tr.boxes')) {
+      /* (*) BABE'S WORDS, 2026-11-01: "have it say USE BOXES TO EDIT A
+         SPECIFIC REGION". Mine described the gesture - draw one, then say
+         what changes inside it - which is how it works rather than what it
+         is for, and one line longer for it. */
+      /* AND IT NAMES THE ROW, because the cell is on exactly one of them -
+         Babe: "for the boxes line, just add (Flux 3 Klein Only)". The
+         line is drawn from `.tr.boxes`, which is drawn from `can-box`,
+         which is written from what `/api/health` says that row can read -
+         so it is already true by construction, and saying it out loud is
+         what stops the cell reading as something that went missing when
+         you press another model. */
+      sends.push('Use BOXES to edit a specific region (Flux 3 Klein only).');
+    }
+    if (agent) {
+      /* AND THE LINE IS BABE'S, 2026-11-01: "for the agent text just have
+         it say USE THE AGENT IF YOU WANT MORE STRUCTURE AND SYSTEM-BASED
+         PROMPTING". Mine named what it does to the prompt and who gets the
+         last word, which is two facts in a row that has to be read in a
+         glance; theirs says when to reach for it, which is what a note in
+         this register is for. `.whybox i` is `text-transform: uppercase`,
+         so it goes in as written and arrives in caps. */
+      sends.push('Use the agent if you want more structure and '
+        + 'system-based prompting applied to your prompt.');
+    }
+    if (sends.length) {
       var how = document.createElement('div');
       how.className = 'whyhow';
-      slot.dataset.sends.split('|').forEach(function (one) {
+      sends.forEach(function (one) {
         var line = document.createElement('i');
         line.textContent = one;
         how.appendChild(line);
@@ -5984,7 +8433,25 @@
   /* ONE HEALTH CALL, CALLED FROM TWO PLACES. Boot asks, and saving a key
      asks again - a second copy of this would be a second chance to disagree
      with the server about what is wired. */
-  function health() {
+  /* AND A HEALTH THAT DOES NOT LAND IS NOT A PAGE THAT CARRIES ON QUIETLY.
+     Babe, 2026-10-30, with SEEDANCE pressed on 05: "i think seedance doesn
+     have a step count right?" - it does not, and the server has said so all
+     along: that row declares `ar, size, duration, seed`. STEPS and REF were
+     on the row because `markWired` had never run, so `WIRED` was still the
+     first-guess literal and `markParams` had no list to hide against - and
+     with no list, every cell shows.
+     THE `catch` ON THIS CHAIN WAS EMPTY, which is worse than none: one
+     failed fetch left the whole row lying about what the model takes and
+     said nothing anywhere, the only tell being 06's RUN reading `Not wired`
+     because the first guess stops at 05. And the common cause is the most
+     ordinary thing in this repo: a page loaded while the server is
+     restarting, which it does on every graph edit.
+     SO IT ASKS AGAIN RATHER THAN REPORTING, because the failure is
+     transient by construction - the server is coming back up - and a page
+     that catches up a second later is the honest version of a page that was
+     briefly wrong. It gives up after three tries and says so to the console,
+     which is where a reader who is still looking will be. */
+  function health(tries) {
     return fetch('/api/health').then(function (r) { return r.json(); }).then(function (h) {
       markKey(h.key === 'set' ? 'set' : 'missing');
       markWired(h.wired);
@@ -6001,7 +8468,13 @@
          in, and the panel closes on Escape or a click outside like every
          other, so looking around first is still allowed. */
       if (h.key !== 'set') afterIntro(offerKey);
-    }).catch(function () {});
+    }).catch(function () {
+      var n = (tries || 0) + 1;
+      if (n < 3) return setTimeout(function () { health(n); }, 600 * n);
+      console.warn('[hj] /api/health did not answer after three tries - the ' +
+                   'model row is showing every cell, because nothing has ' +
+                   'said which ones the chosen model takes');
+    });
   }
 
   /* IT WAITS FOR THE PAGE TO FINISH ARRIVING. The opening cascade plays once
@@ -6052,6 +8525,10 @@
        three. The element is rebuilt on the next open, so there is nothing to
        rewind. */
     open.querySelectorAll('video').forEach(function (v) { v.pause(); });
+    /* AND THE RESULT IS ALREADY IN THE BOX BY NOW, revealed by whichever
+       opener put this panel up - so there is nothing to do here. It was
+       done on the way out first and that was one frame of pop-in at the
+       wrong end; see `showResult`. */
     /* THE FACE OUTLIVES THE CLOSE BY AS LONG AS THE EXIT TAKES. A class left
        on is a state the next open inherits, so it still has to go - but
        stripping it in the same frame the fade starts took the review panel's
@@ -6125,10 +8602,53 @@
     var map = SLOTS[rung];
     var boxes = boxesOf(slide);
 
+    /* AND IT ASKS `acceptFor` RATHER THAN REACHING INTO `accept`. This read
+       `map.accept.left`, which every rung had until 06's faces grew a list
+       of their own and `accept` came off that slot entirely - so rung 6
+       threw a TypeError inside this loop, and everything after it never ran:
+       the restore, the fill, and the health call that tells the param row
+       which cells the model takes. ONE MISSING PROPERTY TOOK OUT THE WHOLE
+       OF BOOT, and the symptoms were three unrelated-looking things - 06's
+       webcam doing nothing, the panel's + doing nothing, and STEPS and REF
+       standing on a Seedance row. `node --check` cannot see it and neither
+       can the export's id and name checks: it is a property of a property. */
     if (boxes.front[0] && map.left) {
-      bindSlot(boxes.front[0], rung, map.left, map.accept.left, boxes.alt[0], map.alt);
+      bindSlot(boxes.front[0], rung, map.left, acceptFor(map, map.left, 'left'),
+               boxes.alt[0], map.alt);
     }
-    if (boxes.front[1] && map.right) bindSlot(boxes.front[1], rung, map.right, map.accept.right);
+    /* A BOX IS BOUND BECAUSE IT EXISTS; A FILE LANDS ON IT BECAUSE IT HAS A
+       KEY. This gate asked for both at once, which held for as long as every
+       right-hand box with a tray took a file - and 06's stopped. Nulling
+       `right` there would have taken the PROMPT cell down with the key,
+       because that cell is bound in `bindSlot` and nowhere else. 04 and 05
+       never noticed: their right slots are `.writer`s with no box at all, so
+       both halves of the test were false anyway. */
+    if (boxes.front[1]) bindSlot(boxes.front[1], rung, map.right, (map.accept || {}).right);
+
+    /* AND A BUILT-OPEN FACE IS NAMED BY THE THING THAT NAMES EVERY OTHER
+       ONE - Babe, 2026-10-30: "RESHOOT bottom says prompt. it should say
+       RESHOOT PROMPT no?", then "then you press prompt and it shows RESHOOT
+       PROMPT". Which is the bug in one sentence: the same face wore two
+       headers depending on how you reached it. The builder wrote a plain
+       `Prompt` and `openAsk` writes `faceHead`'s mode-qualified one, so a
+       box that ARRIVES open said less than the identical box you had opened
+       yourself.
+       IT IS HERE AND NOT IN THE PAGE because `faceHead` is this file's, and
+       the page's own boot runs before this one is attached. */
+    slide.querySelectorAll('.slot.always-ask').forEach(function (slot) {
+      faceHead(slot, 'Prompt');
+    });
+
+    /* AND THE QUAD OPENS WITH THE FACE THE BOX IS SHOWING MARKED. Face 0
+       draws without a class - the stylesheet hides the front only when an
+       alt is `on` - so nothing had written down which one it is until you
+       pressed something, and the panel's first open had four cells and no
+       mark. One call through the one function that knows. */
+    if (window.HJ.showFace) {
+      slide.querySelectorAll('.slot:has(.refs)').forEach(function (slot) {
+        window.HJ.showFace(slot, 0);
+      });
+    }
 
     /* A words slot has a tray too. Rewrite belongs to the agent, which does
        not exist yet, so it says so instead of pretending. */
@@ -6219,7 +8739,12 @@
         /* the width is an inline ch on the <b>, computed at render from the
            option list - so a new list recomputes it the same way. */
         var b = cell.querySelector('b');
-        b.style.width = Math.max.apply(null, owns.map(function (o) { return o.length; })) + 'ch';
+        /* AND THE RE-MEASURE INCLUDES THE TRACKING, the way the builder
+           does - see `chw` there. A `ch` is the digit and `.param` adds
+           `.05em` after every character, so a box sized at N ch is short by
+           N x .05em for its own longest option. */
+        var wn = Math.max.apply(null, owns.map(function (o) { return o.length; }));
+        b.style.width = 'calc(' + wn + 'ch + ' + (wn * 0.05).toFixed(2) + 'em)';
       }
       if (!applyDefaults || !ok) return;
       var want = defs[key];
@@ -6231,6 +8756,100 @@
          does on a click: the glyph is drawn from `data-v`. */
       if (cell.dataset.v !== undefined) cell.dataset.v = String(want);
     });
+    /* AND THE CELL AT THE END OF THE ROW GETS THE AIR. The seed carried it
+       for being last and stopped being last when DUR arrived; it is a fact
+       about position, and the position is decided right here, so this is
+       where it is written. A hidden cell cannot be the end of anything. */
+    var cells = slide.querySelectorAll('.params > .param[data-p]');
+    var end = null;
+    cells.forEach(function (c) {
+      c.classList.remove('is-end');
+      if (c.style.display !== 'none') end = c;
+    });
+    if (end) end.classList.add('is-end');
+    /* AND THE PICTURE DECIDES THE SHAPE, WHICH IS A DEFAULT AND NOT A
+       SEPARATE MECHANISM - so it runs here, last, on top of the row's own
+       numbers. A model press means "take this model's numbers", and the
+       picture is the better one. */
+    if (applyDefaults) {
+      var arc = slide.querySelector('.param[data-p="ar"]');
+      if (arc) delete arc.dataset.set;
+    }
+    arFollow(slide);
+  }
+
+  /* THE AR CELL FOLLOWS THE PICTURE - Babe, 2026-10-31, testing LTX with a
+     square frame in the slate and 16:9 on the row: "i think it would be cool
+     if the AR autodetected the image AR", then "we should make sure all the
+     models do that".
+     THE SECOND HALF IS THE REAL COMPLAINT. Seedance and FLUX-3-MAX carry an
+     AUTO - the node's own `adaptive`, which means follow the references -
+     and LTX, MINIMAX-H3 and PIKA have no such option, so CHANGING MODEL
+     CHANGED THE BEHAVIOUR on a cell that looks identical across all five. A
+     control that means one thing on two rows and another on three is the
+     shape this panel has a rule against.
+     SO AUTO IS WHAT YOU GET BEFORE THERE IS A PICTURE AND THE PICTURE'S OWN
+     RATIO IS WHAT YOU GET AFTER, on every row. Where the node has its own
+     adaptive it is still one press away; what changes is that nothing is
+     silently deciding a shape you cannot see.
+     AND IT SNAPS TO WHAT THE ROW OFFERS, never to a ratio it invented: the
+     options ARE the node's vocabulary, which is what `options` is for, so a
+     snap can only ever land on a value that row will take.
+     (*) AND IT IS 01 AND 05, with the other two excluded for their own
+     reasons rather than by oversight. On 03 the output is a new frame and
+     the sheet's shape is not its shape. On 04 the server already does it for
+     SINGLE, from the hero frame it is re-framing, and BOARD's page owns the
+     ratio outright.
+     01 WAS EXCLUDED THIS MORNING AND THAT WAS HALF WRONG - see its entry in
+     `SLOTS`. The rung's own scaffolding keeps the crop and the camera angle
+     of image 1, so a square output from a wide source is the rung arguing
+     with itself; and the webcam case that worried me cannot arise, because
+     that capture is cropped to the row's AR before it is uploaded. */
+  function arNum(name) {
+    var m = /^(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)$/.exec(String(name).trim());
+    return m && +m[2] ? (+m[1] / +m[2]) : 0;
+  }
+
+  function arFollow(slide) {
+    var map = SLOTS[rungOf(slide)];
+    if (!map || !map.arFollows) return;
+    var cell = slide.querySelector('.param[data-p="ar"]');
+    /* a cell the chosen row does not take is not a cell to write into, and
+       a cell the artist has pressed is theirs until the model changes. */
+    if (!cell || cell.style.display === 'none' || cell.dataset.set === '1') return;
+    /* THE FIRST FACE DECIDES, not the visible one. On 05 that is the FRAME
+       and the face beside it is the sheet - a contact sheet's shape has
+       nothing to do with the shape of the clip. */
+    var box = (boxesOf(slide).all[0] || [])[0];
+    var el = box && box.querySelector('img, video');
+    if (!el) return;
+    var w = el.naturalWidth || el.videoWidth || 0;
+    var h = el.naturalHeight || el.videoHeight || 0;
+    if (!w || !h) {
+      /* A SHAPE ARRIVES WITH THE PICTURE AND NOT WITH THE PATH, which is the
+         lesson the result panel's own ratio cell already paid for. Ask again
+         when it has decoded, once. */
+      if (el.dataset.arWait) return;
+      el.dataset.arWait = '1';
+      var again = function () { delete el.dataset.arWait; arFollow(slide); };
+      el.addEventListener('load', again, { once: true });
+      el.addEventListener('loadedmetadata', again, { once: true });
+      return;
+    }
+    var want = w / h, best = null, far = Infinity;
+    (cell.dataset.o || '').split('|').forEach(function (o) {
+      var v = arNum(o);
+      if (!v) return;                       /* AUTO, and anything else named */
+      /* a LOG distance, so 2:1 and 1:2 are equally far from square and a
+         snap cannot be biased towards the wide end of the list. */
+      var d = Math.abs(Math.log(v / want));
+      if (d < far) { far = d; best = o; }
+    });
+    if (!best) return;
+    var b = cell.querySelector('b');
+    if (b.textContent.trim() === best) return;
+    b.textContent = best;
+    if (cell.dataset.v !== undefined) cell.dataset.v = best;
   }
 
   /* THE RUN LISTENER IS BOUND ONCE, BY WHICHEVER OF THE TWO GETS THERE
@@ -6257,9 +8876,27 @@
   /* THE NAME OFF A MENU ROW, WITHOUT THE RECEIPT WORD AFTER IT. Two readers
      ask this now and a row's label is drawn in one place, so it is read in
      one place too. */
+  /* THE NAME IS THE TEXT NODE AND EVERYTHING ELSE IS AN ELEMENT, which is
+     the only reading of this row that cannot be broken by adding to it. It
+     was the span's whole textContent with the (local)/(partner) tag stripped
+     off the END - correct for exactly as long as that tag was the last thing
+     in the row, and the T2I mark is not: with the mark appended the anchor
+     stopped matching, rowName returned "KREA-3 (partner)T2I", and every
+     lookup keyed on it - `only`, `required`, `takes`, `makes` - silently
+     found nothing on the SECOND pass. The filter would have quietly stopped
+     filtering and the mark would have taken itself off again.
+     THE MARK SITS BEFORE THE TAG NOW, which puts that anchor back and would
+     have left the name reading "KREA-3 T2I" - a different wrong answer, so
+     the reader is what had to change. Direct text nodes only, which is where
+     the builder puts the name and where nothing else will ever land. */
   function rowName(row) {
-    return (row.querySelector('span') || row).textContent
-      .replace(/\s*\((local|partner)\)\s*$/, '').trim();
+    var host = row.querySelector('span') || row;
+    var out = '';
+    for (var n = 0; n < host.childNodes.length; n++) {
+      var kid = host.childNodes[n];
+      if (kid.nodeType === 3) out += kid.nodeValue;
+    }
+    return out.trim();
   }
 
   /* A ROW THAT DOES ONE JOB ONLY APPEARS WHERE THAT JOB IS - Babe,
@@ -6276,6 +8913,70 @@
      label on the trigger and the receipt under the panel, so stepping back
      is a press on the first row still standing rather than a second place
      that knows how to set those two. */
+  window.HJ.markOnly = function (slide, mode) { return markOnly(slide, mode); };
+  /* THE LONGEST ROW DECIDES THE CELL'S WIDTH - Babe, 2026-10-31: "how do
+     we get the dropdown to be connected.. the longest one should determine
+     the size of the fixed cell width".
+     THE MENU IS `width: max-content` WITH `min-width: 100%` OF THE CELL, so
+     it has always been free to grow rightwards over the param cells - which
+     was deliberate and invisible while the overhang was five pixels. The
+     T2I mark made it thirty and the two stopped reading as one control.
+     SO THE CELL IS MEASURED RATHER THAN COUNTED. The builder's floor is
+     `(8 + longest name)ch + 38px`, which is the right arithmetic for the
+     TRIGGER and cannot reach a menu row: a row is 13.5px where the trigger
+     is 12, so a `ch` does not mean the same width in the two of them - and
+     the row carries a mark and a star the trigger never shows at all. The
+     mark matching the name's size makes that simpler and not unnecessary.
+     IT MEASURES EVERY ROW THIS RUNG HAS, not the ones currently on screen.
+     A pressed row is `display: none` in the menu and an `off` row is too,
+     so measuring what is visible would make the width depend on which row
+     you had picked and which tab you were on - and this panel's own rule is
+     that nothing moves when you pick. They are shown invisibly for one
+     measurement and put back exactly as they were.
+     ONE ASSIGNMENT CONVERGES. `scrollWidth` is the greater of the menu's
+     content and the cell it is pinned to, so writing it back is a fixed
+     point rather than a loop - and the floor is restored first, so the cell
+     can shrink again if the longest row ever gets shorter. */
+  function fitTrigger(slide, menu, rows) {
+    var wrap = slide.querySelector('.model-wrap');
+    if (!wrap || !menu) return;
+    /* AND A COLD LOAD MEASURES THE FALLBACK FONT. Measured in the browser:
+       a warm reload sizes the cell to 219px and the menu to 219, and the
+       first load of a session leaves it at 215 - four pixels of the menu
+       hanging past the cell it is welded to, which is the whole symptom
+       this function was written for, arriving by the one route it could
+       not see. The rows are the mono face at 13.5px and the web font is
+       still downloading while the page is being built, so what gets
+       measured is whatever the browser is drawing with meanwhile.
+       ONE RE-MEASURE, FROM INSIDE RATHER THAN AT EVERY CALL SITE, so a
+       caller added later is covered by construction - and it is guarded,
+       because `document.fonts` is not everywhere and a page that cannot
+       ask simply keeps the measurement it has. */
+    if (document.fonts && document.fonts.status !== 'loaded' && !wrap._waited) {
+      wrap._waited = 1;
+      document.fonts.ready.then(function () { fitTrigger(slide, menu, rows); });
+    }
+    if (wrap._floor == null) wrap._floor = wrap.style.minWidth || '';
+    var shown = [];
+    rows.forEach(function (r) {
+      if (r.style.display !== 'flex') { shown.push([r, r.style.display]); }
+      r.style.display = 'flex';
+    });
+    var shut = !wrap.classList.contains('is-open');
+    if (shut) { menu.style.visibility = 'hidden'; menu.style.display = 'flex'; }
+    wrap.style.minWidth = wrap._floor;
+    /* OFFSET AND NOT SCROLL WIDTH. Everything here is border-box, so
+       scrollWidth is the content plus padding and leaves the BORDERS out -
+       two pixels, written back every call, which would have pinned the cell
+       permanently two pixels narrower than the menu hanging off it. That is
+       the symptom this whole change is about, at a size nobody would find by
+       looking. offsetWidth is the border box and is a fixed point. */
+    var w = menu.offsetWidth;
+    if (shut) { menu.style.visibility = ''; menu.style.display = ''; }
+    shown.forEach(function (pair) { pair[0].style.display = pair[1]; });
+    if (w) wrap.style.minWidth = Math.ceil(w) + 'px';
+  }
+
   function markOnly(slide, mode) {
     var menu = slide.querySelector('.model-menu');
     if (!menu) return;
@@ -6301,13 +9002,208 @@
     var grid = !!(tab && tab.dataset.grid);
     var rows = [].slice.call(menu.querySelectorAll('.mm'));
     var fell = false;
-    rows.forEach(function (row) {
+    /* AND A ROW CAN REFUSE AN EMPTY PANEL, WHICH IS `takes` FROM THE OTHER
+       END - Babe, 2026-10-31: "what happens if you dont use inputs. the
+       models that display are t2i or t2v".
+       THE ROW ALREADY SAYS SO AND THE PAGE WAS NEVER TOLD. `required` has
+       been on every spec since the server was written and the refusal has
+       always been honest; what was missing is that the PICKER could not see
+       it, so an empty panel offered six rows of which five could only refuse
+       - and the one that could not was never marked out. `takes` says what
+       a row CAN be handed, `required` says what it MUST be, and the rows
+       left standing on an empty panel are exactly the text-to-image ones.
+       ONLY THE KEYS THAT ARE FACES COUNT. `required` also names `prompt`,
+       which is not a cell in this panel and not something it could answer -
+       the cold RUN gate owns that one. */
+    var smap = SLOTS[rungOf(slide)] || {};
+    var sends = smap.faceSends || smap.faceKeys || [smap.left];
+    var lboxes = (boxesOf(slide).all || [])[0] || [];
+    var hasFace = sends.map(function (key, i) {
+      var box = lboxes[i];
+      return !!(box && box.querySelector('img, video, audio'));
+    });
+    var needOf = function (row) {
+      var sp = live[rowName(row)] || {};
+      var bm = sp.modes && sp.modes[raw];
+      return (bm && bm.required) || sp.required || [];
+    };
+    var wants = rows.map(function (row) {
+      return needOf(row).some(function (key) {
+        var i = sends.indexOf(key);
+        return i >= 0 && !hasFace[i];
+      });
+    });
+    /* AND "RUNS ON WORDS ALONE" IS ITS OWN TEST, not the absence of a
+       missing face. 05's SEQUENCE requires `panel1`..`panel6` - six
+       pictures CUT from the board - which are not cells in this panel, so
+       the face test above cannot see them and reads the row as happy with
+       an empty slot. It is not: with no board there are no panels either.
+       SO THE MARK ASKS WHETHER THE ROW NEEDS ANYTHING BUT THE SENTENCE,
+       which is what T2I and T2V mean and is exactly what `required` says. */
+    /* AND THE BOX ASKS THE QUESTION THE PANEL IMPLIES, derived from the
+       same fact as the mark below it - Babe, 2026-11-01: "i just wasn't
+       sure if people would know they can use it to just generate a single
+       image they dont need an image in slots to use it".
+       IT IS COMPUTED HERE BECAUSE IT IS ALREADY COMPUTED HERE. `hasFace`
+       is the panel's own state and `markOnly` re-runs wherever that
+       changes - which is the reason `refsFollow` calls it at all - so the
+       question in the box and the mark in the picker are one derivation
+       and cannot come apart. A second listener on the same fact is a
+       second thing to forget.
+       AND IT ONLY SPEAKS WHERE A MODE HAS A SECOND QUESTION, so every
+       other tab on the rail is untouched by construction. */
+    /* AND PRESSING A TAB PUTS A RESULT DOWN - Babe: "or if you hit edit /
+       image or result". Changing the job is answering the picture: you
+       have stopped looking at what the last press made and started
+       saying what the next one should be.
+       IT IS HERE BECAUSE `mode` IS ONLY PASSED ON A PRESS. `markOnly`
+       re-runs whenever the panel changes - that is what `refsFollow`
+       calls it for - and clearing the face on every one of those would
+       put the picture away because you dropped a file in a cell. The
+       argument is the press, which is the one thing that tells the two
+       apart. */
+    if (mode) {
+      var osl = slide.querySelector('.slot.is-out');
+      if (osl && window.HJ.showOut) window.HJ.showOut(osl, false);
+    }
+
+    var bare = !hasFace.some(Boolean);
+    /* AND THE SLIDE WEARS IT, because the cold-RUN gate is a stylesheet
+       rule and cannot walk the faces itself - see `.inputs-bare`. */
+    slide.classList.toggle('inputs-bare', bare);
+    var asker = slide.querySelector('.ftabs .ftab[data-mode="' + raw + '"]');
+    var field = (boxesOf(slide).front || [])[1];
+    field = field && field.querySelector('.ask');
+    if (field && asker && asker.dataset.askBlank) {
+      field.dataset.ph = (bare ? asker.dataset.askBlank : asker.dataset.ask) || '';
+    }
+
+    var textOnly = rows.map(function (row) {
+      var need = needOf(row);
+      return need.length > 0 && need.every(function (k) { return k === 'prompt'; });
+    });
+    /* AND A ROW THAT TAKES NO PICTURE AT ALL IS NOT OFFERED ONE. `required`
+       hides a row that needs a face you have not filled; this is the same
+       sentence from the other end - a row that cannot be HANDED what you
+       are holding would silently drop it, which is the box-must-not-lie
+       rule arriving in the picker.
+       IT IS SCOPED TO A ROW THAT TAKES NO FACE AT ALL, deliberately, and
+       not to any row missing one of them: `markFaces` already hides a cell
+       a row cannot take, and widening this to a partial mismatch would
+       start hiding rows that have been pickable since the quad was built.
+       A row with no image input is a different thing - it is text to image
+       and nothing else - and it is the only kind this can reach, so no
+       existing row changes. */
+    /* AND IT ASKS THE ROW, NEVER THE MODE, 2026-11-01. This read the
+       mode-merged `takes` the way `markFaces` does, and the two are not the
+       same question: `markFaces` asks which CELL this mode reads, and this
+       asks whether the ROW is an image model at all. A MODE MAY NAME AN
+       INPUT NO CELL CAN EVER HOLD - 05's SEQUENCE takes `panel1`..`panel6`,
+       six pictures CUT from the board - so read that way every anchoring row
+       on that tab looked like it took nothing this panel holds and the
+       picker came down to one. It is the same blind spot the words-alone
+       test above already names, arriving from the other end. A row's own
+       `takes` cannot lie about this: a text-to-image row has no face in it
+       and every other row has the left one. */
+    var filled = hasFace.some(Boolean);
+    var blind = rows.map(function (row) {
+      var takes = (live[rowName(row)] || {}).takes || [];
+      return takes.length > 0 && !sends.some(function (key) {
+        return takes.indexOf(key) >= 0;
+      });
+    });
+    if (filled) wants = wants.map(function (w, i) { return w || blind[i]; });
+    /* AND IF THAT WOULD HIDE EVERY ROW, IT HIDES NONE. On 01's EDIT with an
+       empty panel there is nothing any row can do, and a picker with nothing
+       in it is the `solo` bug one worse - an open menu with no rows in it,
+       where the honest answer is already drawn somewhere else: the cell goes
+       red and RUN says what is missing. A filter is for choosing between
+       rows, not for saying there is no work. */
+    /* AND IT ASKS ONLY THE ROWS THIS TAB CAN USE, which is the half I got
+       wrong the first time - Babe, 2026-11-01: "not seeing boxes and cant
+       select a model", on an EDIT tab showing one row and no caret.
+       `wants.every` WALKED EVERY ROW ON THE RUNG, including the ones
+       `only` pins to another tab. Pinning the two text-to-image rows off
+       EDIT an hour earlier gave them `wants === false` - they need nothing
+       but a sentence - so `every` was false, the reset did not fire, and
+       the seven rows that CAN edit stayed hidden by a rule written to stop
+       exactly that. The symptom was the opposite of the cause: the picker
+       emptied because two rows were not asking for anything.
+       SO THE PIN IS COMPUTED FIRST AND THE TEST IGNORES WHAT IT HID. A row
+       that is not on this tab has no opinion about whether this tab has
+       any work in it. */
+    var pinnedOff = rows.map(function (row) {
+      var sp = live[rowName(row)] || {};
+      if (sp.only == null) return false;
+      var ps = (Array.isArray(sp.only) ? sp.only : [sp.only]).map(function (x) {
+        return String(x).toUpperCase();
+      });
+      return ps.indexOf(now) < 0;
+    });
+    var mine = wants.filter(function (w, i) { return !pinnedOff[i]; });
+    if (mine.length && mine.every(Boolean)) {
+      wants = wants.map(function () { return false; });
+    }
+    /* AND A ROW SAYS WHAT IT IS ABOUT TO DO WITH AN EMPTY PANEL - Babe,
+       2026-10-31: "maybe in the model dropdowns we add T2V or T2I - when
+       slots are not used". Without it the only sign that the list got
+       shorter is that it got shorter, and the rows left standing look like
+       the same job with fewer options rather than a different one.
+       THE PANEL BEING BARE IS THE TEST, literally what was asked for: one
+       picture in it and the mark goes, because a row wearing T2I beside a
+       photograph is the box lying about the job. `makes` comes off the
+       server, which reads it from the save node in the graph. */
+    var bare = hasFace.every(function (x) { return !x; });
+    rows.forEach(function (row, at) {
+      var tag = row.querySelector('i');
+      /* MARKABLE IS NOT THE SAME AS MARKED, and the difference is what
+         keeps the cell still. A row that CAN carry the mark always has
+         the element; `bare` only decides whether you can see it. If it
+         were added and removed, the longest row in the menu would change
+         every time the panel was filled or emptied - and the cell below
+         is sized to the longest row, so the whole param row would step
+         sideways at the moment you dropped a picture in. `visibility`
+         keeps the space; `display` would not. */
+      var mk = textOnly[at] && (live[rowName(row)] || {}).makes;
+      if (!mk) { if (tag) tag.remove(); return; }
+      if (!tag) {
+        /* AND IT IS A COLUMN OF ITS OWN AT THE FAR END, not a word inside
+           the name. It went between the name and the partner star first,
+           on the reading that what a row is about to DO is what you are
+           choosing by and the side it is on is a footnote - and the
+           RESERVED SPACE is what that gets wrong. The mark keeps its width
+           when the panel is full so the cell cannot step sideways the
+           moment you drop a picture in, so inside the name that is a hole:
+           Babe's own screenshot reads KREA-3 with the star floating an
+           inch away from it.
+           A ROW IS ALREADY `space-between`, so a sibling of the span goes
+           to the right-hand edge and the hole falls where nothing follows
+           it. The star sits against the name again, and a bare panel reads
+           the name on the left and what it will make on the right - which
+           is where the time used to sit when this menu had two columns. */
+        tag = document.createElement('i');
+        row.appendChild(tag);
+      }
+      tag.textContent = mk === 'video' ? 'T2V' : 'T2I';
+      tag.style.visibility = bare ? '' : 'hidden';
+    });
+    fitTrigger(slide, menu, rows);
+    rows.forEach(function (row, at) {
       var spec = live[rowName(row)] || {};
+      /* `only` IS A LIST, AND A BARE STRING IS A LIST OF ONE. A row can do
+         two of the four modes and not the other two - Pika H3 Flex answers
+         RESHOOT and SWAP on one set of weights - which a single string had no
+         way to say. Normalised here rather than at the server, because this
+         is the end that has to compare it against the pressed tab. */
       var only = spec.only;
+      var pins = only == null ? null
+        : (Array.isArray(only) ? only : [only]).map(function (p) {
+            return String(p).toUpperCase();
+          });
       var byMode = spec.modes && spec.modes[raw];
       var first = byMode && byMode.first !== undefined ? byMode.first : spec.first;
-      var off = (!!only && String(only).toUpperCase() !== now) ||
-                (grid && !!first);
+      var off = (!!pins && pins.indexOf(now) < 0) ||
+                (grid && !!first) || wants[at];
       row.classList.toggle('off', off);
       if (off && row.getAttribute('aria-pressed') === 'true') fell = true;
     });
@@ -6352,9 +9248,34 @@
       return !r.classList.contains('off') && !r.disabled;
     });
     if (!fell) {
+      /* AND A PICK IS HANDED BACK WHEN IT BECOMES LEGAL AGAIN, which is what
+         `_pickedBy` was always for and what it could not do, 2026-10-31.
+         EMPTYING THE PANEL MAKES ROWS GO DARK NOW, so this stopped being a
+         corner: pick an open row on STYLE, clear the inputs, and the only
+         rows left are the ones that run on words - you fall onto the FIRST
+         of them, which on every rung is the partner default. Put a picture
+         back and the row you chose is legal again, and nothing moved you to
+         it: `picked` was set, so this returned early and left you on the
+         ~17-credit row with the receipt quietly saying so. That is the exact
+         bug this table was built to end, arriving through a door that did
+         not exist when it was built.
+         THE PAGE'S OWN FALLBACK CLICK IS NOT `isTrusted`, so it never
+         overwrites the pick - which is the whole reason the remembered one
+         is still here to hand back, and why this cannot fight a real press:
+         press a row yourself and `picked` becomes that row. */
+      if (picked) {
+        var at = rows.filter(function (r) {
+          return r.getAttribute('aria-pressed') === 'true';
+        })[0];
+        if (at && rowName(at) === picked) return;
+        for (var j = 0; j < open.length; j++) {
+          if (rowName(open[j]) === picked) return open[j].click();
+        }
+        return;
+      }
       /* nothing illegal is pressed, so the only reason to move is a tab whose
          own opening row nobody has overruled yet */
-      if (picked || !want) return;
+      if (!want) return;
       var on = rows.filter(function (r) {
         return r.getAttribute('aria-pressed') === 'true';
       })[0];
@@ -6467,6 +9388,47 @@
     markParams(slide, false, tab.dataset.mode);
     markFaces(slide, tab.dataset.mode);
     markBoxes(slide, tab.dataset.mode);
+    /* AND THE INPUTS COME BACK INTO VIEW, BECAUSE THE MODE IS WHAT DECIDES
+       THEM - Babe, 2026-10-30, viewing one asset and pressing SWAP: "we
+       should prob make it so it switches to the the inputs of swap", then
+       "so the modes always reset so you are looking at the inputs".
+       IT IS THE PANEL'S OWN SENTENCE READ FORWARDS: a mode changes which
+       cells there are, so the honest thing to show after pressing one is
+       the set it changed. Standing in a single asset while the set moves
+       underneath is the box saying less than it knows.
+       IT OPENS THE PANEL THROUGH ITS OWN CELL and steps out of a face by
+       hand, which is one toggle rather than two. Pressing the back cell was
+       the first try and it ended with the quad CLOSED: both back handlers
+       answer that press, each one presses the panel's door, and the second
+       undoes the first. Leaving a face is a class and the observer picks up
+       the tray; opening the panel is the cell's, and nothing else may say
+       so. And it is bound to the TAB press alone - `markFaces` also runs at
+       boot and on a model press, and neither is a reason to put somebody
+       back at the quad. */
+    /* AND A PRESS BY A PERSON IS WHAT OPENS IT, which is `isTrusted`, the
+       same test `markOnly` uses to tell a choice from the page tidying up
+       after itself. The restore below presses this tab to put you back where
+       you were, and THE PANEL IS WHERE YOU CHANGE THE SET, NEVER WHERE YOU
+       FIND IT - so a reload that opened the quad on every rung would be the
+       page answering a question nobody asked. */
+    if (e.isTrusted) slide.querySelectorAll('.slot:has(.refs)').forEach(function (slot) {
+      slot.classList.remove('is-inface');
+      if (slot.classList.contains('is-refs')) return;
+      var cell = slot.querySelector('.tray .tr[data-act="inputs"]');
+      if (cell) cell.click();
+    });
+    /* AND THE TAB IS WORK, THE WAY THE PICKED ROW IS - Babe, 2026-11-01,
+       coming back to 06 after a SCAIL-2 swap: "still showing seedance as the
+       selected model", then "all the workflows should prob remember where you
+       were". THE ROW WAS ALREADY REMEMBERED AND COULD NOT SURVIVE WITHOUT
+       THIS ONE: SCAIL-2 is `only: "SWAP"`, a reload opened 06 on its first
+       tab, and `markOnly` then stepped off a row that is hidden on RESHOOT -
+       correctly, by its own rule. The memory was half a fact, and the half
+       that was missing is the one the other half is conditional on.
+       IT IS THE SLOT'S MODE AND NOT THE PRESSED TAB'S ELEMENT, because what
+       comes back has to be pressed rather than set - see `sendTo`. */
+    var rt = rungOf(slide);
+    if (rt) { st(rt).tab = tab.dataset.mode; saveJourney(); }
   });
 
   function markWired(wired) {
@@ -6486,6 +9448,19 @@
          by the one function that knows how rather than left pressed. It is
          a press and not a label write: `faceModel` was a second mechanism
          for keeping a label honest and this file has paid for it once. */
+      /* THE TAB COMES BACK FIRST, BECAUSE THE ROW IS CONDITIONAL ON IT.
+         `only` pins a row to a mode and `markOnly` steps off one that is
+         hidden, so restoring SCAIL-2 onto a slide still standing on RESHOOT
+         is restoring it into the one state that throws it away.
+         PRESSED, NOT SET: the strip's own handler writes the slot's mode,
+         its flags and the line under the panel, and the handler above it
+         here is what remembers the press - so a restore is one more press
+         and nothing has a second path to maintain. */
+      var tabWant = st(rung).tab;
+      if (tabWant) {
+        var tabEl = slide.querySelector('.ftabs .ftab[data-mode="' + tabWant + '"]');
+        if (tabEl && tabEl.getAttribute('aria-pressed') !== 'true') tabEl.click();
+      }
       var want = st(rung).model;
       if (want) {
         slide.querySelectorAll('.model-menu .mm').forEach(function (row) {
@@ -6532,7 +9507,7 @@
     cardPending = setTimeout(saveJourney, 400);
   });
   document.addEventListener('click', function (e) {
-    if (e.target.closest && e.target.closest('.tray .sheet')) setTimeout(saveJourney, 0);
+    if (e.target.closest && e.target.closest('.ftabs .sheet')) setTimeout(saveJourney, 0);
   });
 
   /* A FACE THE CHOSEN ROW CANNOT BE HANDED IS NOT A FACE. `takes` is the
@@ -6562,28 +9537,227 @@
      merely hides the way back strands you inside it.
      AN OLDER SERVER SAYS NOTHING, so a page talking to one leaves the cell
      exactly as it was rather than hiding it everywhere. */
+  /* AND IT TAKES TWO ANSWERS, NOT ONE - Babe, 2026-10-31, with STYLE pressed
+     and three EDIT regions still on screen: "if you hit style it needs to
+     also remove the edit panel boxes. and go back to prompt".
+     THE ROW SAYS WHICH ENCODER CAN BE HANDED A TABLE and the MODE says which
+     job is made of regions. Only the row was being asked, which is the one
+     judgement call this face was built with open - so the cell showed on
+     both of FLUX's tabs and a style prompt could leave with sixteen integers
+     on the end of it. A mode declares `boxes` and `modeTabs` puts it on the
+     strip; where no mode on a slot has an opinion the row still decides
+     alone, so a slot without modes needs nothing.
+     AND THE REGIONS GO WITH THE ANSWER. A region is a position in a picture
+     AND a thing to change there, so a job that is not an edit has nothing to
+     do with it - and leaving them hidden would mean the sentence they wrote
+     stayed in the prompt box as somebody else's. `dropBoxes` clears them and
+     repairs the line, which only rewrites what the face itself wrote. */
   function markBoxes(slide, mode) {
     var live = rowSpec(slide, mode);
     if (!live || live.boxes === undefined) return;
     slide.querySelectorAll('.slot[data-boxes]').forEach(function (slot) {
-      slot.classList.toggle('can-box', !!live.boxes);
-      if (live.boxes || !slot.classList.contains('is-boxing')) return;
-      var back = slot.querySelector('.tray .tr.back');
-      if (back) back.click();
+      /* THE MODE IS THE ONE PASSED IN, NOT THE ONE ON THE STRIP. This runs
+         from the tab handler, and the page's own handler writes the pressed
+         state a moment later - two listeners agreeing about which goes
+         first is a thing that only has to be got wrong once, which is why
+         every reader beside this one is handed the mode. */
+      var tabs = [].slice.call(slot.querySelectorAll('.ftabs .ftab'));
+      var now = mode || (tabs.filter(function (t) {
+        return t.getAttribute('aria-pressed') === 'true';
+      })[0] || {}).dataset;
+      now = typeof now === 'string' ? now : (now && now.mode);
+      var says = tabs.filter(function (t) { return t.dataset.boxes; });
+      var byMode = !says.length || says.some(function (t) {
+        return t.dataset.mode === now;
+      });
+      var ok = !!live.boxes && byMode;
+      slot.classList.toggle('can-box', ok);
+      if (ok) return;
+      if (slot.classList.contains('is-boxing')) {
+        var back = slot.querySelector('.tray .tr.back');
+        if (back) back.click();
+      }
+      if (window.HJ && window.HJ.dropBoxes) window.HJ.dropBoxes(slot);
     });
+  }
+
+  /* WHICH INPUTS THE CHOSEN ROW CAN ACTUALLY BE HANDED - Babe, 2026-10-30:
+     "the inputs... need to change based on the mode on the right (workflow /
+     model)", and "if you hit input you see the quad (if the models allow it)
+     otherwise its only a single input". A cell offering a picture that is
+     not going to be sent is the failure this was built for on 04 - "i wonder
+     if you choose qween then it should remove the tab from the hero frame".
+     IT WAS SCOPED TO A LOOK PAIR'S SECOND CELL, which was right while 06's
+     faces were a CHOICE: hiding one there would have taken the choice away
+     rather than told the truth about it. They are named inputs now and every
+     one of them travels, so the question is the same on both and the scope
+     goes. FLUX-VIDEO-EDIT takes a clip and a sentence, so its quad is one
+     cell; SCAIL-2 takes one reference, so it is two.
+     FACE 0 IS NEVER OFF. A slot has to have a face, and a row that cannot
+     take the left slot's own input is a rung with no graph rather than a
+     cell to hide. */
+  /* AND WHAT A MODE CALLS A FACE, WHERE IT CALLS IT ANYTHING - Babe,
+     2026-10-30: "should slate slot read FIRST FRAME and LAST read LAST
+     FRAME". On TRANSITION the two cells are the two ends of one move and
+     want naming as a pair; on the other two tabs the first one is the slate.
+     IT IS READ OFF THE PRESSED TAB, which is the rule `modeHelp` already
+     follows: the tabs in front of you are the answer, so a new mode table is
+     registered nowhere. The slot's own word is kept the first time it is
+     asked for, because that is what every other mode goes back to. */
+  /* WHAT A FACE IS CALLED, AND THE ROW GETS A SAY - Babe, 2026-10-31: "when
+     you select the model it should change how the slots, modes and agent
+     works". It read the pressed TAB and nothing else, which was right while
+     renaming was a mode's business (05's TRANSITION calls its two cells
+     FIRST FRAME and LAST FRAME) and stopped being right the moment a ROW
+     wanted one: LTX 2.3's first reference is frame one of the clip, and the
+     cell beside it on every other row of that tab is a character.
+     THE ORDER IS THE SERVER'S OWN MERGE - the row first and the mode over
+     it - because that is what `apiRun` does with every other field and a
+     second opinion about what a mode means is how two ends start to
+     disagree. The slot's own word is the floor, which `markFaces` keeps as
+     `n0`, so a row that says nothing changes nothing. */
+  /* AND IT TAKES THE ROW IT WAS HANDED, never the pressed state - the tab
+     handler calls `markFaces` with the mode you are MOVING TO and the page
+     writes `aria-pressed` a moment later, so re-deriving either here would
+     read the tab you are leaving. Same ordering `markBoxes` already keeps. */
+  function faceWord(slide, i, key, live) {
+    if (!key) return null;
+    live = live || rowSpec(slide) || {};
+    var word = (live.names && live.names[key]) || null;
+    var tab = slide.querySelector('.ftabs .ftab[aria-pressed="true"]');
+    var named = null;
+    try { named = tab && tab.dataset.names && JSON.parse(tab.dataset.names); }
+    catch (err) { named = null; }
+    return (named && named[key]) || word || null;
   }
 
   function markFaces(slide, mode) {
     var live = rowSpec(slide, mode) || {};
     if (!live.takes) return;
-    var alt = (SLOTS[rungOf(slide)] || {}).alt;
-    var off = !!alt && live.takes.indexOf(alt) === -1;
-    slide.querySelectorAll('.tr.pick[data-view="1"][data-f="1"]').forEach(function (cell) {
+    var map = SLOTS[rungOf(slide)] || {};
+    var sends = map.faceSends || map.faceKeys || [map.left, map.alt];
+    var keys = map.faceKeys || [map.left, map.alt];
+    /* AND A ROW THAT READS NOTHING DOES NOT CLOSE THE DOORS - Babe,
+       2026-10-31, with Z-IMAGE-TURBO pressed and the panel down to one
+       cell: "ah random disappears too.. the button", "webcam too", then
+       the rule - "maybe we should just keep them there if you press inputs
+       since they go into inputs".
+       THEY ARE RIGHT, AND IT IS THIS PANEL'S OWN SENTENCE: the left is the
+       inputs and the right is the workflow that READS them. A workflow
+       choice says which inputs are read; it has no business removing the
+       ways of putting one there - and since UPLOAD came off the tray,
+       EVERY way in lives in this panel, so hiding a cell here is not
+       hiding a view of a door, it is hiding the only door.
+       IT DOES NOT BRING BACK THE BOX THAT LIES, because the picker's own
+       half of this now covers it: a row that takes no face at all is
+       hidden the instant anything lands in one, and `refsFollow` re-runs
+       that the moment a box fills. So the cell cannot sit there offering
+       to send a picture this row ignores - the row is gone before the
+       question arises.
+       AND IT IS SCOPED TO A ROW THAT TAKES NO FACE AT ALL. A row that
+       takes SOME of them - 05's LTX with no sheet, 06's SWAP with no
+       place - goes on hiding the cell it cannot read, because there the
+       row stays pressed and the lie would be real. */
+    var blind = !sends.some(function (k) {
+      return k && live.takes.indexOf(k) !== -1;
+    });
+    var usable = 0;
+    /* AND WHAT A CELL TAKES FOLLOWS THE ROW, THE WAY ITS NAME DOES - Babe,
+       2026-11-01, on Kling's dark fourth quadrant: "we can update the slots
+       based on the model", "that is part of our pattern making, the slots
+       are based on the mode or model". The slot's `faceAccept` is the floor
+       and a row may say otherwise: Kling's node takes ten reference images
+       and no audio, so its fourth cell is a PROP, and a chooser still
+       offering `audio/*` there would be a door onto a file the job cannot
+       read. It is written on the BOX, because the chooser is made when it is
+       needed and whatever makes the next one has to find the live answer
+       rather than the table's. */
+    var faceBoxes = (boxesOf(slide).all[0] || []);
+    slide.querySelectorAll('.tr.pick').forEach(function (cell) {
+      var i = +cell.dataset.f || 0;
+      var as = sends[i];
+      var off = !blind && i > 0 && !!as && live.takes.indexOf(as) === -1;
+      if (!off) usable++;
       cell.classList.toggle('off', off);
+      /* AND THE QUAD CELL GOES WITH IT, because the panel and the pick row
+         are two drawings of one list and the panel is the one people press.
+         An unassigned cell has no pick cell and is left as it was. */
+      var row = cell.closest('.slot');
+      row = row && row.querySelector('.refs .refrow[data-f="' + i + '"]');
+      if (row) row.classList.toggle('off', off);
+      /* AND SO DOES THE NAME. Two drawings of one list means one word has to
+         reach both, and the quad's × and + say it again to a screen reader -
+         four places, from the one thing that knows. */
+      if (!cell.dataset.n0) cell.dataset.n0 = cell.textContent.trim();
+      var word = faceWord(slide, i, keys[i], live) || cell.dataset.n0;
+      if (cell.textContent.trim() !== word) cell.textContent = word;
+      if (row) {
+        var k = row.querySelector('.refk');
+        if (k && k.textContent.trim() !== word) k.textContent = word;
+        row.setAttribute('aria-label', word);
+        var x = row.querySelector('.refx'), plus = row.querySelector('.refadd');
+        if (x) x.setAttribute('aria-label', 'Remove ' + word);
+        if (plus) plus.setAttribute('aria-label', 'Add ' + word);
+      }
+      var takes = (live.accept && live.accept[keys[i]]) || '';
+      var bx = faceBoxes[i];
+      if (bx) {
+        if (takes) bx.dataset.accept = takes; else delete bx.dataset.accept;
+        var pk = bx.querySelector('input[type=file]');
+        if (pk) pk.accept = takes || acceptFor(map, keys[i], 'left') || 'image/*';
+      }
       if (!off || cell.getAttribute('aria-pressed') !== 'true') return;
       var first = cell.parentNode.querySelector('.tr.pick[data-f="0"]');
       if (first) first.click();
     });
+    /* AND THE PANEL IS DRAWN AT THE SIZE OF WHAT IT HOLDS. One usable input
+       fills the square, two stack full width, three or four are the quad -
+       and the unassigned cell is only drawn where there is a quad for it to
+       be the next place in. */
+    slide.querySelectorAll('.refs').forEach(function (panel) {
+      panel.dataset.cells = String(usable);
+      panel.querySelectorAll('.refrow[disabled]').forEach(function (blank) {
+        blank.classList.toggle('off', usable < 3);
+      });
+    });
+
+    /* AND THE DOOR STAYS ON A PANEL WITH ONE INPUT IN IT - Babe, 2026-10-30,
+       on EDIT with a clip loaded and the tray reading WEBCAM alone: "seems
+       like we still need an input tab for edit".
+       IT CAME OFF ON "A PANEL WITH ONE INPUT IS NOT A PANEL", which reads
+       well and is wrong here: the panel is where a cell's own `+` and `x`
+       live. Taking the door away took the only way to IMPORT a clip or clear
+       one, on the mode whose single input is the whole job - and WEBCAM, the
+       one cell left, can only record. UPLOAD came off the tray precisely
+       because a cell inside the panel is a named target, so the panel can
+       never be the thing that is hidden.
+       AND ONE NAMED CELL SAYS "THIS ROW TAKES ONE INPUT" better than a
+       missing door does, which is the same reason the quadrants stay drawn
+       when a cell is merely unusable. */
+
+    /* AND A CELL THAT FILLS A FACE THE JOB CANNOT TAKE GOES WITH THE FACE,
+       2026-10-31. Found while locking 01's source: RANDOM rolls into the
+       REFERENCE face (`faceRoll`), and 01's EDIT drops that reference - so
+       on that tab the tray was still offering to GENERATE a picture into a
+       cell the panel had already turned off and the run would never send.
+       It is the picker's own rule one level out - a cell offering a picture
+       that is not going to be sent - and this is the second drawing of the
+       same list, so it asks the same question the pick cell just answered.
+       THE PRESS IS WHAT IS HIDDEN, not the face, because the face is a real
+       input on every other mode and this is only a shortcut into it. */
+    var roll = map.faceRoll;
+    if (roll) {
+      var at = (map.faceKeys || []).indexOf(roll);
+      /* AND A ROW THAT READS NOTHING LEAVES IT ALONE, the same way the
+         cells do - see the blind test above. The roll is a way to FILL an
+         input and this row simply does not read one, so taking the press
+         away would close a door rather than tell the truth about it. */
+      var dead = !blind && at > 0 &&
+                 live.takes.indexOf(sends[at] || roll) === -1;
+      slide.querySelectorAll('.tr[data-act="random"]').forEach(function (cell) {
+        cell.classList.toggle('off', dead);
+      });
+    }
   }
 
   document.addEventListener('click', function (e) {
@@ -6694,7 +9868,7 @@
       if (info) info.textContent = '';
       var el = document.createElement(isVideoName(file.filename) ? 'video' : 'img');
       el.src = file.url;
-      if (el.tagName === 'VIDEO') { el.controls = true; el.loop = true; el.playsInline = true; }
+      if (el.tagName === 'VIDEO') { el.playsInline = true; }
       el.addEventListener(el.tagName === 'VIDEO' ? 'loadedmetadata' : 'load', function () {
         var w = el.naturalWidth || el.videoWidth, h = el.naturalHeight || el.videoHeight;
         if (info && w) {
@@ -6703,12 +9877,19 @@
         }
       });
       media.appendChild(el);
+      if (el.tagName === 'VIDEO') resultTrim(media, el);
 
       /* THE SAME THREE ANSWERS AS A REAL RESULT - see the foot above. A
          staged one is a picture to judge like any other, and leaving the
          reroll here would make this the only panel on the rail still
          offering it. */
       var buttons = [{ label: 'Cancel', onClick: function () { closeResult(); } }];
+      /* AND A STAGED CLIP GETS THE SAME TWO VERBS, because a staged result is
+         a picture to judge like any other - which is the argument the comment
+         above already makes about the reroll. */
+      if (el.tagName === 'VIDEO') {
+        buttons = clipCells(slide, media, path, rung, file).concat(buttons);
+      }
       if (rung < window.HJ.slides.length) buttons.push({ label: 'Continue journey',
         primary: true, onClick: function () { carry(slide, rung, file); } });
       acts(slide, buttons);
@@ -6869,26 +10050,41 @@
       var rolls = ((list && list.files) || []).filter(function (f) {
         return inSession(f) && /\/random[-\/]/.test(f);
       });
-      if (ob.front[1] && rolls[0] && !st(1).ref && !emptied(1, 'ref')) {
-        ob.front[1].dataset.fromFile = rolls[0];
-        showMedia(ob.front[1], '/' + rolls[0], false);
+      /* AND THE ROLL LANDS IN THE LEFT SLOT'S SECOND FACE, 2026-10-30.
+         `front[1]` is the RIGHT slot's box, which is where the reference
+         lived until the inputs moved left - so this painted a roll into a
+         writing face. It is `all[0][1]`, the same addressing every other
+         reader of a multi-face slot uses. */
+      var refBox = (ob.all[0] || [])[1];
+      if (refBox && rolls[0] && !st(1).ref && !emptied(1, 'ref')) {
+        refBox.dataset.fromFile = rolls[0];
+        showMedia(refBox, '/' + rolls[0], false);
         done.push('01 ref <- ' + rolls[0].split('/').pop());
       }
     }
 
-    /* 05's clip slot takes the only clip there is, which is whatever 04 last
-       made. It is the wrong performance to transfer - the character is
-       already in it - and it is the right file for walking the rail, which is
-       all this command is for. */
-    var five = window.HJ.slides[5];
-    var vids = ((await OUTPUTS) || {}).files || [];
-    var clip = vids.filter(function (f) { return isVideoName(f); })[0];
-    if (five && clip && !st(6).clip && !emptied(6, 'clip')) {
-      var cb = boxesOf(five).front[1];
+    /* 06's CLIP FACE TAKES WHAT 05 MADE, which is the carry rule written out
+       - the same rule every other left slot here fills by.
+       IT WAS PAINTING INTO THE RIGHT SLOT, AND INTO 06's. `slides[5]` is 06,
+       not 05, and the comment above it still said "05's clip slot" from
+       before the renumbering - so this dressed the one box on the rail that
+       stopped taking files the day the inputs panel landed. Babe, seeing a
+       clip blurred behind 06's writing glass: "its loading the rendered
+       result in the right panel, unless that is a source clip. if its a
+       source it should be loaded in the left side", and "the left side is
+       for inputs".
+       AND IT TOOK THE NEWEST VIDEO ANYWHERE IN `output/`, which on a sitting
+       that has run 06 is 06's OWN OUTPUT - a rendered result standing in an
+       input slot. `newestIn(5)` is the file this face inherits from, which
+       is what `faceFrom` says it is. */
+    var six = window.HJ.slides[5];
+    var fromFive = await newestIn(5, true);
+    if (six && fromFive && !st(6).clip && !emptied(6, 'clip')) {
+      var cb = boxesOf(six).front[0];
       if (cb) {
-        cb.dataset.fromFile = clip;
-        showMedia(cb, '/' + clip, true);
-        done.push('05 clip <- ' + clip.split('/').pop());
+        cb.dataset.fromFile = fromFive;
+        showMedia(cb, '/' + fromFive, true);
+        done.push('06 clip <- ' + fromFive.split('/').pop());
       }
     }
 
@@ -7100,6 +10296,7 @@
   })();
 
   function boot() {
+
   restoreJourney();
 
   /* AND THEN THE RAIL SHOWS WHAT THIS MACHINE HAS MADE. Babe, 2026-10-25:
@@ -7117,7 +10314,19 @@
      people see the other options".
      WHAT THE HOUR BOUGHT WAS THE BUG IT EXPOSED - the slot not wearing its
      own tab's `writes` until the tab was pressed - and that stays fixed. */
-  window.HJ.fill();
+  /* AND THE PANEL SETTLES AFTER THE FILL, not with the restore - `fill`
+     fetches `output/` and dresses what it finds empty, so asking before it
+     answers is asking about a rail that has not finished arriving. */
+  Promise.resolve(window.HJ.fill()).then(function () {
+    document.querySelectorAll('.slot:has(.refs)').forEach(settleRefs);
+    /* AND THE RESULT CELL IS SWEPT ONCE HERE TOO. `saveJourney` is the hook
+       that keeps it true from then on, but a RESTORE only READS - nothing
+       saves - so a rail that came back with four results on it would have
+       shown the cell on none of them until the next thing you touched. The
+       fill is the right moment for the same reason `settleRefs` is: it is
+       after everything that can put an `out` on the rail. */
+    (window.HJ.slides || []).forEach(markOut);
+  });
 
   /* IT USED TO BE A console.warn, WHICH IS A MESSAGE FOR WHOEVER WROTE THIS.
      A missing key stops every rung on the rail, and the one place that can

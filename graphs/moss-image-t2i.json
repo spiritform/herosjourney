@@ -1,0 +1,146 @@
+{
+  "9": {
+    "_meta": {
+      "title": "Save Image"
+    },
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "hj",
+      "images": [
+        "18:8",
+        0
+      ]
+    }
+  },
+  "19": {
+    "_meta": {
+      "title": "Resolution Selector"
+    },
+    "class_type": "ResolutionSelector",
+    "inputs": {
+      "aspect_ratio": "1:1 (Square)",
+      "megapixels": 1,
+      "multiple": 16,
+      "preview": ""
+    }
+  },
+  "18:1": {
+    "_meta": {
+      "title": "Load Diffusion Model"
+    },
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "moss_image_sft_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "18:2": {
+    "_meta": {
+      "title": "Load CLIP"
+    },
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3.5_9b_w4a8_gptq.safetensors",
+      "device": "default",
+      "type": "moss_image"
+    }
+  },
+  "18:3": {
+    "_meta": {
+      "title": "Load VAE"
+    },
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae_small.safetensors"
+    }
+  },
+  "18:4": {
+    "_meta": {
+      "title": "Positive Prompt"
+    },
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "18:2",
+        0
+      ],
+      "text": ""
+    }
+  },
+  "18:5": {
+    "_meta": {
+      "title": "Negative Prompt"
+    },
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "18:2",
+        0
+      ],
+      "text": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact"
+    }
+  },
+  "18:6": {
+    "_meta": {
+      "title": "Empty Flux 2 Latent"
+    },
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "batch_size": 1,
+      "height": [
+        "19",
+        1
+      ],
+      "width": [
+        "19",
+        0
+      ]
+    }
+  },
+  "18:7": {
+    "_meta": {
+      "title": "KSampler"
+    },
+    "class_type": "KSampler",
+    "inputs": {
+      "cfg": 2.5,
+      "denoise": 1,
+      "latent_image": [
+        "18:6",
+        0
+      ],
+      "model": [
+        "18:1",
+        0
+      ],
+      "negative": [
+        "18:5",
+        0
+      ],
+      "positive": [
+        "18:4",
+        0
+      ],
+      "sampler_name": "er_sde",
+      "scheduler": "simple",
+      "seed": 0,
+      "steps": 25
+    }
+  },
+  "18:8": {
+    "_meta": {
+      "title": "VAE Decode"
+    },
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "18:7",
+        0
+      ],
+      "vae": [
+        "18:3",
+        0
+      ]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "1": {
+    "class_type": "Kling4EditVideoNode",
+    "inputs": {
+      "model": "kling-4.0",
+      "model.prompt": "",
+      "model.resolution": "720p",
+      "model.aspect_ratio": "adaptive",
+      "model.seed": 42,
+      "model.video_1": [
+        "12",
+        0
+      ]
+    }
+  },
+  "9": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "1",
+        0
+      ],
+      "filename_prefix": "hj-06-kling4-edit",
+      "format": "mp4",
+      "format.codec": "auto",
+      "codec": "auto"
+    }
+  },
+  "12": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": ""
+    }
+  }
+}

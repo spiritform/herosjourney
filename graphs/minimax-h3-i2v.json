@@ -202,6 +202,10 @@
       "first_frame": [
         "137",
         0
+      ],
+      "last_frame": [
+        "139",
+        0
       ]
     }
   },
@@ -216,6 +220,13 @@
     "class_type": "PrimitiveStringMultiline",
     "inputs": {
       "value": ""
+    }
+  },
+  "139": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "",
+      "upload": "image"
     }
   },
   "141": {

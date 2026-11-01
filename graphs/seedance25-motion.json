@@ -1,15 +1,24 @@
 {
   "1": {
     "class_type": "LoadVideo",
-    "inputs": { "file": "", "video-preview": "" }
+    "inputs": {
+      "file": "",
+      "video-preview": ""
+    }
   },
   "2": {
     "class_type": "LoadImage",
-    "inputs": { "image": "", "upload": "image" }
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
   },
   "3": {
     "class_type": "LoadImage",
-    "inputs": { "image": "", "upload": "image" }
+    "inputs": {
+      "image": "",
+      "upload": "image"
+    }
   },
   "4": {
     "class_type": "ByteDance2ReferenceNodeV2",
@@ -22,9 +31,22 @@
       "model.generate_audio": true,
       "model.task_type": "reference",
       "model.output_format": "mp4",
-      "model.reference_videos.video_1": ["1", 0],
-      "model.reference_images.image_1": ["2", 0],
-      "model.reference_images.image_2": ["3", 0],
+      "model.reference_videos.video_1": [
+        "1",
+        0
+      ],
+      "model.reference_images.image_1": [
+        "2",
+        0
+      ],
+      "model.reference_images.image_2": [
+        "3",
+        0
+      ],
+      "model.reference_audios.audio_1": [
+        "6",
+        0
+      ],
       "model.auto_downscale": true,
       "seed": 0,
       "watermark": false
@@ -36,7 +58,16 @@
       "filename_prefix": "video/hj-05-seedance-motion",
       "format": "auto",
       "format.codec": "auto",
-      "video": ["4", 0]
+      "video": [
+        "4",
+        0
+      ]
+    }
+  },
+  "6": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": ""
     }
   }
 }

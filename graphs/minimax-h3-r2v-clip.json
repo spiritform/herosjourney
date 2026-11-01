@@ -212,6 +212,10 @@
       "ref_videos.ref_video_0": [
         "151",
         0
+      ],
+      "ref_audios.ref_audio_0": [
+        "152",
+        0
       ]
     }
   },
@@ -312,6 +316,12 @@
         "150",
         0
       ]
+    }
+  },
+  "152": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": ""
     }
   }
 }

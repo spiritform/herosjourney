@@ -16,8 +16,8 @@ Built for the [**Open Source Higgsfield Competition**](https://comfy.org/open-so
 | 02 | **Take shape** | a character sheet — the bible every workflow after this reads a face off |
 | 03 | **Find your place** | an image of your character in an environment |
 | 04 | **Cross the threshold** | a board — one framing, or six |
-| 05 | **Set in motion** | image to video |
-| 06 | **Keep moving** | motion transfer — reshoot it, swap who is in it, change one thing, or carry it past the end |
+| 05 | **Set in motion** | image to video — one shot, a board cut into a sequence, or first frame to last |
+| 06 | **Keep moving** | motion transfer — reshoot it, swap who is in it, or change one thing |
 
 ## Install
 
@@ -65,24 +65,31 @@ the one thing here that costs something on a keystroke rather than on RUN.
 
 ## What's next
 
-**The partner models are here for the demo.** Every workflow ships on the model
-known to get the job right first time — `nano-banana-2.1` for the pictures and
-`Seedance 2.5` for the two that move — because an app that fails while somebody
-is watching argues nothing. **Running all six on open weights is the next
-step**, and most of it is already in this repo, one line in the slide table from
-being back on the picker: `qwen-image-2.1-turbo`, `qwen-image-edit-2.1`,
-`FLUX 3 Klein`, Microsoft's `Mage-Flow-Edit`, **MiniMax H3** and **SCAIL-2
-(MIT)**. Each has made a real file on Comfy Cloud's GPUs rather than through a
-partner API — the weights are open, the machine is rented — and one already
-runs in the shipped build: 01's RANDOM, which is also what made the mannequin
-bust.
+**Every workflow ships with open weights on the picker.** Each one opens on the
+model known to get the job right first time — `nano-banana-2.1` for the
+pictures, `Seedance 2.5` for the two that move — because an app that fails while
+somebody is watching argues nothing. **The open rows sit beside it**, one press
+away, and every one of them has made a real file on Comfy Cloud's GPUs rather
+than through a partner API: the weights are open, the machine is rented.
 
-- **06's `edit` and `extend` have no open row.** There is no open video extend
-  model, and the open video edits today remove a named object rather than take
-  an instruction. This one waits on weights.
+| | open rows |
+| --- | --- |
+| 01 | `qwen-image-edit-2.1`, `qwen-image-2.1-turbo`, `FLUX 3 Klein`, `MOSS-Image`, `Z-Image-Turbo`, `MOSS-Image T2I` |
+| 02 03 04 | `qwen-image-edit-2.1`, `qwen-image-2.1-turbo`, `FLUX 3 Klein` |
+| 05 | `MiniMax H3`, `Pika H3 Flex`, `LTX-2.5 I2V` |
+| 06 | `Pika H3 Flex`, `LTX-2.3 Control`, `SCAIL-2 (MIT)` |
+
+**06's three jobs each have one** — a reshoot, a swap and an edit — and
+`LTX-2.3 Control` is the one that holds your framing frame by frame, because the
+depth of your own clip drives it.
+
 - **An open default**, workflow by workflow, once the open rows prove they hold
   a likeness as well — and **faster**, since the open video rows are minutes
   rather than seconds.
+- **Extending a clip** came off the rail, because it is the one job with
+  nothing open behind it. Every video extend worth the name is a partner API
+  today, and the open ones expand the frame rather than the timeline — a
+  different thing wearing a similar word. This one waits on weights.
 - **Your own ComfyUI** instead of Comfy Cloud. The graphs in `graphs/` are
   ordinary API-format workflows and are the only thing that needs repointing.
 

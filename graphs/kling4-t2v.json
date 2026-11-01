@@ -1,0 +1,26 @@
+{
+  "1": {
+    "class_type": "Kling4TextToVideoNode",
+    "inputs": {
+      "model": "kling-4.0",
+      "model.prompt": "",
+      "model.resolution": "720p",
+      "model.aspect_ratio": "16:9",
+      "model.duration": 5,
+      "model.seed": 42
+    }
+  },
+  "9": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "1",
+        0
+      ],
+      "filename_prefix": "hj-05-kling4-t2v",
+      "format": "mp4",
+      "format.codec": "auto",
+      "codec": "auto"
+    }
+  }
+}
