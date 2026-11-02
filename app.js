@@ -7373,7 +7373,27 @@
         function (sub) {
           var seedCell = slide.querySelector('.param[data-p="seed"]');
           if (seedCell && seedCell.dataset.lock !== '1' && sub.seed !== undefined) {
-            seedCell.querySelector('b').textContent = String(sub.seed);
+            var sb = seedCell.querySelector('b');
+            sb.textContent = String(sub.seed);
+            /* AND THE BOX GROWS TO THE NUMBER IT IS GIVEN. Every other cell
+               is sized in `ch` to the widest value it CAN hold, which is
+               knowable because the values are a list. The seed has no list:
+               it is written at run time, and the width was computed from
+               the placeholder - six digits, which is what `apiRun` rolls.
+               SO ANY SEED THAT IS NOT SIX DIGITS OVERFLOWS, and the ones
+               that are not are the real ones: a journey restored from a
+               sitting that predates the six-digit roll, a seed a person
+               typed, and the film rig's own, which reads the seed out of
+               the stand-in's filename on purpose. Babe caught it on 02 with
+               a 2026-10-26 sheet: SEED 323404064 in a box built for 999999.
+               IT ONLY EVER GROWS, because the row must not move while you
+               watch it - the same rule that put the tracking into the width
+               rather than into the padding. */
+            var dig = String(sub.seed).length;
+            if (dig > (+sb.dataset.ch || 6)) {
+              sb.dataset.ch = dig;
+              sb.style.width = 'calc(' + dig + 'ch + ' + (dig * 0.05).toFixed(2) + 'em)';
+            }
           }
         });
 
