@@ -5028,7 +5028,20 @@
          when all four did.
          THREE CELLS, THREE DESTINATIONS: keep a trim, a frame to 01, the
          clip to 06. */
-      (vid ? ['SAVE', 'RESTYLE', 'USE'] : ['EDIT']).forEach(function (mode) {
+      /* AND A STILL GETS RESTYLE TOO - Babe, 2026-11-01: "should we add a
+         restyle button next to edit on still images too", then "so it
+         becomes the source".
+         IT ALREADY BECAME THE SOURCE - EDIT puts the picture in 01's SOURCE
+         cell - SO THE TWO CELLS DIFFER BY ONE PRESS, and that press is the
+         whole job: IMAGE is the two-reference combine, where what you
+         brought is the thing being restyled and the other cell is the look;
+         EDIT changes one named thing inside it. A row with only the second
+         is a library that can reach one of 01's two tabs.
+         THE MODE IS KEYED `STYLE` though the tab reads IMAGE, which is the
+         rail's own rule that a key is an address.
+         AND A STILL NEEDS NO FRAME GRAB: the file in front of you IS the
+         picture, which is the thing `restyleFrame` goes to a canvas for. */
+      (vid ? ['SAVE', 'RESTYLE', 'USE'] : ['RESTYLE', 'EDIT']).forEach(function (mode) {
         var btn = document.createElement('button');
         btn.className = 'tr';
         btn.type = 'button';
@@ -5037,7 +5050,8 @@
            neither button is drawn only to be refused. */
         btn.addEventListener('click', function () {
           if (mode === 'SAVE') return saveTrim(panel, cell, btn);
-          if (mode === 'RESTYLE') return restyleFrame(panel, cell);
+          if (mode === 'RESTYLE') return vid ? restyleFrame(panel, cell)
+            : sendTo('STYLE', cell.dataset.path, false);
           /* USE names no mode, so none is pressed - see above. */
           sendTo(mode === 'USE' ? null : mode, cell.dataset.path, vid);
         });
