@@ -873,6 +873,20 @@
   .slot.is-out .drop.is-ask .ask,
   .slot.is-out .drop.is-ask > .tmpl { visibility: hidden; }
   .slot.is-out > .writer > :not(.outplate) { visibility: hidden; }
+  /* AND THE BARS ARE BLACK, WHICH IS THE SLOT'S OWN RULE ARRIVING ON THE
+     FORM. `.drop.is-filled` has been `#000` since October - a box holding
+     a picture is a frame around one, so what `contain` leaves over is the
+     picture's letterbox rather than part of the panel - and the `.writer`
+     never got it because a writer never held a picture: a plate behind a
+     form is a texture you write OVER, and there the glass is right. A
+     RESULT IS NOT A PLATE, which is the distinction the rule above this
+     one is entirely about, so the ambient rule applies in full: glass
+     shows the room and solid means you made something. Scoped to
+     `is-out`, so the form at rest keeps its glass. */
+  .slot.is-out > .writer {
+    background: #000;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
   .drop.is-ask .ask {
     position: relative; z-index: 1;
     display: block; width: 100%; min-height: 100%;
@@ -1252,7 +1266,19 @@
      it comes out of is the `.boardbox`, which is the face this one replaces,
      so the live node moves rather than being copied - a second copy is two
      things that can disagree about which is showing. */
-  .writer > img,
+  /* AND A CLIP IS A PICTURE TOO. READ OFF THE SELECTOR, 2026-11-01 -
+     not measured in the page, which is the distinction this file keeps: this rule named
+     `img` alone while the two selectors under it name both, so a result
+     that is a VIDEO got none of the geometry - no `inset: 0`, no
+     `contain` - and laid out as a static flex child at its own intrinsic
+     ratio. Babe, with a 16:9 clip in 05's square box: "the video result
+     is not centered vertically as the result nor does it have a black
+     background". A `<video>` IS the result on the two rungs that make
+     clips, which is the whole of 05 and 06, so the one surface written
+     for a form was the one surface that could not hold what the form
+     makes. Same shape as the show/hide pair this file has already paid
+     for twice: a rule added for one half of a fact. */
+  .writer > img, .writer > video,
   .helper > img, .helper > video,
   .card > img, .card > video {
     position: absolute; inset: 0; width: 100%; height: 100%;
@@ -1273,7 +1299,12 @@
      about what has to sit OVER the picture; the note sits over everything,
      which is what `.whybox`'s own z-index already says. */
   .helper-log, .helper > .compose,
-  .writer > :not(img):not(.whybox),
+  /* AND THE TEST HAD TO LEARN IT TOO - `:not(img)` is how the form says
+     "everything that is not the plate", and a video plate answers to it,
+     so the fields' own `position: relative` landed on the picture and
+     beat the `absolute` above at a higher specificity. The exclusion
+     names what the plate selector names. */
+  .writer > :not(img):not(video):not(.whybox),
   .traits, .card-msg { position: relative; z-index: 1; }
   /* THE RAIL IS ALWAYS THERE, IT JUST HAS NOTHING TO DO YET - Babe,
      2026-10-24: "we need to see how it would look with a scrollbar, so that
@@ -2698,8 +2729,33 @@
     /* ONE SIZE FOR EVERY TEXT BUTTON, and this strip was carrying its own
        copy of both numbers - the same literal-twice mistake `--btn-f` and
        `--ctl-h` were introduced to stop. */
-    height: var(--ctl-h); padding: 0 20px;
-    font-size: var(--btn-f); letter-spacing: .14em;
+    /* AND THE PADDING IS THE RAIL'S, 2026-11-01. The height and the font
+       were folded into `--ctl-h` and `--btn-f` when this comment was
+       written and the PADDING was left behind at 20px - 8 more than every
+       other cell on the rail carries, five buttons wide, which is 80px
+       taken off the one cell that can give. Babe, on a 1:1 result: "the
+       buttons are rather large and then something gets cut off". The
+       `--cell-x` pass fixed the model row for this exact reason and never
+       reached the modal. */
+    /* AND THE TYPE IS THE MODEL ROW'S - Babe, 2026-11-01, pointing at the
+       strip under the panel: "we could just have it this style tho". The
+       foot was `.ghost` and `.run` underneath, which are Archivo 600 at
+       .2em - the page's BUTTON voice, written for Run standing on its own
+       with air around it. This is not that: it is a strip of flush cells
+       sharing their dividers, which is the model row exactly, and the
+       model row is mono 400 at .05em. So the foot stops being five buttons
+       that happen to touch and becomes the one thing it has been called
+       since it was built. `--btn-f`, `--ctl-h` and `--cell-x` were already
+       shared; the three that were not are the three below.
+       IT IS ALSO THE WIDTH. Archivo 600 at .14em runs about 10px a capital
+       against mono's 7.8, so CONTINUE JOURNEY alone gives back ~35px and
+       the row ~90 - which is what buys the metadata its line back. Babe,
+       on what should give if anything still must: "if anything gets cut
+       off it can just be the metadata", which is the order the cell flex
+       already has and is now settled rather than inferred. */
+    height: var(--ctl-h); padding: 0 var(--cell-x);
+    font-family: var(--mono); font-weight: 400;
+    font-size: var(--btn-f); letter-spacing: .05em;
     border: 1px solid var(--edge); border-left: 0;
     white-space: nowrap;
   }
@@ -2710,7 +2766,7 @@
      was last in the row. */
   .runover-foot .info {
     flex: 1 1 0; min-width: 0;
-    display: flex; align-items: center; gap: 11px; padding: 0 12px;
+    display: flex; align-items: center; gap: 11px; padding: 0 var(--cell-x);
     border: 1px solid var(--edge); border-right: 0;
     font-family: var(--mono); font-size: 11px; letter-spacing: .05em;
     color: var(--sand-dim); white-space: nowrap; overflow: hidden;
@@ -2744,6 +2800,30 @@
      rather than beside it, which is what keeps the panel sized to the
      result. */
   .runover-media { display: grid; place-items: center; overflow: hidden; position: relative; }
+  /* AND THE STRIP GETS A BAND OF ITS OWN HERE TOO - Babe, 2026-11-01:
+     "under the video basically not on top". This rail already reserves one
+     TWICE, for the same strip, for the same reason: `.drop:has(.cam-trim)`
+     on the camera face and `.shots-stage:has(.cam-trim)` in the library,
+     both taking `--ctl-h` off the picture so the bar sits under it rather
+     than over the bottom of it. The modal was the one host that never got
+     it, which is why it alone read as an overlay.
+     IT IS PADDING AND NOT A REDUCED HEIGHT, which is the one difference
+     worth stating: those two boxes have a DEFINITE height to subtract from,
+     and this one sizes to the picture - so there is nothing to take the
+     band out of and it has to be added. `place-items: center` centres in
+     the content box, which excludes the padding, and `.cam-trim` is
+     absolute against the padding box, so the picture centres above the band
+     and the strip sits in it. One number, the strip's own, as in both of
+     the others.
+     AND IT IS `:has(> ...)`, NOT `:has(...)`. The library panel is ALSO
+     drawn inside a `.runover-media` - its `.shots-stage` is appended into
+     the same box - so a descendant test matches there too and would have
+     added a band on top of the one `.shots-stage` already reserves for
+     itself, double-counting `--ctl-h` in the one panel that was right.
+     The modal hangs the strip off this box DIRECTLY and the library hangs
+     it two levels down, which is the difference, so the combinator is the
+     whole test. A parent that cannot be wrong, as everywhere else here. */
+  .runover-media:has(> .cam-trim) { padding-bottom: var(--ctl-h); }
   .runover-media:empty { display: none; }
   .runover-media img, .runover-media video {
     display: block; width: auto; height: auto;
@@ -3159,7 +3239,13 @@
     position: absolute; left: 0; right: 0; bottom: 0; z-index: 5;
     height: var(--ctl-h);
     display: flex; align-items: center; gap: 12px; padding: 0 14px;
-    background: var(--plate-glass); border-top: 1px solid var(--edge);
+    /* AND IT IS SOLID, 2026-11-01 - Babe: "i think the transport bar can
+       be more solid... under the video basically not on top". Glass was
+       right while the strip LAY OVER the picture; in a reserved band it is
+       a translucent surface over nothing, which is the weaker half of the
+       ambient rule. All three hosts reserve the band now, so all three
+       want the surface. */
+    background: var(--plate); border-top: 1px solid var(--edge);
     font-family: var(--mono); font-size: 12px; color: var(--sand-mid);
     touch-action: none; user-select: none;
   }
