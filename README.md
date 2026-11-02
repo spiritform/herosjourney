@@ -79,12 +79,10 @@ a new machine.
 
 ## What's next
 
-**Every workflow ships with open weights on the picker.** Each one opens on the
-model known to get the job right first time — `nano-banana-2.1` for the
-pictures, `Seedance 2.5` for the two that move — because an app that fails while
-somebody is watching argues nothing. **The open rows sit beside it**, one press
-away, and every one of them has made a real file on Comfy Cloud's GPUs rather
-than through a partner API: the weights are open, the machine is rented.
+**Every workflow ships with open weights on the picker.** Each opens on the
+model known to get the job right first time, and the open rows sit one press
+away — every one of them has made a real file on Comfy Cloud's GPUs rather
+than through a partner API.
 
 | | open rows |
 | --- | --- |
@@ -93,19 +91,7 @@ than through a partner API: the weights are open, the machine is rented.
 | 05 | `MiniMax H3`, `Pika H3 Flex`, `LTX-2.5 I2V` |
 | 06 | `Pika H3 Flex`, `LTX-2.3 Control`, `SCAIL-2 (MIT)` |
 
-**06's three jobs each have one** — a reshoot, a swap and an edit — and
-`LTX-2.3 Control` is the one that holds your framing frame by frame, because the
-depth of your own clip drives it.
-
-- **An open default**, workflow by workflow, once the open rows prove they hold
-  a likeness as well — and **faster**, since the open video rows are minutes
-  rather than seconds.
-- **Extending a clip** came off the rail, because it is the one job with
-  nothing open behind it. Every video extend worth the name is a partner API
-  today, and the open ones expand the frame rather than the timeline — a
-  different thing wearing a similar word. This one waits on weights.
-- **Your own ComfyUI** instead of Comfy Cloud. The graphs in `graphs/` are
-  ordinary API-format workflows and are the only thing that needs repointing.
+**Adding more models and workflows, and fine-tuning.**
 
 ## Keys on the page
 
